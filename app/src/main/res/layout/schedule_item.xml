@@ -5,32 +5,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/schedule_item_title"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/schedule_item_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/schedule_item_time"
-        tools:text="schedule title"/>
-    <TextView
-        android:id="@+id/schedule_item_time"
+        app:layout_constraintRight_toLeftOf="@id/schedule_item_deleteBtn">
+
+        <TextView
+            android:id="@+id/schedule_item_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/schedule_item_time"
+            tools:text="schedule title"/>
+        <TextView
+            android:id="@+id/schedule_item_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:text="12:30"/>
+
+        <TextView
+            android:id="@+id/schedule_item_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="@id/schedule_item_title"
+            app:layout_constraintLeft_toLeftOf="parent"
+            tools:text="schedule location"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
+        android:id="@+id/schedule_item_deleteBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
+        android:text="delete"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:text="12:30"/>
-
-    <TextView
-        android:id="@+id/schedule_item_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/schedule_item_title"
-        app:layout_constraintLeft_toLeftOf="parent"
-        tools:text="schedule location"/>
-
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/schedule_item_layout"
+        app:layout_constraintRight_toRightOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

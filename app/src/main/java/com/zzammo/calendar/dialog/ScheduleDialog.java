@@ -1,8 +1,6 @@
 package com.zzammo.calendar.dialog;
 
-import android.app.AlarmManager;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,8 +19,6 @@ public class ScheduleDialog extends Dialog {
     ScheduleDialog dialog;
     Context mContext;
 
-    AlarmManager alarm_manager;
-
     Long dateTime;
 
     EditText title_et;
@@ -30,10 +26,9 @@ public class ScheduleDialog extends Dialog {
     TimePicker timePicker;
     Button save_btn;
 
-    public ScheduleDialog(Context context, Long dateTime, AlarmManager alarmManager) {
+    public ScheduleDialog(Context context, Long dateTime) {
         super(context, android.R.style.Theme_Translucent_NoTitleBar);
         this.dateTime = dateTime;
-        this.alarm_manager = alarmManager;
         mContext = context;
     }
 

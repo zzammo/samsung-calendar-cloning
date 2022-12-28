@@ -3,6 +3,7 @@ package com.zzammo.calendar.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,10 +17,19 @@ import java.util.ArrayList;
 
 public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH>{
 
+    public interface OnItemClickListener{
+        void onItemClick(View v, int position);
+    }
+
+    OnItemClickListener mListener = null;
     ArrayList<Schedule> scheduleArrayList;
 
     public ScheduleRVAdapter(ArrayList<Schedule> scheduleArrayList) {
         this.scheduleArrayList = scheduleArrayList;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.mListener = listener;
     }
 
     @NonNull
@@ -48,6 +58,7 @@ public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH
         TextView title_tv;
         TextView time_tv;
         TextView location_tv;
+        Button delete_btn;
 
         public VH(@NonNull View itemView) {
             super(itemView);
@@ -55,6 +66,16 @@ public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH
             title_tv = itemView.findViewById(R.id.schedule_item_title);
             time_tv = itemView.findViewById(R.id.schedule_item_time);
             location_tv = itemView.findViewById(R.id.schedule_item_location);
+            delete_btn = itemView.findViewById(R.id.schedule_item_deleteBtn);
+
+            delete_btn.setOnClickListener(view -> {
+                int position = getAdapterPosition ();
+                if (position!=RecyclerView.NO_POSITION){
+                    if (mListener!=null){
+                        mListener.onItemClick (view,position);
+                    }
+                }
+            });
         }
     }
 }

@@ -1,25 +1,14 @@
 package com.zzammo.calendar.activity;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import android.content.Context;
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
-
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.prolificinteractive.materialcalendarview.OnDateLongClickListener;
-import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.dialog.ScheduleDialog;
@@ -61,11 +50,15 @@ public class MainActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         scheduleRV.setLayoutManager(layoutManager);
         scheduleRV.setAdapter(RVAdapter);
+        RVAdapter.setOnItemClickListener((v, position) -> {
+            DB.scheduleDao().delete(scheduleArrayList.get(position));
+            scheduleArrayList.remove(position);
+            RVAdapter.notifyItemRemoved(position);
+        });
 
         calendarView.setOnDateLongClickListener((widget, date) -> {
                 ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
-                        Time.CalendarDayToMill(date),
-                        (AlarmManager) getSystemService(ALARM_SERVICE));
+                        Time.CalendarDayToMill(date));
                 oDialog.show();
         });
 
@@ -73,12 +66,27 @@ public class MainActivity extends AppCompatActivity {
                 if(!selected) return;
 
                 Long dateMills = Time.CalendarDayToMill(date);
-                Toast.makeText(context, dateMills+" "+(dateMills+Time.ONE_DAY), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, dateMills+" "+(dateMills+Time.ONE_DAY), Toast.LENGTH_SHORT).show();
 
                 scheduleArrayList.clear();
                 scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
                 Collections.sort(scheduleArrayList);
                 RVAdapter.notifyDataSetChanged();
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CalendarDay date = calendarView.getSelectedDate();
+
+        if(date == null) return;
+
+        Long dateMills = Time.CalendarDayToMill(date);
+
+        scheduleArrayList.clear();
+        scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
+        Collections.sort(scheduleArrayList);
+        RVAdapter.notifyDataSetChanged();
     }
 }
