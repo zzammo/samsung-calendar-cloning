@@ -1,7 +1,10 @@
 package com.zzammo.calendar.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -38,6 +41,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        MaterialCalendarView materialCalendarView;
+        materialCalendarView=findViewById((R.id.calendarView));
+        materialCalendarView.addDecorators(
+                new SaturdayDecorator(),
+                new SundayDecorator(),
+                new TodayDecorator(),
+                new MySelectorDecorator(this)
+        );
+
+        Button button=(Button) findViewById(R.id.btn);
+        button.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                Intent intent =new Intent(getApplicationContext(),MainAddressActivity.class);
+                startActivity(intent);
+            }
+
+        });
+
         this.context = this;
 
         DB = ScheduleDatabase.getInstance(context);
@@ -56,11 +79,11 @@ public class MainActivity extends AppCompatActivity {
             RVAdapter.notifyItemRemoved(position);
         });
 
-        calendarView.setOnDateLongClickListener((widget, date) -> {
+       /* calendarView.setOnDateLongClickListener((widget, date) -> {
                 ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
                         Time.CalendarDayToMill(date));
                 oDialog.show();
-        });
+        });*///왜안되는지 모르겟음 버전따라 다른듯?
 
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
                 if(!selected) return;
