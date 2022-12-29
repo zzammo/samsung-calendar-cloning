@@ -2,6 +2,7 @@ package com.zzammo.calendar.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,10 +13,14 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.dialog.ScheduleDialog;
+import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.room.Schedule;
 import com.zzammo.calendar.room.ScheduleDatabase;
 import com.zzammo.calendar.util.Time;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,6 +78,18 @@ public class MainActivity extends AppCompatActivity {
                 Collections.sort(scheduleArrayList);
                 RVAdapter.notifyDataSetChanged();
         });
+
+        new Thread(){
+            public void run(){
+                try {
+                    ApiExplorer apiExplorer = new ApiExplorer(context);
+                    apiExplorer.getHolidays(2023,1);
+                } catch (IOException | XmlPullParserException e) {
+                    Log.d("WeGlonD", "Holiday fail "+e);
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override
