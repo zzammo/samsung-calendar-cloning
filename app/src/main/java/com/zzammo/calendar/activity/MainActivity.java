@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(){
             public void run(){
-                ApiExplorer apiExplorer = new ApiExplorer(context);
                 try {
+                    ApiExplorer apiExplorer = new ApiExplorer(context);
                     apiExplorer.getHolidays(2023, 1);
                 } catch (IOException | XmlPullParserException e) {
                     Log.d("WeGlonD", "ApiExplorer failed - " + e);
