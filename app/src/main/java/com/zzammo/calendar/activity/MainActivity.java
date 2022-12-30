@@ -2,17 +2,20 @@ package com.zzammo.calendar.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateLongClickListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.dialog.ScheduleDialog;
@@ -54,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
                 new TodayDecorator(),
                 new MySelectorDecorator(this)
         );
-
         Button button=(Button) findViewById(R.id.btn);
         button.setOnClickListener(new View.OnClickListener(){
 
@@ -84,11 +86,14 @@ public class MainActivity extends AppCompatActivity {
             RVAdapter.notifyItemRemoved(position);
         });
 
-       /* calendarView.setOnDateLongClickListener((widget, date) -> {
+        calendarView.setOnDateLongClickListener(new OnDateLongClickListener() {
+            @Override
+            public void onDateLongClick(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date) {
                 ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
                         Time.CalendarDayToMill(date));
                 oDialog.show();
-        });*///왜안되는지 모르겟음 버전따라 다른듯?
+            }
+        });//버전 올려서 살렸음
 
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
                 if(!selected) return;
@@ -107,8 +112,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     ApiExplorer apiExplorer = new ApiExplorer(context);
                     apiExplorer.getHolidays(2023, 1);
+                    //2023년 1월의 국경일, 공휴일 정보 불러옴. Month로 0이하의 값을 주면 2023년 전체를 불러옴.
                 } catch (IOException | XmlPullParserException e) {
-                    Log.d("WeGlonD", "ApiExplorer failed - " + e);
+                    Log.e("WeGlonD", "ApiExplorer failed - " + e);
                     e.printStackTrace();
                 }
             }

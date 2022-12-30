@@ -30,6 +30,6 @@ public class TodayDecorator implements DayViewDecorator{
     }
 
     public void setDate(Date date) {
-        this.date = CalendarDay.from(date);
+        this.date = CalendarDay.from(date.getDate());
     }
 }
