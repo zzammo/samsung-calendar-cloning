@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.room.Schedule;
 import com.zzammo.calendar.room.ScheduleDatabase;
+import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.util.Time;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     ScheduleRVAdapter RVAdapter;
     LinearLayoutManager layoutManager;
     ArrayList<Schedule> scheduleArrayList;
-
+    Intent it;
     Context context;
 
     @Override
@@ -89,22 +91,25 @@ public class MainActivity extends AppCompatActivity {
         calendarView.setOnDateLongClickListener(new OnDateLongClickListener() {
             @Override
             public void onDateLongClick(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date) {
-                ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
+                /*ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
                         Time.CalendarDayToMill(date));
-                oDialog.show();
+                oDialog.show();*/
+                it = new Intent(getApplicationContext(), MakeSchedule.class);
+                it.putExtra("month",date.getMonth());
+                it.putExtra("day",date.getDay());
+                startActivity(it);
             }
         });//버전 올려서 살렸음
 
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
-                if(!selected) return;
+            if(!selected) return;
+            Long dateMills = Time.CalendarDayToMill(date);
+            //Toast.makeText(this, dateMills+" "+(dateMills+Time.ONE_DAY), Toast.LENGTH_SHORT).show();
 
-                Long dateMills = Time.CalendarDayToMill(date);
-//                Toast.makeText(context, dateMills+" "+(dateMills+Time.ONE_DAY), Toast.LENGTH_SHORT).show();
-
-                scheduleArrayList.clear();
-                scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
-                Collections.sort(scheduleArrayList);
-                RVAdapter.notifyDataSetChanged();
+            scheduleArrayList.clear();
+            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
+            Collections.sort(scheduleArrayList);
+            RVAdapter.notifyDataSetChanged();
         });
 
         new Thread(){

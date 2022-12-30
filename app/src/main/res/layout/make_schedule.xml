@@ -31,7 +31,7 @@
             <LinearLayout
                 android:id="@+id/time"
                 app:layout_constraintTop_toBottomOf="@id/schedule_dialog_title"
-                app:layout_constraintBottom_toTopOf="@id/schedule_dialog_timePicker"
+                app:layout_constraintBottom_toTopOf="@id/makeschedule_calendarView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">

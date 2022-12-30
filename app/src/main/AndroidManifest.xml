@@ -35,6 +35,7 @@
         </activity>
         <activity android:name=".activity.MainAddressActivity"/>
         <activity android:name=".activity.AdressApiActivity"/>
+        <activity android:name=".schedule_event.MakeSchedule"/>
     </application>
 
 </manifest>

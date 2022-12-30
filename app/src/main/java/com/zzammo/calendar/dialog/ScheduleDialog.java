@@ -66,16 +66,13 @@ public class ScheduleDialog extends Dialog {
         depart_clock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("minseok","departtime!");
                 if(timePicker.getVisibility()==View.GONE){
                     timePicker.setVisibility(View.VISIBLE);
                     visiblemode = "departtime";
-                    Log.d("minseok","departtime");
                 }
                 else if(timePicker.getVisibility()==View.VISIBLE){
                     timePicker.setVisibility(View.GONE);
                     visiblemode = "nomode";
-                    Log.d("minseok","nomode");
                 }
             }
         });
