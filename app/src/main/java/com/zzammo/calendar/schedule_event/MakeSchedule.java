@@ -67,14 +67,14 @@ public class MakeSchedule extends AppCompatActivity {
         puttime(arrive_clock,timePicker.getCurrentHour()+1,timePicker.getCurrentMinute());
         int month = getIntent().getIntExtra("month",0);
         int day = getIntent().getIntExtra("day",0);
-        putdate(depart_date,month,day);
-        putdate(arrive_date,month,day);
+        putdate(depart_date,month+1,day);
+        putdate(arrive_date,month+1,day);
 
         calendar.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-                if(visiblemode.equals("departdate"))putdate(depart_date,date.getMonth(),date.getDay());
-                else if(visiblemode.equals("arrivedate"))putdate(arrive_date,date.getMonth(),date.getDay());
+                if(visiblemode.equals("departdate"))putdate(depart_date,date.getMonth()+1,date.getDay());
+                else if(visiblemode.equals("arrivedate"))putdate(arrive_date,date.getMonth()+1,date.getDay());
             }
         });
 
