@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -23,12 +24,15 @@ import com.zzammo.calendar.util.Time;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Calendar;
+
 public class MakeSchedule extends AppCompatActivity {
 
     com.zzammo.calendar.dialog.ScheduleDialog dialog;
     Context mContext;
 
-    Long dateTime;
+    Long depart_dateTime;
+    Long arrive_dateTime;
 
     EditText title_et;
     EditText location_et;
@@ -70,11 +74,20 @@ public class MakeSchedule extends AppCompatActivity {
         putdate(depart_date,month+1,day);
         putdate(arrive_date,month+1,day);
 
+        depart_dateTime = getIntent().getLongExtra("date",0);
+        arrive_dateTime = depart_dateTime+(1000 * 60 * 60 * 24);
+
         calendar.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-                if(visiblemode.equals("departdate"))putdate(depart_date,date.getMonth()+1,date.getDay());
-                else if(visiblemode.equals("arrivedate"))putdate(arrive_date,date.getMonth()+1,date.getDay());
+                if(visiblemode.equals("departdate")){
+                    putdate(depart_date,date.getMonth()+1,date.getDay());
+                    depart_dateTime = Time.CalendarDayToMill(date);
+                }
+                else if(visiblemode.equals("arrivedate")){
+                    putdate(arrive_date,date.getMonth()+1,date.getDay());
+                    arrive_dateTime = Time.CalendarDayToMill(date);
+                }
             }
         });
 
@@ -157,6 +170,7 @@ public class MakeSchedule extends AppCompatActivity {
                 }
             }
         });
+
         //도착시간 타임피커 보이게
         arrive_clock.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,25 +209,29 @@ public class MakeSchedule extends AppCompatActivity {
         save_btn.setOnClickListener(view -> {
             String title = title_et.getText().toString();
             String location = location_et.getText().toString();
-            Long timeMills;
+            Long depart_timeMills,arrive_timeMills;
+            int depart_hour,arrive_hour,depart_minute,arrive_minute;
+            String de =depart_clock.getText().toString(), ar = arrive_clock.getText().toString();
+            depart_hour = Integer.parseInt(de.substring(3,de.indexOf("시")));
+            arrive_hour = Integer.parseInt(ar.substring(3,ar.indexOf("시")));
+            depart_minute = Integer.parseInt(de.substring(de.indexOf("시")+2,de.indexOf("분")));
+            arrive_minute = Integer.parseInt(ar.substring(ar.indexOf("시")+2,ar.indexOf("분")));
 
-            int hour, minute;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 hour = timePicker.getHour();
             else
                 hour = timePicker.getCurrentHour();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 minute = timePicker.getMinute();
             else
-                minute = timePicker.getCurrentMinute();
-            timeMills = dateTime + hour * Time.ONE_HOUR + minute * Time.ONE_MINUTE;
+                minute = timePicker.getCurrentMinute();*/
+            depart_timeMills = depart_dateTime + depart_hour * Time.ONE_HOUR + depart_minute * Time.ONE_MINUTE;
+            arrive_timeMills = depart_dateTime + arrive_hour * Time.ONE_HOUR + arrive_minute * Time.ONE_MINUTE;
 
-            Schedule schedule = new Schedule(title, location, timeMills);
+            Schedule schedule = new Schedule(title, location, depart_timeMills);
 
             ScheduleDatabase DB = ScheduleDatabase.getInstance(mContext);
             DB.scheduleDao().insertAll(schedule);
-
-            dialog.dismiss();
         });
     }
     private void puttime(TextView a, int hour, int minute){

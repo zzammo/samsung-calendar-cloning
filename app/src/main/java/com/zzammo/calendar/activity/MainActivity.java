@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                         Time.CalendarDayToMill(date));
                 oDialog.show();*/
                 it = new Intent(getApplicationContext(), MakeSchedule.class);
+                it.putExtra("date",Time.CalendarDayToMill(date));
                 it.putExtra("month",date.getMonth());
                 it.putExtra("day",date.getDay());
                 startActivity(it);
