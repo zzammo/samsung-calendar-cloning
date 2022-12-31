@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -13,8 +12,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.zzammo.calendar.R;
-import com.zzammo.calendar.room.Schedule;
-import com.zzammo.calendar.room.ScheduleDatabase;
+import com.zzammo.calendar.database.Schedule;
+import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.util.Time;
 
 public class ScheduleDialog extends Dialog {

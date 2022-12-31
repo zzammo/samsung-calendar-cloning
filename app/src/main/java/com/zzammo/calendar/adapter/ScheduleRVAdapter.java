@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzammo.calendar.R;
-import com.zzammo.calendar.room.Schedule;
+import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;

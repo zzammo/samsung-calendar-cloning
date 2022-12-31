@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "173770455042",
+    "project_id": "calendar-c4d7d",
+    "storage_bucket": "calendar-c4d7d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173770455042:android:264a6f18cf734f361a0f1b",
+        "android_client_info": {
+          "package_name": "com.zzammo.calendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "173770455042-d270h7o47qsfj9su7id9c295s01elf6e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxml_jH4PHGv4Mjc5vQaslEI4D4khVybg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "173770455042-d270h7o47qsfj9su7id9c295s01elf6e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

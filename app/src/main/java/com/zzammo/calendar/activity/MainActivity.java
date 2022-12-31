@@ -2,14 +2,11 @@ package com.zzammo.calendar.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,22 +19,19 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateLongClickListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
-import com.zzammo.calendar.dialog.ScheduleDialog;
+import com.zzammo.calendar.auth.Auth;
 import com.zzammo.calendar.holiday.ApiExplorer;
-import com.zzammo.calendar.room.Schedule;
-import com.zzammo.calendar.room.ScheduleDatabase;
+import com.zzammo.calendar.database.Schedule;
+import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
+import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 
 
@@ -134,7 +128,62 @@ public class MainActivity extends AppCompatActivity {
             }
         }.start();
 
+        //로그인 테스트 용
+        EditText email_et = findViewById(R.id.activity_main_emailEt);
+        EditText password_et = findViewById(R.id.activity_main_passwordEt);
+        Button signUp_btn = findViewById(R.id.activity_main_signUpBtn);
+        Button signIn_btn = findViewById(R.id.activity_main_signInBtn);
+        Button signOut_btn = findViewById(R.id.activity_main_signOutBtn);
+        Button delete_btn = findViewById(R.id.activity_main_deleteBtn);
+        signUp_btn.setOnClickListener(view -> {
+            String email = email_et.getText().toString();
+            String password = password_et.getText().toString();
+            new Auth().signUp(1, email, password, new AfterTask() {
+                @Override
+                public void ifSuccess(Object result) {
+                    Toast.makeText(context, "가입 성공", Toast.LENGTH_SHORT).show();
+                }
 
+                @Override
+                public void ifFail(Object result) {
+                    Toast.makeText(context, "가입 실패", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+        signIn_btn.setOnClickListener(view -> {
+            String email = email_et.getText().toString();
+            String password = password_et.getText().toString();
+            new Auth().logIn(Auth.EMAIL, email, password, new AfterTask() {
+                @Override
+                public void ifSuccess(Object result) {
+                    Toast.makeText(context, "로그인 성공", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void ifFail(Object result) {
+                    Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+        signOut_btn.setOnClickListener(view -> {
+            if(new Auth().logOn())
+                new Auth().logOut();
+        });
+        delete_btn.setOnClickListener(view -> {
+            if(new Auth().logOn())
+                new Auth().delete(Auth.EMAIL, new AfterTask() {
+                    @Override
+                    public void ifSuccess(Object result) {
+                        Toast.makeText(context, "삭제 성공", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void ifFail(Object result) {
+                        Toast.makeText(context, "삭제 실패", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        });
+        //로그인 테스트 용
     }
 
 
