@@ -11,17 +11,30 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.zzammo.calendar.R;
 
-
-public class MainAddressActivity extends AppCompatActivity {
+public class MainAddressActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     EditText edit_addr1;
     EditText edit_addr2;
+
+
+    private GoogleMap map;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.adress_api);
+////////////////////////////지도 띄우기
+        SupportMapFragment supportMapFragment=(SupportMapFragment)getSupportFragmentManager().
+                findFragmentById(R.id.map);
+        supportMapFragment.getMapAsync(MainAddressActivity.this);
+
 
         edit_addr1 =  findViewById(R.id.edit_addr1);
         edit_addr2 =  findViewById(R.id.edit_addr2);
@@ -66,6 +79,21 @@ public class MainAddressActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap){
+        map = googleMap;
+
+        LatLng seoul=new LatLng(37.56,126.97);
+
+        MarkerOptions options=new MarkerOptions();
+        options.position(seoul)
+                .title("서울")
+                .snippet("한국의 수도");
+        map.addMarker(options);
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,10));
     }
 
     ActivityResultLauncher<Intent> mStartForResult=registerForActivityResult(

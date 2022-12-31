@@ -2,8 +2,11 @@ package com.zzammo.calendar.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,9 +32,14 @@ import com.zzammo.calendar.util.Time;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -124,7 +132,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }.start();
+
+
     }
+
 
     @Override
     protected void onResume() {

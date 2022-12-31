@@ -59,5 +59,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3"/>
 
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_addr2"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
