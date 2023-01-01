@@ -37,7 +37,7 @@
                 android:text="위치검색"/>
         </LinearLayout>
 
-<!--        로그인 테스트 용-->
+<!--        테스트 용-->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,8 +76,28 @@
                     android:layout_height="wrap_content"
                     android:text="delete"/>
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/activity_main_localDB_insertBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="r_write"/>
+                <Button
+                    android:id="@+id/activity_main_serverDB_insertBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="f_write"/>
+                <Button
+                    android:id="@+id/activity_main_serverDB_deleteBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="f_delete"/>
+            </LinearLayout>
         </LinearLayout>
-<!--        로그인 테스트 용-->
+<!--        테스트 용-->
 
     </LinearLayout>
 

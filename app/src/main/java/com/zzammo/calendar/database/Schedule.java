@@ -2,6 +2,7 @@ package com.zzammo.calendar.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.util.Map;
@@ -10,6 +11,8 @@ import java.util.Map;
 public class Schedule implements Comparable{
     @PrimaryKey(autoGenerate = true)
     public int key;
+    @Ignore
+    public String id;
 
     public String title;
     public String location;
@@ -26,6 +29,13 @@ public class Schedule implements Comparable{
         this.title = title;
         this.location = location;
         this.begin_ms = begin_ms;
+    }
+
+    public Schedule(String title, String location, Long begin_ms, Long end_ms) {
+        this.title = title;
+        this.location = location;
+        this.begin_ms = begin_ms;
+        this.end_ms = end_ms;
     }
 
     public Schedule(String title, String location, Double lat, Double lng, Long begin_ms, Long end_ms, String memo) {
@@ -47,10 +57,6 @@ public class Schedule implements Comparable{
         begin_ms = (Long) map.get("begin_ms");
         end_ms = (Long) map.get("end_ms");
         memo = (String) map.get("memo");
-    }
-
-    public int getKey() {
-        return key;
     }
 
     public String getTitle() {
@@ -89,11 +95,13 @@ public class Schedule implements Comparable{
     @NonNull
     @Override
     public String toString() {
-        String string = "title : "+title+
+        String string = "key : "+key+", id : "+id+
+                ", title : "+title+
                 ", location : "+location+
-                ", Lat : "+ lat +", Lng : "+ lng +
-                ", timeMillis : "+ begin_ms +
-                ", memo : "+memo;
+                "\n, Lat : "+ lat +", Lng : "+ lng +
+                ", begin_ms : "+ begin_ms +
+                ", end_ms : "+ end_ms +
+                "\n, memo : "+memo;
         return string;
     }
 

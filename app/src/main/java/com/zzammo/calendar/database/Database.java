@@ -51,17 +51,54 @@ public class Database {
         }
     }
 
+    /**
+     *
+     * @param type DB 타입 1:LOCAL, 2:SERVER
+     * @param afterTask type 에 따라 result 의 클래스가 다를 수 있다는 점<br>
+     *                  type 1 : <br>
+     *                  {@code None} <br>
+     *                  type 2 : <br>
+     *                  {@code ifSuccess(Void result)}<br>
+     *                  {@code ifFail(Exception result)}
+     *
+     * @see com.zzammo.calendar.util.AfterTask
+     * @see Void
+     * @see Exception
+     */
+    public void delete(int type, Schedule schedule, AfterTask afterTask){
+        switch (type){
+            case LOCAL:
+                localDB.scheduleDao().delete(schedule);
+                break;
+            case SERVER:
+                new FireStore().delete(serverDB, schedule, afterTask);
 
-    void delete(Schedule schedule){
-
+        }
     }
 
+    /**
+     *
+     * @param type DB 타입 1:LOCAL, 2:SERVER
+     * @param afterTask type 에 따라 result 의 클래스가 다를 수 있다는 점<br>
+     *                  type 1 : <br>
+     *                  {@code None} <br>
+     *                  type 2 : <br>
+     *                  {@code ifSuccess(Void result)}<br>
+     *                  {@code ifFail(Void result)}
+     *
+     * @see com.zzammo.calendar.util.AfterTask
+     * @see Void
+     */
+    public void update(int type, Schedule schedule, AfterTask afterTask){
+        switch (type){
+            case LOCAL:
+                localDB.scheduleDao().updateSchedules(schedule);
+                break;
+            case SERVER:
+                new FireStore().update(serverDB, schedule, afterTask);
+        }
+    }
 
-//    List<Schedule> getAll(){
-//
-//    }
-//
-//
 
     /**
      *

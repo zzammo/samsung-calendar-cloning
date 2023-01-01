@@ -14,12 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateLongClickListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.auth.Auth;
+import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
@@ -128,13 +130,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }.start();
 
-        //로그인 테스트 용
+        //테스트 용
         EditText email_et = findViewById(R.id.activity_main_emailEt);
         EditText password_et = findViewById(R.id.activity_main_passwordEt);
         Button signUp_btn = findViewById(R.id.activity_main_signUpBtn);
         Button signIn_btn = findViewById(R.id.activity_main_signInBtn);
         Button signOut_btn = findViewById(R.id.activity_main_signOutBtn);
         Button delete_btn = findViewById(R.id.activity_main_deleteBtn);
+        Button local_insert_btn = findViewById(R.id.activity_main_localDB_insertBtn);
+        Button server_insert_btn = findViewById(R.id.activity_main_serverDB_insertBtn);
+        Button server_delete_btn = findViewById(R.id.activity_main_serverDB_deleteBtn);
+        Schedule test_schedule = new Schedule("test_title", "test_loc",
+                System.currentTimeMillis(),
+                System.currentTimeMillis());
         signUp_btn.setOnClickListener(view -> {
             String email = email_et.getText().toString();
             String password = password_et.getText().toString();
@@ -183,7 +191,49 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         });
-        //로그인 테스트 용
+        local_insert_btn.setOnClickListener(view -> {
+            new Database(context).insert(Database.LOCAL, test_schedule,
+                    new AfterTask() {
+                        @Override
+                        public void ifSuccess(Object result) {
+
+                        }
+
+                        @Override
+                        public void ifFail(Object result) {
+
+                        }
+                    });
+        });
+        server_insert_btn.setOnClickListener(view -> {
+            new Database(context).insert(Database.SERVER, test_schedule,
+                    new AfterTask() {
+                        @Override
+                        public void ifSuccess(Object result) {
+                            Toast.makeText(context, "쓰기 성공 : "+test_schedule.id, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void ifFail(Object result) {
+                            Toast.makeText(context, "쓰기 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+        server_delete_btn.setOnClickListener(view -> {
+            new Database(context).delete(Database.SERVER, test_schedule
+                    , new AfterTask() {
+                        @Override
+                        public void ifSuccess(Object result) {
+                            Toast.makeText(context, "삭제 성공", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void ifFail(Object result) {
+                            Toast.makeText(context, "삭제 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+        //테스트 용
     }
 
 
