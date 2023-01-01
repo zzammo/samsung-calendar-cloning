@@ -65,45 +65,47 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
             @Override
             public void onClick(View view) {
-                try {
+                if (data1 == null || data2 == null) {
+                    Toast.makeText(getApplicationContext(),"출발지와 도착지를 입력해주세요",Toast.LENGTH_LONG);
+                }
+                else {
+                    try {
 
+                        data1 = URLEncoder.encode(data1, "utf-8");
+                        URL url1 = new URL(urlstring + data1 + "&appKey=" + key);
 
-                    data1= URLEncoder.encode(data1,"utf-8");
-                    URL url1 = new URL(urlstring+data1+"&appKey="+key);
+                        BufferedReader bf;
+                        bf = new BufferedReader(new InputStreamReader(url1.openStream(), "UTF-8"));
+                        result = bf.readLine();
 
-                    BufferedReader bf;
-                    bf = new BufferedReader(new InputStreamReader(url1.openStream(), "UTF-8"));
-                    result = bf.readLine();
+                        System.out.println(result);
+                        Log.i("연결완료", result);
 
-                    System.out.println(result);
-                    Log.i("연결완료",result);
+                        JSONParser jsonParser = new JSONParser();
+                        JSONObject jsonObject = (JSONObject) jsonParser.parse(result);
+                        JSONObject coordinateInfo = (JSONObject) jsonObject.get("coordinateInfo");
 
-                    JSONParser jsonParser = new JSONParser();
-                    JSONObject jsonObject = (JSONObject)jsonParser.parse(result);
-                    JSONObject coordinateInfo = (JSONObject)jsonObject.get("coordinateInfo");
+                        JSONArray coordinate = (JSONArray) coordinateInfo.get("coordinate");
+                        JSONObject pos = (JSONObject) coordinate.get(0);
 
-                    JSONArray coordinate = (JSONArray)coordinateInfo.get("coordinate");
-                    JSONObject pos = (JSONObject)coordinate.get(0);
+                        double lat = Double.parseDouble((String) pos.get("lat"));
+                        double lon = Double.parseDouble((String) pos.get("lon"));
 
+                        System.out.println(lat);
 
-                    double lat=Double.parseDouble((String) pos.get("lat"));
-                    double lon=Double.parseDouble((String) pos.get("lon"));
+                        LatLng start = new LatLng(lat, lon);
 
-                    System.out.println(lat);
+                        MarkerOptions options = new MarkerOptions();
+                        options.position(start)
+                                .title("출발지")
+                                .snippet("한국");
+                        map.addMarker(options);
 
-                    LatLng start=new LatLng(lat,lon);
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15));
 
-                    MarkerOptions options=new MarkerOptions();
-                    options.position(start)
-                            .title("출발지")
-                            .snippet("한국");
-                    map.addMarker(options);
-
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(start,15));
-
-
-                }catch(Exception e) {
-                    e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
