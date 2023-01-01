@@ -1,6 +1,10 @@
 package com.zzammo.calendar.activity;
 
+import static java.lang.Math.log;
+
+import android.content.ContentValues;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -27,25 +31,27 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import android.location.Location;
 
 public class MainAddressActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     EditText edit_addr1;
     EditText edit_addr2;
 
-    String data1,data2;
+    String data1=null,data2=null;
 
     // 인증키 (개인이 받아와야함)
     String key = "l7xxb76eb9ee907444a8b8098322fa488048";
 
     // 파싱한 데이터를 저장할 변수
-    String result = "";
+    String result1 = "";
     String result2 = "";
 
     String urlstring="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
-
+    String url_gettime="";
 
 
     private GoogleMap map;
@@ -66,7 +72,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
             @Override
             public void onClick(View view) {
                 if (data1 == null || data2 == null) {
-                    Toast.makeText(getApplicationContext(),"출발지와 도착지를 입력해주세요",Toast.LENGTH_LONG);
+                    Toast.makeText(getApplicationContext(),"출발지와 도착지를 입력해주세요",Toast.LENGTH_SHORT).show();
                 }
                 else {
                     try {
@@ -74,38 +80,84 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                         data1 = URLEncoder.encode(data1, "utf-8");
                         URL url1 = new URL(urlstring + data1 + "&appKey=" + key);
 
+                        data2=URLEncoder.encode(data2,"utf-8");
+                        URL url2=new URL(urlstring+data2+"&appKey=" + key);
+
                         BufferedReader bf;
                         bf = new BufferedReader(new InputStreamReader(url1.openStream(), "UTF-8"));
-                        result = bf.readLine();
+                        result1 = bf.readLine();
+                        bf = new BufferedReader(new InputStreamReader(url2.openStream(), "UTF-8"));
+                        result2 = bf.readLine();
 
-                        System.out.println(result);
-                        Log.i("연결완료", result);
+                        Log.i("연결완료1", result1);
+                        Log.i("연결완료2",result2);
 
                         JSONParser jsonParser = new JSONParser();
-                        JSONObject jsonObject = (JSONObject) jsonParser.parse(result);
+                        JSONObject jsonObject = (JSONObject) jsonParser.parse(result1);
                         JSONObject coordinateInfo = (JSONObject) jsonObject.get("coordinateInfo");
 
                         JSONArray coordinate = (JSONArray) coordinateInfo.get("coordinate");
                         JSONObject pos = (JSONObject) coordinate.get(0);
 
-                        double lat = Double.parseDouble((String) pos.get("lat"));
-                        double lon = Double.parseDouble((String) pos.get("lon"));
+                        double lat1 = Double.parseDouble((String) pos.get("lat"));
+                        double lon1 = Double.parseDouble((String) pos.get("lon"));
+                        LatLng start = new LatLng(lat1, lon1);
 
-                        System.out.println(lat);
+                        jsonObject = (JSONObject) jsonParser.parse(result2);
+                        coordinateInfo = (JSONObject) jsonObject.get("coordinateInfo");
 
-                        LatLng start = new LatLng(lat, lon);
+                        coordinate = (JSONArray) coordinateInfo.get("coordinate");
+                        pos = (JSONObject) coordinate.get(0);
 
-                        MarkerOptions options = new MarkerOptions();
-                        options.position(start)
+                        double lat2 = Double.parseDouble((String) pos.get("lat"));
+                        double lon2 = Double.parseDouble((String) pos.get("lon"));
+                        LatLng goal = new LatLng(lat2, lon2);
+
+                        //////////////2지점 거리랑 중간위치계산
+                        LatLng mid = new LatLng((lat2+lat1)/2, (lon1+lon2)/2);
+                        Location location1=new Location("start");
+                        Location location2=new Location("goal");
+
+                        location1.setLatitude(lat1);
+                        location1.setLongitude(lon1);
+
+                        location2.setLatitude(lat2);
+                        location2.setLongitude(lon2);
+
+                        double distance=location1.distanceTo(location2);
+                        double scale=21-log(distance);
+
+
+                        MarkerOptions options1 = new MarkerOptions();
+                        options1.position(start)
                                 .title("출발지")
                                 .snippet("한국");
-                        map.addMarker(options);
+                        map.addMarker(options1);
 
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15));
+                        MarkerOptions options2 = new MarkerOptions();
+                        options2.position(goal)
+                                .title("출발지")
+                                .snippet("한국");
+                        map.addMarker(options2);
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(mid, (float)scale));
+
+                        ContentValues contentValues =new ContentValues();
+                        contentValues.put("startX",String.valueOf(lat1));
+                        contentValues.put("startY",String.valueOf(lon1));
+                        contentValues.put("endX",String.valueOf(lat2));
+                        contentValues.put("endY",String.valueOf(lon2));
+                        contentValues.put("startName",data1);
+                        contentValues.put("endName",data2);
+
+                        Log.i("PSt","connected");
+                        NetworkTask networkTask=new NetworkTask("http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1",contentValues);
+                        networkTask.execute();
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+
                 }
             }
 
@@ -197,5 +249,32 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
             }
     );
 
+    public class NetworkTask extends AsyncTask<Void,Void,String>{
+
+        private String url;
+        private ContentValues values;
+
+        public NetworkTask(String url,ContentValues values){
+            this.url=url;
+            this.values=values;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String result;
+            RequestHttpConnection requestHttpConnection=new RequestHttpConnection();
+            result=requestHttpConnection.request(url,values);
+            Log.e("과연",result);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            super.onPostExecute(s);
+
+            Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+
+        }
+    }
 
 }
