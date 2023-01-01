@@ -46,7 +46,7 @@ public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH
 
         holder.title_tv.setText(schedule.title);
         holder.location_tv.setText(schedule.location);
-        holder.time_tv.setText(Time.millToHM(schedule.timeMillis));
+        holder.time_tv.setText(Time.millToHM(schedule.begin_ms));
     }
 
     @Override

@@ -15,24 +15,26 @@ public class Schedule implements Comparable{
     public String location;
     public Double lat;
     public Double lng;
-    public Long timeMillis;
+    public Long begin_ms;
+    public Long end_ms;
     public String memo;
 
     public Schedule() {
     }
 
-    public Schedule(String title, String location, Long timeMillis) {
+    public Schedule(String title, String location, Long begin_ms) {
         this.title = title;
         this.location = location;
-        this.timeMillis = timeMillis;
+        this.begin_ms = begin_ms;
     }
 
-    public Schedule(String title, String location, Double lat, Double lng, Long timeMillis, String memo) {
+    public Schedule(String title, String location, Double lat, Double lng, Long begin_ms, Long end_ms, String memo) {
         this.title = title;
         this.location = location;
         this.lat = lat;
         this.lng = lng;
-        this.timeMillis = timeMillis;
+        this.begin_ms = begin_ms;
+        this.end_ms = end_ms;
         this.memo = memo;
     }
 
@@ -42,7 +44,8 @@ public class Schedule implements Comparable{
         location = (String) map.get("location");
         lat = (Double) map.get("lat");
         lng = (Double) map.get("lng");
-        timeMillis = (Long) map.get("timeMillis");
+        begin_ms = (Long) map.get("begin_ms");
+        end_ms = (Long) map.get("end_ms");
         memo = (String) map.get("memo");
     }
 
@@ -66,8 +69,12 @@ public class Schedule implements Comparable{
         return lng;
     }
 
-    public Long getTimeMillis() {
-        return timeMillis;
+    public Long getBegin_ms() {
+        return begin_ms;
+    }
+
+    public Long getEnd_ms() {
+        return end_ms;
     }
 
     public String getMemo() {
@@ -76,7 +83,7 @@ public class Schedule implements Comparable{
 
     @Override
     public int compareTo(Object o) {
-        return this.timeMillis.compareTo(((Schedule)o).timeMillis);
+        return this.begin_ms.compareTo(((Schedule)o).begin_ms);
     }
 
     @NonNull
@@ -85,7 +92,7 @@ public class Schedule implements Comparable{
         String string = "title : "+title+
                 ", location : "+location+
                 ", Lat : "+ lat +", Lng : "+ lng +
-                ", timeMillis : "+timeMillis+
+                ", timeMillis : "+ begin_ms +
                 ", memo : "+memo;
         return string;
     }

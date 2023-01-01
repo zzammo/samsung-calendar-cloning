@@ -10,7 +10,6 @@ import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.AfterTask;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class FireStore {
     static final String TAG = "db.firestore : Dirtfy";
