@@ -1,16 +1,22 @@
 package com.zzammo.calendar.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Schedule> scheduleArrayList;
     Intent it;
     Context context;
+    RecyclerView search_recyclerview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,7 +194,92 @@ public class MainActivity extends AppCompatActivity {
         //로그인 테스트 용
     }
 
+    @Override
+    public void onBackPressed() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("캘린더 앱을 종료하시겠습니까?");
+        builder.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
 
+            }
+        });
+        builder.setNegativeButton("네", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+        builder.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.menu_option, menu);
+        MenuItem searchItem = menu.findItem(R.id.name_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        ///요 리스너가 타이핑 칠 때 리스너
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            ///다 검색하고 났을때
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                search(query);
+                searchView.setQueryHint("검색");
+                return false;
+            }
+
+            ///칠 때마다 텍스트를 하나하나 입력받을 때 (검색 도중)
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                search(newText);
+                searchView.setQueryHint("검색");
+                return false;
+            }
+        });
+        //돋보기 눌럿을 때 실행되는 함수
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                searchView.setQueryHint("검색");
+                return true;
+            }
+///검색을 실행하던 도중 뒤로가기 하면 콜랍스 함수가 실행되지만 익스팬더블이 뜨려고 했지만 검색에 검색 중이던 함수가 다시 작동이 되서 어댑터에 리사이클류 그게 뜨지 않고 오류가 발생
+/// 콜랩스 함수가 시작되면 무조건 입력중이던 함수는 적용안되게 수정함
+
+            //검색이 종료되었을 때
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                /*q = 1; // 검색하다가 종료했을 때는
+                if(tabtype == 0){
+                    recyclerview = findViewById(R.id.recyclerview);
+                    registerForContextMenu(recyclerview);
+                    DBHelper databaseHelper = new DBHelper(getApplicationContext());
+                    ArrayList<ExpandableListAdapter.Item> mritems = databaseHelper.getItem();
+                    if (mritems != null) {
+                        recyclerview.setAdapter(new ExpandableListAdapter(mritems,ExpandableListAdapter.mContext));
+                        recyclerview.setHasFixedSize(true);
+                    }
+                }*/
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void search(String keyword){//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|
+        search_recyclerview = findViewById(R.id.schedule_recyclerView);
+        registerForContextMenu(search_recyclerview);
+        //if(keyword.equals(""))Log.d("minseok",keyword);
+        keyword = "%"+keyword+"%";
+        List<Schedule> list = DB.scheduleDao().searchRecords(keyword);
+
+        ArrayList<Schedule> search_scheduleList = new ArrayList<>(list);
+        if (search_scheduleList != null) {
+            search_recyclerview.setAdapter(new ScheduleRVAdapter(search_scheduleList));
+        }
+    }
     @Override
     protected void onResume() {
         super.onResume();
