@@ -43,9 +43,17 @@ public class RequestHttpConnection {
             }
         }
 
+
+
         try {
             URL url=new URL(_url);
             conn=(HttpURLConnection) url.openConnection();
+
+            // TimeOut 시간 (서버 접속시 연결 시간)
+            conn.setConnectTimeout(1000);
+
+            // TimeOut 시간 (Read시 연결 시간)
+            conn.setReadTimeout(1000);
 
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Host","apis.openapi.sk.com");
@@ -55,12 +63,27 @@ public class RequestHttpConnection {
 
             String strParams=sbParams.toString();
             OutputStream os=conn.getOutputStream();
-            os.write(strParams.getBytes(StandardCharsets.UTF_8));
+            os.write(strParams.getBytes("UTF-8"));
             os.flush();
             os.close();
 
-            if(conn.getResponseCode() !=HttpURLConnection.HTTP_OK)
+            System.out.println(conn.getResponseCode());
+            if(conn.getResponseCode() !=HttpURLConnection.HTTP_OK) {
+                BufferedReader br = null;
+                if (100 <= conn.getResponseCode() && conn.getResponseCode() <= 399) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                }
+                String line;
+                String page = "";
+
+                while ((line = br.readLine()) != null){
+                    page += line;
+                }
+                Log.d("httpsss",page);
                 return null;
+            }
 
             BufferedReader reader=new BufferedReader
                     (new InputStreamReader(conn.getInputStream(),"UTF-8"));
@@ -72,7 +95,6 @@ public class RequestHttpConnection {
             while ((line = reader.readLine()) != null){
                 page += line;
             }
-            Log.e("ㅜㅜ",page);
             return page;
 
 

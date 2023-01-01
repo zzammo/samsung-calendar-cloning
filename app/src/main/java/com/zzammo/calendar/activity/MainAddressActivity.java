@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -28,6 +29,7 @@ import com.zzammo.calendar.R;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -40,6 +42,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
     EditText edit_addr1;
     EditText edit_addr2;
+    TextView textView15;
 
     String data1=null,data2=null;
 
@@ -136,21 +139,21 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
                         MarkerOptions options2 = new MarkerOptions();
                         options2.position(goal)
-                                .title("출발지")
+                                .title("도착지")
                                 .snippet("한국");
                         map.addMarker(options2);
                         map.moveCamera(CameraUpdateFactory.newLatLngZoom(mid, (float)scale));
 
                         ContentValues contentValues =new ContentValues();
-                        contentValues.put("startX",String.valueOf(lat1));
-                        contentValues.put("startY",String.valueOf(lon1));
-                        contentValues.put("endX",String.valueOf(lat2));
-                        contentValues.put("endY",String.valueOf(lon2));
+                        contentValues.put("startX",String.valueOf(lon1));
+                        contentValues.put("startY",String.valueOf(lat1));
+                        contentValues.put("endX",String.valueOf(lon2));
+                        contentValues.put("endY",String.valueOf(lat2));
                         contentValues.put("startName",data1);
                         contentValues.put("endName",data2);
 
                         Log.i("PSt","connected");
-                        NetworkTask networkTask=new NetworkTask("http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1",contentValues);
+                        NetworkTask networkTask=new NetworkTask("http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json",contentValues);
                         networkTask.execute();
 
                     } catch (Exception e) {
@@ -261,10 +264,9 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
         @Override
         protected String doInBackground(Void... params) {
-            String result;
+            String result="45";
             RequestHttpConnection requestHttpConnection=new RequestHttpConnection();
             result=requestHttpConnection.request(url,values);
-            Log.e("과연",result);
             return result;
         }
 
@@ -272,7 +274,26 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
         protected void onPostExecute(String s){
             super.onPostExecute(s);
 
-            Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+
+            JSONParser jsonParser = new JSONParser();
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = (JSONObject) jsonParser.parse(s);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            JSONArray features = (JSONArray) jsonObject.get("features");
+            JSONObject sp_features = (JSONObject) features.get(0);
+
+            JSONObject properties = (JSONObject) sp_features.get("properties");
+            Log.d("properties",(String) properties.toString());
+            String time = (String) properties.get("totalTime").toString();
+            Log.d("tttttime",time);
+
+            textView15=(TextView)findViewById(R.id.textView15);
+            textView15.setText(time+"초 소요");
+
 
         }
     }
