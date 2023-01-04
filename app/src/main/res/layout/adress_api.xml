@@ -85,31 +85,38 @@
             android:layout_gravity="right"
             android:text="위치검색" />
     </LinearLayout>
-
-    <TableLayout
-        android:layout_marginTop="10dp"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/layout1">
-        <TableRow>
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Public"
-            android:id="@+id/checkbox_public"/>
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Walk"
-            android:id="@+id/checkbox_walk"/>
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Car"
-            android:id="@+id/checkbox_car"/>
-        </TableRow>
-    </TableLayout>
+        app:layout_constraintTop_toBottomOf="@id/layout1"
+        android:layout_marginTop="10dp"
+        tools:ignore="MissingConstraints">
+
+        <RadioGroup
+            android:id="@+id/radio"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:layout_weight="1"
+                android:text="Bus"
+                android:id="@+id/bus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+            <RadioButton
+                android:layout_weight="1"
+                android:text="Walk"
+                android:id="@+id/walk"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+            <RadioButton
+                android:layout_weight="1"
+                android:text="Car"
+                android:id="@+id/car"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+        </RadioGroup>
+    </LinearLayout>
 
     <fragment
         android:id="@+id/map"

@@ -11,11 +11,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,6 +46,8 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
     EditText edit_addr1;
     EditText edit_addr2;
     TextView textView15;
+    private RadioGroup radioGroup;
+    private int state=4; // 0 -> bus, 1 -> walk, 2 -> car
 
     String data1=null,data2=null;
 
@@ -54,7 +59,6 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
     String result2 = "";
 
     String urlstring="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
-    String url_gettime="";
 
 
     private GoogleMap map;
@@ -71,7 +75,6 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
         Button button=(Button) findViewById(R.id.btn2);
         button.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View view) {
                 if (data1 == null || data2 == null) {
@@ -144,17 +147,36 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                         map.addMarker(options2);
                         map.moveCamera(CameraUpdateFactory.newLatLngZoom(mid, (float)scale));
 
-                        ContentValues contentValues =new ContentValues();
-                        contentValues.put("startX",String.valueOf(lon1));
-                        contentValues.put("startY",String.valueOf(lat1));
-                        contentValues.put("endX",String.valueOf(lon2));
-                        contentValues.put("endY",String.valueOf(lat2));
-                        contentValues.put("startName",data1);
-                        contentValues.put("endName",data2);
+
+
 
                         Log.i("PSt","connected");
-                        NetworkTask networkTask=new NetworkTask("http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json",contentValues);
-                        networkTask.execute();
+                        if(state==0){
+
+                        }
+                        else if(state==1){
+                            ContentValues contentValues1 =new ContentValues();
+                            contentValues1.put("startX",String.valueOf(lon1));
+                            contentValues1.put("startY",String.valueOf(lat1));
+                            contentValues1.put("endX",String.valueOf(lon2));
+                            contentValues1.put("endY",String.valueOf(lat2));
+                            contentValues1.put("startName",data1);
+                            contentValues1.put("endName",data2);
+                            NetworkTask networkTask1=new NetworkTask("http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json",contentValues1);
+                            networkTask1.execute();
+                        }
+                        else if(state==2){
+                            ContentValues contentValues2 =new ContentValues();
+                            contentValues2.put("startX",String.valueOf(lon1));
+                            contentValues2.put("startY",String.valueOf(lat1));
+                            contentValues2.put("endX",String.valueOf(lon2));
+                            contentValues2.put("endY",String.valueOf(lat2));
+                            NetworkTask networkTask2=new NetworkTask("http://apis.openapi.sk.com/tmap/routes?version=1&format=json",contentValues2);
+                            networkTask2.execute();
+                        }
+                        else{
+
+                        }
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -209,7 +231,29 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                 }
             }
         });
+
+        radioGroup = (RadioGroup) findViewById(R.id.radio);
+        radioGroup.setOnCheckedChangeListener(radioButtonChangeListner);
+
     }
+
+    RadioGroup.OnCheckedChangeListener radioButtonChangeListner=new RadioGroup.OnCheckedChangeListener(){
+        @Override
+        public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            if(i==R.id.bus){
+                state=0;
+                Toast.makeText(getApplicationContext(), "버스 눌렸습니다.", Toast.LENGTH_SHORT).show();
+            }
+            else if(i==R.id.walk){
+                state=1;
+                Toast.makeText(getApplicationContext(), "월크 눌렸습니다.", Toast.LENGTH_SHORT).show();
+            }
+            else if(i==R.id.car) {
+                state=2;
+                Toast.makeText(getApplicationContext(), "자동차 눌렸습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     @Override
     public void onMapReady(GoogleMap googleMap){
@@ -274,7 +318,6 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
         @Override
         protected void onPostExecute(String s){
             super.onPostExecute(s);
-
 
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = null;
