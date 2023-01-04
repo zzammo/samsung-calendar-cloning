@@ -267,6 +267,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
             String result="45";
             RequestHttpConnection requestHttpConnection=new RequestHttpConnection();
             result=requestHttpConnection.request(url,values);
+            Log.e("과연",result);
             return result;
         }
 

@@ -2,40 +2,52 @@ package com.zzammo.calendar.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.adapter.ScheduleRVAdapter;
+import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
+import com.zzammo.calendar.schedule_event.MakeSchedule;
+import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ScheduleDialog extends Dialog {
 
     ScheduleDialog dialog;
     Context mContext;
 
-    Long dateTime;
+    Long dateStartTime;
 
-    EditText title_et;
-    EditText location_et;
-    TimePicker timePicker;
-    Button save_btn;
-    TextView depart_date;
-    TextView depart_clock;
-    TextView arrive_date;
-    TextView arrive_clock;
-    String visiblemode;
+    ArrayList<Schedule> scheduleArrayList;
+    ScheduleRVAdapter scheduleRVAdapter;
+    LinearLayoutManager layoutManager;
+    RecyclerView scheduleRV;
+    ImageView addSchedule_iv;
 
-    public ScheduleDialog(Context context, Long dateTime) {
+    Database DB;
+
+    public ScheduleDialog(Context context, Long dateStartTime) {
         super(context, android.R.style.Theme_Translucent_NoTitleBar);
-        this.dateTime = dateTime;
+        this.dateStartTime = dateStartTime;
         mContext = context;
     }
 
@@ -51,82 +63,54 @@ public class ScheduleDialog extends Dialog {
         setContentView(R.layout.schedule_dialog);
         dialog = this;
 
-        depart_date = findViewById(R.id.depart_date);
-        depart_clock = findViewById(R.id.depart_clock);
-        arrive_date = findViewById(R.id.arrive_date);
-        arrive_clock = findViewById(R.id.arrive_clock);
+        DB = new Database(mContext);
 
-        title_et = this.findViewById(R.id.schedule_dialog_title);
-        location_et = this.findViewById(R.id.schedule_dialog_location);
-        timePicker = this.findViewById(R.id.schedule_dialog_timePicker);
-        save_btn = this.findViewById(R.id.schedule_dialog_saveBtn);
+        scheduleRV = this.findViewById(R.id.schedule_dialog_recyclerView);
+        addSchedule_iv = this.findViewById(R.id.schedule_dialog_addImageView);
 
-        //타임피커 보이게
-        depart_clock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(timePicker.getVisibility()==View.GONE){
-                    timePicker.setVisibility(View.VISIBLE);
-                    visiblemode = "departtime";
-                }
-                else if(timePicker.getVisibility()==View.VISIBLE){
-                    timePicker.setVisibility(View.GONE);
-                    visiblemode = "nomode";
-                }
-            }
+        scheduleArrayList = new ArrayList<>();
+        scheduleRVAdapter = new ScheduleRVAdapter(scheduleArrayList);
+        scheduleRVAdapter.setOnItemClickListener(position -> {
+            DB.delete(Database.LOCAL, scheduleArrayList.get(position), new non());
+            scheduleArrayList.remove(position);
+            scheduleRVAdapter.notifyItemRemoved(position);
         });
-        arrive_clock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(timePicker.getVisibility()==View.GONE){
-                    timePicker.setVisibility(View.VISIBLE);
-                    visiblemode = "arrivetime";
-                }
-                if(timePicker.getVisibility()==View.VISIBLE){
-                    timePicker.setVisibility(View.GONE);
-                    visiblemode = "nomode";
-                }
-            }
+        layoutManager = new LinearLayoutManager(mContext);
+        scheduleRV.setAdapter(scheduleRVAdapter);
+        scheduleRV.setLayoutManager(layoutManager);
+
+        addSchedule_iv.setOnClickListener(view -> {
+            Date date = new Date(dateStartTime);
+
+            Intent it = new Intent(mContext, MakeSchedule.class);
+            it.putExtra("date", dateStartTime);
+            it.putExtra("month",date.getMonth());
+            it.putExtra("day",date.getDay());
+
+            mContext.startActivity(it);
+
+            this.dismiss();
         });
 
-        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker timePicker, int hour, int minute) {
-                if(visiblemode.equals("departtime")) puttime(depart_clock,hour,minute);
-                else if(visiblemode.equals("departtime"))puttime(depart_clock,hour,minute);
-            }
-        });
-
-        save_btn.setOnClickListener(view -> {
-            String title = title_et.getText().toString();
-            String location = location_et.getText().toString();
-            Long timeMills;
-
-            int hour, minute;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                hour = timePicker.getHour();
-            else
-                hour = timePicker.getCurrentHour();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                minute = timePicker.getMinute();
-            else
-                minute = timePicker.getCurrentMinute();
-            timeMills = dateTime + hour * Time.ONE_HOUR + minute * Time.ONE_MINUTE;
-
-            Schedule schedule = new Schedule(title, location, timeMills);
-
-            ScheduleDatabase DB = ScheduleDatabase.getInstance(mContext);
-            DB.scheduleDao().insertAll(schedule);
-
-            dialog.dismiss();
-        });
+        Database DB = new Database(mContext);
+        DB.loadAllScheduleDuring(Database.LOCAL
+                , dateStartTime
+                , dateStartTime + Time.ONE_DAY
+                , scheduleArrayList
+                , new non());
+        scheduleRVAdapter.notifyDataSetChanged();
     }
-    private void puttime(TextView a, int hour, int minute){
-        if (hour > 12) {
-            hour -= 12;
-            a.setText("오후 " + hour + "시 " + minute + "분 선택");
-        } else {
-            a.setText("오전 " + hour + "시 " + minute + "분 선택");
+
+    class non implements AfterTask{
+        @Override
+        public void ifSuccess(Object result) {
+
+        }
+
+        @Override
+        public void ifFail(Object result) {
+
         }
     }
+
 }

@@ -6,113 +6,26 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="300dp"
+        android:layout_height="500dp"
         android:background="@color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/schedule_dialog_linearLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/schedule_dialog_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/schedule_dialog_saveBtn">
-            <EditText
-                app:layout_constraintBottom_toTopOf="@+id/time"
-                app:layout_constraintTop_toBottomOf="parent"
-                android:id="@+id/schedule_dialog_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="title"/>
-            <LinearLayout
-                android:id="@+id/time"
-                app:layout_constraintTop_toBottomOf="@id/schedule_dialog_title"
-                app:layout_constraintBottom_toTopOf="@id/schedule_dialog_timePicker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:id="@+id/depart_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="x월 y일(요일)"
-                        android:textSize="20sp"
-                        android:gravity="center"
-                        />
-                    <TextView
-                        android:id="@+id/depart_clock"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="x시 y분"
-                        android:textSize="20sp"
-                        android:gravity="center"/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:id="@+id/arrive_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="x월 y일(요일)"
-                        android:textSize="20sp"
-                        android:gravity="center"/>
-                    <TextView
-                        android:id="@+id/arrive_clock"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="x시 y분"
-                        android:textSize="20sp"
-                        android:gravity="center"/>
-                </LinearLayout>
-            </LinearLayout>
+            android:layout_height="match_parent"/>
 
-            <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-                android:id="@+id/makeschedule_calendarView"
-                app:layout_constraintTop_toBottomOf="@id/time"
-                app:layout_constraintBottom_toTopOf="@id/schedule_dialog_timePicker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"/>
-
-            <TimePicker
-                android:id="@+id/schedule_dialog_timePicker"
-                app:layout_constraintTop_toBottomOf="@id/makeschedule_calendarView"
-                app:layout_constraintBottom_toTopOf="@id/schedule_dialog_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:timePickerMode="spinner"
-                android:visibility="gone" />
-
-            <EditText
-                android:id="@+id/schedule_dialog_location"
-                app:layout_constraintTop_toBottomOf="@id/schedule_dialog_timePicker"
-                app:layout_constraintBottom_toTopOf="parent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="location"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Button
-            android:id="@+id/schedule_dialog_saveBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="OK"
-            app:layout_constraintTop_toBottomOf="@id/schedule_dialog_linearLayout"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
+        <ImageView
+            android:id="@+id/schedule_dialog_addImageView"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_baseline_add_circle_24"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

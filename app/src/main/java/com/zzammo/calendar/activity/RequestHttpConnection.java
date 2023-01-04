@@ -42,7 +42,7 @@ public class RequestHttpConnection {
                         isAnd = true;
             }
         }
-
+        Log.d("Dirtfy", "?");
 
 
         try {

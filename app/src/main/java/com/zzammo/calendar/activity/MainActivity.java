@@ -28,6 +28,7 @@ import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.auth.Auth;
 import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         scheduleRV.setLayoutManager(layoutManager);
         scheduleRV.setAdapter(RVAdapter);
-        RVAdapter.setOnItemClickListener((v, position) -> {
+        RVAdapter.setOnItemClickListener(position -> {
             DB.scheduleDao().delete(scheduleArrayList.get(position));
             scheduleArrayList.remove(position);
             RVAdapter.notifyItemRemoved(position);
@@ -123,6 +124,13 @@ public class MainActivity extends AppCompatActivity {
             scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
             Collections.sort(scheduleArrayList);
             RVAdapter.notifyDataSetChanged();
+
+//            if(scheduleArrayList.size() == 0) return;
+
+            ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
+                        Time.CalendarDayToMill(date));
+                oDialog.show();
+
         });
 
         new Thread(){
@@ -154,32 +162,12 @@ public class MainActivity extends AppCompatActivity {
         signUp_btn.setOnClickListener(view -> {
             String email = email_et.getText().toString();
             String password = password_et.getText().toString();
-            new Auth().signUp(1, email, password, new AfterTask() {
-                @Override
-                public void ifSuccess(Object result) {
-                    Toast.makeText(context, "가입 성공", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void ifFail(Object result) {
-                    Toast.makeText(context, "가입 실패", Toast.LENGTH_SHORT).show();
-                }
-            });
+            new Auth().signUp(Auth.EMAIL, email, password, new jt("가입"));
         });
         signIn_btn.setOnClickListener(view -> {
             String email = email_et.getText().toString();
             String password = password_et.getText().toString();
-            new Auth().logIn(Auth.EMAIL, email, password, new AfterTask() {
-                @Override
-                public void ifSuccess(Object result) {
-                    Toast.makeText(context, "로그인 성공", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void ifFail(Object result) {
-                    Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show();
-                }
-            });
+            new Auth().logIn(Auth.EMAIL, email, password, new jt("로그인"));
         });
         signOut_btn.setOnClickListener(view -> {
             if(new Auth().logOn())
@@ -187,59 +175,19 @@ public class MainActivity extends AppCompatActivity {
         });
         delete_btn.setOnClickListener(view -> {
             if(new Auth().logOn())
-                new Auth().delete(Auth.EMAIL, new AfterTask() {
-                    @Override
-                    public void ifSuccess(Object result) {
-                        Toast.makeText(context, "삭제 성공", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void ifFail(Object result) {
-                        Toast.makeText(context, "삭제 실패", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                new Auth().delete(Auth.EMAIL, new jt("삭제"));
         });
         local_insert_btn.setOnClickListener(view -> {
             new Database(context).insert(Database.LOCAL, test_schedule,
-                    new AfterTask() {
-                        @Override
-                        public void ifSuccess(Object result) {
-
-                        }
-
-                        @Override
-                        public void ifFail(Object result) {
-
-                        }
-                    });
+                    new q());
         });
         server_insert_btn.setOnClickListener(view -> {
             new Database(context).insert(Database.SERVER, test_schedule,
-                    new AfterTask() {
-                        @Override
-                        public void ifSuccess(Object result) {
-                            Toast.makeText(context, "쓰기 성공 : "+test_schedule.id, Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void ifFail(Object result) {
-                            Toast.makeText(context, "쓰기 실패", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    new jt("쓰기"));
         });
         server_delete_btn.setOnClickListener(view -> {
             new Database(context).delete(Database.SERVER, test_schedule
-                    , new AfterTask() {
-                        @Override
-                        public void ifSuccess(Object result) {
-                            Toast.makeText(context, "삭제 성공", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void ifFail(Object result) {
-                            Toast.makeText(context, "삭제 실패", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    , new jt("삭제"));
         });
         //테스트 용
     }
@@ -343,5 +291,35 @@ public class MainActivity extends AppCompatActivity {
         scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
         Collections.sort(scheduleArrayList);
         RVAdapter.notifyDataSetChanged();
+    }
+
+    class q implements AfterTask{
+        @Override
+        public void ifSuccess(Object result) {
+
+        }
+
+        @Override
+        public void ifFail(Object result) {
+
+        }
+    }
+    class jt implements AfterTask{
+
+        String s;
+
+        public jt(String s) {
+            this.s = s;
+        }
+
+        @Override
+        public void ifSuccess(Object result) {
+            Toast.makeText(context, s+" 성공", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void ifFail(Object result) {
+            Toast.makeText(context, s+" 실패", Toast.LENGTH_SHORT).show();
+        }
     }
 }

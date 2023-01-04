@@ -28,8 +28,4 @@ public class TodayDecorator implements DayViewDecorator{
         view.addSpan(new StyleSpan(Typeface.BOLD));
         view.addSpan(new ForegroundColorSpan(Color.LTGRAY));
     }
-
-    public void setDate(Date date) {
-        this.date = CalendarDay.from(date.getDate());
-    }
 }

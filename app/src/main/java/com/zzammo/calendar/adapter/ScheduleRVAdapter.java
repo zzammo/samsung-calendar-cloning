@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH>{
 
     public interface OnItemClickListener{
-        void onItemClick(View v, int position);
+        void onItemClick(int position);
     }
 
     OnItemClickListener mListener = null;
@@ -73,7 +73,7 @@ public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH
                 int position = getAdapterPosition ();
                 if (position!=RecyclerView.NO_POSITION){
                     if (mListener!=null){
-                        mListener.onItemClick (view,position);
+                        mListener.onItemClick (position);
                     }
                 }
             });

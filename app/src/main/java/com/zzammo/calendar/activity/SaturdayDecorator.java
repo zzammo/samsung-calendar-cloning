@@ -6,8 +6,10 @@ import android.text.style.ForegroundColorSpan;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
+import com.zzammo.calendar.util.Time;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class SaturdayDecorator implements DayViewDecorator {
 
@@ -18,7 +20,10 @@ public class SaturdayDecorator implements DayViewDecorator {
 
     @Override
     public boolean shouldDecorate(CalendarDay day) {
-        day.copyTo(calendar);
+//        day.copyTo(calendar);
+
+        Long mill = Time.CalendarDayToMill(day);
+        calendar.setTimeInMillis(mill);
         int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
         return weekDay == Calendar.SATURDAY;
     }
