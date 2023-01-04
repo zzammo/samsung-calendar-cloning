@@ -5,6 +5,7 @@ import android.util.Log;
 import android.util.Xml;
 import android.widget.Toast;
 
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.R;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -24,11 +25,11 @@ import java.util.ArrayList;
 
 public class ApiExplorer {
     private Context context;
-    ArrayList<String> namelist;
-    ArrayList<String> datelist;
-    public ApiExplorer(){namelist = new ArrayList<>(); datelist = new ArrayList<>();}
-    public ApiExplorer(Context c) {context = c; namelist = new ArrayList<>(); datelist = new ArrayList<>();}
-    public void getHolidays(int Year, int Month) throws IOException, XmlPullParserException {
+//    ArrayList<String> namelist;
+//    ArrayList<String> datelist;
+    public ApiExplorer(){}
+    public ApiExplorer(Context c) {context = c; }
+    public void getHolidays(int Year, int Month, ArrayList<String> namelist, ArrayList<CalendarDay> datelist) throws IOException, XmlPullParserException {
         Log.d("WeGlonD", "11");
         String key = "Iw10j3Acrg3WrDmYl0%2FXMM08AJStZ0qjmSPPaS2Lb7oazhsvcADHN2v%2BkkSotAJWWHqErRHUUK9no0Z8o6hLrA%3D%3D";
         String year = Integer.valueOf(Year).toString(); String month = Integer.valueOf(Month).toString();
@@ -69,15 +70,16 @@ public class ApiExplorer {
                 }else if(name.equals("locdate")){
                     eventType = parser.next();
                     if(eventType==XmlPullParser.TEXT) {
-                        datelist.add(parser.getText());
+                        int rawdata = Integer.parseInt(parser.getText());
+                        datelist.add(CalendarDay.from(rawdata/10000,(rawdata%10000)/100 - 1, rawdata%100));
                     }
                 }
             }
             eventType = parser.next();
         }
-        for(int i = 0; i < datelist.size(); i++){
-            Log.d("WeGlonD", datelist.get(i) + ' ' + namelist.get(i));
-        }
+//        for(int i = 0; i < datelist.size(); i++){
+//            Log.d("WeGlonD", datelist.get(i).toString() + ' ' + namelist.get(i));
+//        }
 
         rd.close();
         conn.disconnect();

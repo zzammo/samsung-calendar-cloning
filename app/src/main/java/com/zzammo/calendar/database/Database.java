@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.zzammo.calendar.database.firestore.FireStore;
+import com.zzammo.calendar.database.room.HolidayDatabase;
+import com.zzammo.calendar.database.room.MetadataDatabase;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.util.AfterTask;
 
@@ -17,10 +19,14 @@ public class Database {
     public final static int SERVER = 2;
 
     ScheduleDatabase localDB;
+    public HolidayDatabase HoliLocalDB;
+    MetadataDatabase MetaLocalDB;
     FirebaseFirestore serverDB = null;
 
     public Database(Context context) {
         localDB = ScheduleDatabase.getInstance(context);
+        HoliLocalDB = HolidayDatabase.getInstance(context);
+        MetaLocalDB = MetadataDatabase.getInstance(context);
         if(serverDB == null){
             serverDB = FirebaseFirestore.getInstance();
         }
@@ -50,6 +56,12 @@ public class Database {
 
         }
     }
+    public void insert(Holiday holiday){
+        HoliLocalDB.holidayDao().insertAll(holiday);
+    }
+    public void insert(Metadata metadata){
+        MetaLocalDB.metadataDao().insertAll(metadata);
+    }
 
     /**
      *
@@ -75,6 +87,12 @@ public class Database {
 
         }
     }
+    public void delete(Holiday holiday){
+        HoliLocalDB.holidayDao().delete(holiday);
+    }
+    public void delete(Metadata metadata){
+        MetaLocalDB.metadataDao().delete(metadata);
+    }
 
     /**
      *
@@ -98,6 +116,10 @@ public class Database {
                 new FireStore().update(serverDB, schedule, afterTask);
         }
     }
+    public void update(Holiday holiday){
+        HoliLocalDB.holidayDao().updateHolidays(holiday);
+    }
+    public void update(Metadata metadata) { MetaLocalDB.metadataDao().updateMetadata(metadata); }
 
 
     /**
@@ -122,5 +144,9 @@ public class Database {
             case SERVER:
                 new FireStore().loadAllScheduleDuring(serverDB, begin, end, schedules, afterTask);
         }
+    }
+
+    public Metadata getMetadata(String keyword){
+        return MetaLocalDB.metadataDao().getMetadata(keyword);
     }
 }
