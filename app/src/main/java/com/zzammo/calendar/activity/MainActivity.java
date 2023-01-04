@@ -20,14 +20,16 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.DocumentReference;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateLongClickListener;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.auth.Auth;
 import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Holiday;
+import com.zzammo.calendar.database.Metadata;
 import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     Intent it;
     Context context;
     RecyclerView search_recyclerview;
+    public static ArrayList<CalendarDay> HolidayDates;
+    public static ArrayList<String> HolidayNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,18 +129,91 @@ public class MainActivity extends AppCompatActivity {
             RVAdapter.notifyDataSetChanged();
         });
 
-        new Thread(){
-            public void run(){
-                try {
-                    ApiExplorer apiExplorer = new ApiExplorer(context);
-                    apiExplorer.getHolidays(2023, 1);
-                    //2023년 1월의 국경일, 공휴일 정보 불러옴. Month로 0이하의 값을 주면 2023년 전체를 불러옴.
-                } catch (IOException | XmlPullParserException e) {
-                    Log.e("WeGlonD", "ApiExplorer failed - " + e);
-                    e.printStackTrace();
+        HolidayDates = new ArrayList<>(); HolidayNames = new ArrayList<>();
+        calendarView.setOnMonthChangedListener(new OnMonthChangedListener() {
+            @Override
+            public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+                HolidayDates.clear(); HolidayNames.clear();
+                Log.d("WeGlonD", "onMonthChanged - date : " + date); //calendarday 에서의 month는 1월이 0 ~ 12월이 11 인듯
+                int year = date.getYear(); int month = date.getMonth();
+                Database database = new Database(context);
+                Metadata low_bound_holiday = database.getMetadata("Holi_Min_Year");
+                Metadata high_bound_holiday = database.getMetadata("Holi_Max_Year");
+                int minY, maxY;
+                if(low_bound_holiday == null && high_bound_holiday == null){
+                    minY = maxY = year;
+                    database.insert(new Metadata("Holi_Min_Year", Integer.toString(minY)));
+                    database.insert(new Metadata("Holi_Max_Year", Integer.toString(maxY)));
+                    //공휴일 API에서 가져오기
+                    GetHoliday(year, new AfterTask(){
+                        @Override
+                        public void ifSuccess(Object result) {
+                            //공휴일 DB에 쓰기
+                            for(int i = 0; i < HolidayNames.size(); i++){
+                                CalendarDay day = HolidayDates.get(i);
+                                String datestr = Integer.toString(day.getYear());
+                                if(day.getMonth() < 10) datestr = datestr + "0";
+                                datestr = datestr + day.getMonth();
+                                if(day.getDay() < 10) datestr = datestr + "0";
+                                datestr = datestr + day.getDay();
+                                database.insert(new Holiday(datestr, HolidayNames.get(i)));
+                            }
+                        }
+                        @Override
+                        public void ifFail(Object result) {
+                        }
+                    });
+
+                } else {
+                    minY = Integer.parseInt(low_bound_holiday.data); maxY = Integer.parseInt(high_bound_holiday.data);
+                    if(year < minY || year > maxY){
+                        //공휴일 API에서 가져오기
+                        GetHoliday(year, new AfterTask(){
+                            @Override
+                            public void ifSuccess(Object result) {
+                                //공휴일 DB에 쓰기
+                                for(int i = 0; i < HolidayNames.size(); i++){
+                                    CalendarDay day = HolidayDates.get(i);
+                                    String datestr = Integer.toString(day.getYear());
+                                    if(day.getMonth() < 10) datestr = datestr + "0";
+                                    datestr = datestr + day.getMonth();
+                                    if(day.getDay() < 10) datestr = datestr + "0";
+                                    datestr = datestr + day.getDay();
+                                    database.insert(new Holiday(datestr, HolidayNames.get(i)));
+                                }
+                            }
+                            @Override
+                            public void ifFail(Object result) {
+                            }
+                        });
+
+                        if(year < minY) {
+                            low_bound_holiday.data = Integer.toString(year);
+                            database.update(low_bound_holiday);
+                        }
+                        else{
+                            high_bound_holiday.data = Integer.toString(year);
+                            database.update(high_bound_holiday);
+                        }
+                    }
+                    else{
+                        //공휴일 DB에서 가져오기
+                        String keyword = "%"+year;
+                        if(month < 10) keyword = keyword + "0";
+                        keyword = keyword + month + "%";
+                        List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(keyword);
+                        for(Holiday holi : Holidays){
+                            int rawdata = Integer.parseInt(holi.date);
+                            CalendarDay calendarDay = CalendarDay.from(rawdata/10000,(rawdata%10000)/100,rawdata%100);
+                            HolidayDates.add(calendarDay);
+                            HolidayNames.add(holi.name);
+                            Log.d("WeGlonD", "Holiday DB Read - " + calendarDay + " " + holi.name);
+                        }
+                    }
                 }
+
             }
-        }.start();
+        });
 
         //테스트 용
         EditText email_et = findViewById(R.id.activity_main_emailEt);
@@ -242,6 +319,25 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
         //테스트 용
+    }
+
+    void GetHoliday(int year, AfterTask afterTask){
+        new Thread(){
+            public void run(){
+                try {
+                    ApiExplorer apiExplorer = new ApiExplorer(context);
+                    apiExplorer.getHolidays(year, -1, HolidayNames, HolidayDates);
+                    for(int i = 0; i < HolidayNames.size(); i++){
+                        Log.d("WeGlonD", HolidayDates.get(i).toString() + ' ' + HolidayNames.get(i));
+                    }
+                    afterTask.ifSuccess(0);
+                    //2023년 1월의 국경일, 공휴일 정보 불러옴. Month로 0이하의 값을 주면 2023년 전체를 불러옴.
+                } catch (IOException | XmlPullParserException e) {
+                    Log.e("WeGlonD", "ApiExplorer failed - " + e);
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override
