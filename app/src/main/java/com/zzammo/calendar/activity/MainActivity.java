@@ -246,6 +246,15 @@ public class MainActivity extends AppCompatActivity {
                                 datestr = datestr + day.getDay();
                                 database.insert(new Holiday(datestr, HolidayNames.get(i)));
                             }
+                            if(!HolidayNames.isEmpty()) {
+                                if (year < minY) {
+                                    low_bound_holiday.data = Integer.toString(year);
+                                    database.update(low_bound_holiday);
+                                } else {
+                                    high_bound_holiday.data = Integer.toString(year);
+                                    database.update(high_bound_holiday);
+                                }
+                            }
                         }
 
                         @Override
@@ -253,13 +262,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-                    if (year < minY) {
-                        low_bound_holiday.data = Integer.toString(year);
-                        database.update(low_bound_holiday);
-                    } else {
-                        high_bound_holiday.data = Integer.toString(year);
-                        database.update(high_bound_holiday);
-                    }
                 } else {
                     //공휴일 DB에서 가져오기
                     String keyword = "%" + year;
