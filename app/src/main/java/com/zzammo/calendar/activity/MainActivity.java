@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
             if(!selected) return;
             Long dateMills = Time.CalendarDayToMill(date);
             //Toast.makeText(this, dateMills+" "+(dateMills+Time.ONE_DAY), Toast.LENGTH_SHORT).show();
-
             scheduleArrayList.clear();
             scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
             Collections.sort(scheduleArrayList);
@@ -314,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
             ///다 검색하고 났을때
             @Override
             public boolean onQueryTextSubmit(String query) {
+                Log.d("minseok","querytextsubmit");
                 search(query);
                 searchView.setQueryHint("검색");
                 return false;
@@ -322,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
             ///칠 때마다 텍스트를 하나하나 입력받을 때 (검색 도중)
             @Override
             public boolean onQueryTextChange(String newText) {
+                Log.d("minseok","onquerytextchange");
                 search(newText);
                 searchView.setQueryHint("검색");
                 return false;
@@ -331,8 +332,12 @@ public class MainActivity extends AppCompatActivity {
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                Log.d("minseok","expand_");
                 calendarView.setVisibility(View.GONE);
                 searchView.setQueryHint("검색");
+                scheduleArrayList.clear();
+                scheduleArrayList.addAll(DB.scheduleDao().getAll());
+                RVAdapter.notifyDataSetChanged();
                 return true;
             }
 ///검색을 실행하던 도중 뒤로가기 하면 콜랍스 함수가 실행되지만 익스팬더블이 뜨려고 했지만 검색에 검색 중이던 함수가 다시 작동이 되서 어댑터에 리사이클류 그게 뜨지 않고 오류가 발생
@@ -343,14 +348,12 @@ public class MainActivity extends AppCompatActivity {
                 calendarView.setVisibility(View.VISIBLE);
                 registerForContextMenu(scheduleRV);
                 CalendarDay date = calendarView.getSelectedDate();
+                Log.d("minseok","collapse_"+date);
                 scheduleArrayList.clear();
                 if(date != null){
                     Long dateMills = Time.CalendarDayToMill(date);
                     scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
                     Collections.sort(scheduleArrayList);
-                }
-                else{
-                    scheduleArrayList = new ArrayList<>(DB.scheduleDao().getAll());
                 }
                 RVAdapter.notifyDataSetChanged();
                 return true;
@@ -364,10 +367,12 @@ public class MainActivity extends AppCompatActivity {
         keyword = "%"+keyword+"%";
         scheduleArrayList.clear();
         scheduleArrayList.addAll(DB.scheduleDao().searchRecords(keyword));
+        Log.d("minseok","search_"+scheduleArrayList.size());
         RVAdapter.notifyDataSetChanged();
     }
     @Override
     protected void onResume() {
+        Log.d("minseok","resume_");
         super.onResume();
         CalendarDay date = calendarView.getSelectedDate();
         if(date == null) return;

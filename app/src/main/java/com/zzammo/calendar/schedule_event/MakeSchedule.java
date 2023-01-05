@@ -66,8 +66,8 @@ public class MakeSchedule extends AppCompatActivity {
         puttime(arrive_clock,timePicker.getCurrentHour()+1,timePicker.getCurrentMinute());
         int month = getIntent().getIntExtra("month",0);
         int day = getIntent().getIntExtra("day",0);
-        putdate(depart_date,month+1,day);
-        putdate(arrive_date,month+1,day);
+        putdate(depart_date,month,day);
+        putdate(arrive_date,month,day);
 
         depart_dateTime = getIntent().getLongExtra("date",0);
         arrive_dateTime = depart_dateTime+(1000 * 60 * 60 * 24);
@@ -76,11 +76,11 @@ public class MakeSchedule extends AppCompatActivity {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
                 if(visiblemode.equals("departdate")){
-                    putdate(depart_date,date.getMonth()+1,date.getDay());
+                    putdate(depart_date,date.getMonth(),date.getDay());
                     depart_dateTime = Time.CalendarDayToMill(date);
                 }
                 else if(visiblemode.equals("arrivedate")){
-                    putdate(arrive_date,date.getMonth()+1,date.getDay());
+                    putdate(arrive_date,date.getMonth(),date.getDay());
                     arrive_dateTime = Time.CalendarDayToMill(date);
                 }
             }
