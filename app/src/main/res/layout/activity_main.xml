@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ffffff"
@@ -15,13 +15,12 @@
         <com.prolificinteractive.materialcalendarview.MaterialCalendarView
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:layout_height="wrap_content"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/schedule_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="200dp"/>
+            android:layout_height="150dp"/>
 
         <LinearLayout
             android:layout_marginTop="20dp"
@@ -35,68 +34,23 @@
                 android:text="위치검색"/>
         </LinearLayout>
 
-<!--        테스트 용-->
+<!--        테스트용-->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/activity_main_emailEt"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"/>
-            <EditText
-                android:id="@+id/activity_main_passwordEt"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"/>
-            <LinearLayout
+            <Button
+                android:id="@+id/activity_main_auth_test_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/activity_main_signInBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="signIn"/>
-                <Button
-                    android:id="@+id/activity_main_signUpBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="signUp"/>
-                <Button
-                    android:id="@+id/activity_main_signOutBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="signOut"/>
-                <Button
-                    android:id="@+id/activity_main_deleteBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="delete"/>
-            </LinearLayout>
-            <LinearLayout
+                android:text="auth_test"/>
+            <Button
+                android:id="@+id/activity_main_DB_test_btn"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/activity_main_localDB_insertBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="r_write"/>
-                <Button
-                    android:id="@+id/activity_main_serverDB_insertBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="f_write"/>
-                <Button
-                    android:id="@+id/activity_main_serverDB_deleteBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="f_delete"/>
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:text="db_test"/>
         </LinearLayout>
-<!--        테스트 용-->
-
+<!--        테스트용-->
     </LinearLayout>
 
 

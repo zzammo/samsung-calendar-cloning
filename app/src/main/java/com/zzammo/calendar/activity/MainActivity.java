@@ -34,7 +34,10 @@ import com.zzammo.calendar.database.Metadata;
 import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
+import com.zzammo.calendar.lunar.LunarCalendar;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
+import com.zzammo.calendar.test.AuthTestActivity;
+import com.zzammo.calendar.test.DBTestActivity;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 
@@ -61,11 +64,16 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<CalendarDay> HolidayDates;
     public static ArrayList<String> HolidayNames;
 
+    CalendarDay preSelectedDate = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         HolidayDates = new ArrayList<>(); HolidayNames = new ArrayList<>();
+
+        /*Log.d("minseok",LunarCalendar.Solar2Lunar("20230105")) ; // 양력을 음력으로 바꾸기
+        Log.d("minseok", LunarCalendar.Lunar2Solar("20010527")) ; // 음력을 양력으로 바꾸기*/
 
         calendarView = findViewById(R.id.calendarView);
         calendarView.addDecorators(
@@ -117,19 +125,29 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
             if(!selected) return;
+
             Long dateMills = Time.CalendarDayToMill(date);
-            //Toast.makeText(this, dateMills+" "+(dateMills+Time.ONE_DAY), Toast.LENGTH_SHORT).show();
+
             scheduleArrayList.clear();
             scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
             Collections.sort(scheduleArrayList);
             RVAdapter.notifyDataSetChanged();
 
-//            if(scheduleArrayList.size() == 0) return;
-
-            ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
+            if (preSelectedDate == null || !preSelectedDate.equals(date)){
+                preSelectedDate = date;
+            }
+            else if (scheduleArrayList.size() == 0){
+                it = new Intent(context, MakeSchedule.class);
+                it.putExtra("date",Time.CalendarDayToMill(date));
+                it.putExtra("month",date.getMonth());
+                it.putExtra("day",date.getDay());
+                startActivity(it);
+            }
+            else{
+                ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
                         Time.CalendarDayToMill(date));
                 oDialog.show();
-
+            }
         });
 
         calendarView.setOnMonthChangedListener(onMonthChangedListener);
@@ -283,6 +301,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+        };
+
+        //테스트용
+        findViewById(R.id.activity_main_auth_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, AuthTestActivity.class);
+            startActivity(it);
+        });
+        findViewById(R.id.activity_main_DB_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, DBTestActivity.class);
+            startActivity(it);
+        });
+        //테스트용
+    }
 
         }
     };
@@ -389,33 +420,4 @@ public class MainActivity extends AppCompatActivity {
         RVAdapter.notifyDataSetChanged();
     }
 
-    class q implements AfterTask{
-        @Override
-        public void ifSuccess(Object result) {
-
-        }
-
-        @Override
-        public void ifFail(Object result) {
-
-        }
-    }
-    class jt implements AfterTask{
-
-        String s;
-
-        public jt(String s) {
-            this.s = s;
-        }
-
-        @Override
-        public void ifSuccess(Object result) {
-            Toast.makeText(context, s+" 성공", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void ifFail(Object result) {
-            Toast.makeText(context, s+" 실패", Toast.LENGTH_SHORT).show();
-        }
-    }
 }
