@@ -35,6 +35,8 @@ import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
+import com.zzammo.calendar.test.AuthTestActivity;
+import com.zzammo.calendar.test.DBTestActivity;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     public static ArrayList<CalendarDay> HolidayDates;
     public static ArrayList<String> HolidayNames;
+
+    CalendarDay preSelectedDate = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,19 +120,29 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
             if(!selected) return;
+
             Long dateMills = Time.CalendarDayToMill(date);
-            //Toast.makeText(this, dateMills+" "+(dateMills+Time.ONE_DAY), Toast.LENGTH_SHORT).show();
+
             scheduleArrayList.clear();
             scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
             Collections.sort(scheduleArrayList);
             RVAdapter.notifyDataSetChanged();
 
-//            if(scheduleArrayList.size() == 0) return;
-
-            ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
+            if (preSelectedDate == null || !preSelectedDate.equals(date)){
+                preSelectedDate = date;
+            }
+            else if (scheduleArrayList.size() == 0){
+                it = new Intent(context, MakeSchedule.class);
+                it.putExtra("date",Time.CalendarDayToMill(date));
+                it.putExtra("month",date.getMonth());
+                it.putExtra("day",date.getDay());
+                startActivity(it);
+            }
+            else{
+                ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
                         Time.CalendarDayToMill(date));
                 oDialog.show();
-
+            }
         });
 
         HolidayDates = new ArrayList<>(); HolidayNames = new ArrayList<>();
@@ -217,50 +231,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //테스트 용
-        EditText email_et = findViewById(R.id.activity_main_emailEt);
-        EditText password_et = findViewById(R.id.activity_main_passwordEt);
-        Button signUp_btn = findViewById(R.id.activity_main_signUpBtn);
-        Button signIn_btn = findViewById(R.id.activity_main_signInBtn);
-        Button signOut_btn = findViewById(R.id.activity_main_signOutBtn);
-        Button delete_btn = findViewById(R.id.activity_main_deleteBtn);
-        Button local_insert_btn = findViewById(R.id.activity_main_localDB_insertBtn);
-        Button server_insert_btn = findViewById(R.id.activity_main_serverDB_insertBtn);
-        Button server_delete_btn = findViewById(R.id.activity_main_serverDB_deleteBtn);
-        Schedule test_schedule = new Schedule("test_title", "test_loc",
-                System.currentTimeMillis(),
-                System.currentTimeMillis());
-        signUp_btn.setOnClickListener(view -> {
-            String email = email_et.getText().toString();
-            String password = password_et.getText().toString();
-            new Auth().signUp(Auth.EMAIL, email, password, new jt("가입"));
+        //테스트용
+        findViewById(R.id.activity_main_auth_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, AuthTestActivity.class);
+            startActivity(it);
         });
-        signIn_btn.setOnClickListener(view -> {
-            String email = email_et.getText().toString();
-            String password = password_et.getText().toString();
-            new Auth().logIn(Auth.EMAIL, email, password, new jt("로그인"));
+        findViewById(R.id.activity_main_DB_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, DBTestActivity.class);
+            startActivity(it);
         });
-        signOut_btn.setOnClickListener(view -> {
-            if(new Auth().logOn())
-                new Auth().logOut();
-        });
-        delete_btn.setOnClickListener(view -> {
-            if(new Auth().logOn())
-                new Auth().delete(Auth.EMAIL, new jt("삭제"));
-        });
-        local_insert_btn.setOnClickListener(view -> {
-            new Database(context).insert(Database.LOCAL, test_schedule,
-                    new q());
-        });
-        server_insert_btn.setOnClickListener(view -> {
-            new Database(context).insert(Database.SERVER, test_schedule,
-                    new jt("쓰기"));
-        });
-        server_delete_btn.setOnClickListener(view -> {
-            new Database(context).delete(Database.SERVER, test_schedule
-                    , new jt("삭제"));
-        });
-        //테스트 용
+        //테스트용
     }
 
     void GetHoliday(int year, AfterTask afterTask){
@@ -383,33 +363,4 @@ public class MainActivity extends AppCompatActivity {
         RVAdapter.notifyDataSetChanged();
     }
 
-    class q implements AfterTask{
-        @Override
-        public void ifSuccess(Object result) {
-
-        }
-
-        @Override
-        public void ifFail(Object result) {
-
-        }
-    }
-    class jt implements AfterTask{
-
-        String s;
-
-        public jt(String s) {
-            this.s = s;
-        }
-
-        @Override
-        public void ifSuccess(Object result) {
-            Toast.makeText(context, s+" 성공", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void ifFail(Object result) {
-            Toast.makeText(context, s+" 실패", Toast.LENGTH_SHORT).show();
-        }
-    }
 }

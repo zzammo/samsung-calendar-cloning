@@ -227,6 +227,8 @@ public class MakeSchedule extends AppCompatActivity {
 
             ScheduleDatabase DB = ScheduleDatabase.getInstance(mContext);
             DB.scheduleDao().insertAll(schedule);
+
+            finish();
         });
     }
     private void puttime(TextView a, int hour, int minute){
