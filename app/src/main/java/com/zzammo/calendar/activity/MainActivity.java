@@ -70,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        HolidayDates = new ArrayList<>(); HolidayNames = new ArrayList<>();
+        HolidayDates = new ArrayList<>();
+        HolidayNames = new ArrayList<>();
 
         /*Log.d("minseok",LunarCalendar.Solar2Lunar("20230105")) ; // 양력을 음력으로 바꾸기
         Log.d("minseok", LunarCalendar.Lunar2Solar("20010527")) ; // 음력을 양력으로 바꾸기*/
@@ -83,12 +84,12 @@ public class MainActivity extends AppCompatActivity {
                 new HolidayDecorator(HolidayDates, HolidayNames),
                 new MySelectorDecorator(this)
         );
-        Button button=(Button) findViewById(R.id.btn);
-        button.setOnClickListener(new View.OnClickListener(){
+        Button button = (Button) findViewById(R.id.btn);
+        button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                Intent intent =new Intent(getApplicationContext(),MainAddressActivity.class);
+                Intent intent = new Intent(getApplicationContext(), MainAddressActivity.class);
                 startActivity(intent);
             }
 
@@ -116,15 +117,15 @@ public class MainActivity extends AppCompatActivity {
                         Time.CalendarDayToMill(date));
                 oDialog.show();*/
                 it = new Intent(getApplicationContext(), MakeSchedule.class);
-                it.putExtra("date",Time.CalendarDayToMill(date));
-                it.putExtra("month",date.getMonth());
-                it.putExtra("day",date.getDay());
+                it.putExtra("date", Time.CalendarDayToMill(date));
+                it.putExtra("month", date.getMonth());
+                it.putExtra("day", date.getDay());
                 startActivity(it);
             }
         });//버전 올려서 살렸음
 
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
-            if(!selected) return;
+            if (!selected) return;
 
             Long dateMills = Time.CalendarDayToMill(date);
 
@@ -133,17 +134,15 @@ public class MainActivity extends AppCompatActivity {
             Collections.sort(scheduleArrayList);
             RVAdapter.notifyDataSetChanged();
 
-            if (preSelectedDate == null || !preSelectedDate.equals(date)){
+            if (preSelectedDate == null || !preSelectedDate.equals(date)) {
                 preSelectedDate = date;
-            }
-            else if (scheduleArrayList.size() == 0){
+            } else if (scheduleArrayList.size() == 0) {
                 it = new Intent(context, MakeSchedule.class);
-                it.putExtra("date",Time.CalendarDayToMill(date));
-                it.putExtra("month",date.getMonth());
-                it.putExtra("day",date.getDay());
+                it.putExtra("date", Time.CalendarDayToMill(date));
+                it.putExtra("month", date.getMonth());
+                it.putExtra("day", date.getDay());
                 startActivity(it);
-            }
-            else{
+            } else {
                 ScheduleDialog oDialog = new ScheduleDialog(MainActivity.this,
                         Time.CalendarDayToMill(date));
                 oDialog.show();
@@ -152,59 +151,25 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView.setOnMonthChangedListener(onMonthChangedListener);
 
-        //테스트 용
-        EditText email_et = findViewById(R.id.activity_main_emailEt);
-        EditText password_et = findViewById(R.id.activity_main_passwordEt);
-        Button signUp_btn = findViewById(R.id.activity_main_signUpBtn);
-        Button signIn_btn = findViewById(R.id.activity_main_signInBtn);
-        Button signOut_btn = findViewById(R.id.activity_main_signOutBtn);
-        Button delete_btn = findViewById(R.id.activity_main_deleteBtn);
-        Button local_insert_btn = findViewById(R.id.activity_main_localDB_insertBtn);
-        Button server_insert_btn = findViewById(R.id.activity_main_serverDB_insertBtn);
-        Button server_delete_btn = findViewById(R.id.activity_main_serverDB_deleteBtn);
-        Schedule test_schedule = new Schedule("test_title", "test_loc",
-                System.currentTimeMillis(),
-                System.currentTimeMillis());
-        signUp_btn.setOnClickListener(view -> {
-            String email = email_et.getText().toString();
-            String password = password_et.getText().toString();
-            new Auth().signUp(Auth.EMAIL, email, password, new jt("가입"));
+        //테스트용
+        findViewById(R.id.activity_main_auth_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, AuthTestActivity.class);
+            startActivity(it);
         });
-        signIn_btn.setOnClickListener(view -> {
-            String email = email_et.getText().toString();
-            String password = password_et.getText().toString();
-            new Auth().logIn(Auth.EMAIL, email, password, new jt("로그인"));
+        findViewById(R.id.activity_main_DB_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, DBTestActivity.class);
+            startActivity(it);
         });
-        signOut_btn.setOnClickListener(view -> {
-            if(new Auth().logOn())
-                new Auth().logOut();
-        });
-        delete_btn.setOnClickListener(view -> {
-            if(new Auth().logOn())
-                new Auth().delete(Auth.EMAIL, new jt("삭제"));
-        });
-        local_insert_btn.setOnClickListener(view -> {
-            new Database(context).insert(Database.LOCAL, test_schedule,
-                    new q());
-        });
-        server_insert_btn.setOnClickListener(view -> {
-            new Database(context).insert(Database.SERVER, test_schedule,
-                    new jt("쓰기"));
-        });
-        server_delete_btn.setOnClickListener(view -> {
-            new Database(context).delete(Database.SERVER, test_schedule
-                    , new jt("삭제"));
-        });
-        //테스트 용
+
     }
 
-    void GetHoliday(int year, AfterTask afterTask){
-        new Thread(){
-            public void run(){
+    void GetHoliday(int year, AfterTask afterTask) {
+        new Thread() {
+            public void run() {
                 try {
                     ApiExplorer apiExplorer = new ApiExplorer(context);
                     apiExplorer.getHolidays(year, -1, HolidayNames, HolidayDates);
-                    for(int i = 0; i < HolidayNames.size(); i++){
+                    for (int i = 0; i < HolidayNames.size(); i++) {
                         Log.d("WeGlonD", HolidayDates.get(i).toString() + ' ' + HolidayNames.get(i));
                     }
                     afterTask.ifSuccess(0);
@@ -220,80 +185,83 @@ public class MainActivity extends AppCompatActivity {
     public OnMonthChangedListener onMonthChangedListener = new OnMonthChangedListener() {
         @Override
         public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
-            HolidayDates.clear(); HolidayNames.clear();
+            HolidayDates.clear();
+            HolidayNames.clear();
             Log.d("WeGlonD", "onMonthChanged - date : " + date);
-            int year = date.getYear(); int month = date.getMonth();
+            int year = date.getYear();
+            int month = date.getMonth();
             Database database = new Database(context);
             Metadata low_bound_holiday = database.getMetadata("Holi_Min_Year");
             Metadata high_bound_holiday = database.getMetadata("Holi_Max_Year");
             int minY, maxY;
-            if(low_bound_holiday == null && high_bound_holiday == null){
+            if (low_bound_holiday == null && high_bound_holiday == null) {
                 minY = maxY = year;
                 database.insert(new Metadata("Holi_Min_Year", Integer.toString(minY)));
                 database.insert(new Metadata("Holi_Max_Year", Integer.toString(maxY)));
                 //공휴일 API에서 가져오기
-                GetHoliday(year, new AfterTask(){
+                GetHoliday(year, new AfterTask() {
                     @Override
                     public void ifSuccess(Object result) {
                         calendarView.invalidateDecorators();
                         //공휴일 DB에 쓰기
-                        for(int i = 0; i < HolidayNames.size(); i++){
+                        for (int i = 0; i < HolidayNames.size(); i++) {
                             CalendarDay day = HolidayDates.get(i);
                             String datestr = Integer.toString(day.getYear());
-                            if(day.getMonth() < 10) datestr = datestr + "0";
+                            if (day.getMonth() < 10) datestr = datestr + "0";
                             datestr = datestr + day.getMonth();
-                            if(day.getDay() < 10) datestr = datestr + "0";
+                            if (day.getDay() < 10) datestr = datestr + "0";
                             datestr = datestr + day.getDay();
                             database.insert(new Holiday(datestr, HolidayNames.get(i)));
                         }
                     }
+
                     @Override
                     public void ifFail(Object result) {
                     }
                 });
 
             } else {
-                minY = Integer.parseInt(low_bound_holiday.data); maxY = Integer.parseInt(high_bound_holiday.data);
-                if(year < minY || year > maxY){
+                minY = Integer.parseInt(low_bound_holiday.data);
+                maxY = Integer.parseInt(high_bound_holiday.data);
+                if (year < minY || year > maxY) {
                     //공휴일 API에서 가져오기
-                    GetHoliday(year, new AfterTask(){
+                    GetHoliday(year, new AfterTask() {
                         @Override
                         public void ifSuccess(Object result) {
                             calendarView.invalidateDecorators();
                             //공휴일 DB에 쓰기
-                            for(int i = 0; i < HolidayNames.size(); i++){
+                            for (int i = 0; i < HolidayNames.size(); i++) {
                                 CalendarDay day = HolidayDates.get(i);
                                 String datestr = Integer.toString(day.getYear());
-                                if(day.getMonth() < 10) datestr = datestr + "0";
+                                if (day.getMonth() < 10) datestr = datestr + "0";
                                 datestr = datestr + day.getMonth();
-                                if(day.getDay() < 10) datestr = datestr + "0";
+                                if (day.getDay() < 10) datestr = datestr + "0";
                                 datestr = datestr + day.getDay();
                                 database.insert(new Holiday(datestr, HolidayNames.get(i)));
                             }
                         }
+
                         @Override
                         public void ifFail(Object result) {
                         }
                     });
 
-                    if(year < minY) {
+                    if (year < minY) {
                         low_bound_holiday.data = Integer.toString(year);
                         database.update(low_bound_holiday);
-                    }
-                    else{
+                    } else {
                         high_bound_holiday.data = Integer.toString(year);
                         database.update(high_bound_holiday);
                     }
-                }
-                else{
+                } else {
                     //공휴일 DB에서 가져오기
-                    String keyword = "%"+year;
-                    if(month < 10) keyword = keyword + "0";
+                    String keyword = "%" + year;
+                    if (month < 10) keyword = keyword + "0";
                     keyword = keyword + month + "%";
                     List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(keyword);
-                    for(Holiday holi : Holidays){
+                    for (Holiday holi : Holidays) {
                         int rawdata = Integer.parseInt(holi.date);
-                        CalendarDay calendarDay = CalendarDay.from(rawdata/10000,(rawdata%10000)/100,rawdata%100);
+                        CalendarDay calendarDay = CalendarDay.from(rawdata / 10000, (rawdata % 10000) / 100, rawdata % 100);
                         HolidayDates.add(calendarDay);
                         HolidayNames.add(holi.name);
                         Log.d("WeGlonD", "Holiday DB Read - " + calendarDay + " " + holi.name);
@@ -301,22 +269,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-        };
-
-        //테스트용
-        findViewById(R.id.activity_main_auth_test_btn).setOnClickListener(v -> {
-            Intent it = new Intent(context, AuthTestActivity.class);
-            startActivity(it);
-        });
-        findViewById(R.id.activity_main_DB_test_btn).setOnClickListener(v -> {
-            Intent it = new Intent(context, DBTestActivity.class);
-            startActivity(it);
-        });
-        //테스트용
-    }
-
         }
     };
+
 
     @Override
     public void onBackPressed() {
@@ -339,7 +294,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.menu_option, menu);
         MenuItem searchItem = menu.findItem(R.id.name_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -349,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
             ///다 검색하고 났을때
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Log.d("minseok","querytextsubmit");
+                Log.d("minseok", "querytextsubmit");
                 search(query);
                 searchView.setQueryHint("검색");
                 return false;
@@ -358,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
             ///칠 때마다 텍스트를 하나하나 입력받을 때 (검색 도중)
             @Override
             public boolean onQueryTextChange(String newText) {
-                Log.d("minseok","onquerytextchange");
+                Log.d("minseok", "onquerytextchange");
                 search(newText);
                 searchView.setQueryHint("검색");
                 return false;
@@ -368,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
-                Log.d("minseok","expand_");
+                Log.d("minseok", "expand_");
                 calendarView.setVisibility(View.GONE);
                 searchView.setQueryHint("검색");
                 scheduleArrayList.clear();
@@ -376,7 +330,8 @@ public class MainActivity extends AppCompatActivity {
                 RVAdapter.notifyDataSetChanged();
                 return true;
             }
-///검색을 실행하던 도중 뒤로가기 하면 콜랍스 함수가 실행되지만 익스팬더블이 뜨려고 했지만 검색에 검색 중이던 함수가 다시 작동이 되서 어댑터에 리사이클류 그게 뜨지 않고 오류가 발생
+
+            ///검색을 실행하던 도중 뒤로가기 하면 콜랍스 함수가 실행되지만 익스팬더블이 뜨려고 했지만 검색에 검색 중이던 함수가 다시 작동이 되서 어댑터에 리사이클류 그게 뜨지 않고 오류가 발생
 /// 콜랩스 함수가 시작되면 무조건 입력중이던 함수는 적용안되게 수정함
             //검색이 종료되었을 때
             @Override
@@ -384,9 +339,9 @@ public class MainActivity extends AppCompatActivity {
                 calendarView.setVisibility(View.VISIBLE);
                 registerForContextMenu(scheduleRV);
                 CalendarDay date = calendarView.getSelectedDate();
-                Log.d("minseok","collapse_"+date);
+                Log.d("minseok", "collapse_" + date);
                 scheduleArrayList.clear();
-                if(date != null){
+                if (date != null) {
                     Long dateMills = Time.CalendarDayToMill(date);
                     scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
                     Collections.sort(scheduleArrayList);
@@ -398,21 +353,22 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void search(String keyword){//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|
+    private void search(String keyword) {//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|
         registerForContextMenu(scheduleRV);
-        keyword = "%"+keyword+"%";
+        keyword = "%" + keyword + "%";
         scheduleArrayList.clear();
         scheduleArrayList.addAll(DB.scheduleDao().searchRecords(keyword));
-        Log.d("minseok","search_"+scheduleArrayList.size());
+        Log.d("minseok", "search_" + scheduleArrayList.size());
         RVAdapter.notifyDataSetChanged();
     }
+
     @Override
     protected void onResume() {
-        Log.d("minseok","resume_");
+        Log.d("minseok", "resume_");
         super.onResume();
         CalendarDay date = calendarView.getSelectedDate();
         onMonthChangedListener.onMonthChanged(calendarView, calendarView.getCurrentDate());
-        if(date == null) return;
+        if (date == null) return;
         Long dateMills = Time.CalendarDayToMill(date);
         scheduleArrayList.clear();
         scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
