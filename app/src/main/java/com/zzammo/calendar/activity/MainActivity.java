@@ -164,7 +164,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void GetHoliday(int year, AfterTask afterTask) {
-        new Thread() {
+        new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     ApiExplorer apiExplorer = new ApiExplorer(context);
@@ -173,13 +174,19 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("WeGlonD", HolidayDates.get(i).toString() + ' ' + HolidayNames.get(i));
                     }
                     afterTask.ifSuccess(0);
+                    calendarView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            calendarView.invalidateDecorators();
+                        }
+                    });
                     //2023년 1월의 국경일, 공휴일 정보 불러옴. Month로 0이하의 값을 주면 2023년 전체를 불러옴.
                 } catch (IOException | XmlPullParserException e) {
                     Log.e("WeGlonD", "ApiExplorer failed - " + e);
                     e.printStackTrace();
                 }
             }
-        }.start();
+        }).start();
     }
 
     public OnMonthChangedListener onMonthChangedListener = new OnMonthChangedListener() {
@@ -202,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 GetHoliday(year, new AfterTask() {
                     @Override
                     public void ifSuccess(Object result) {
-                        calendarView.invalidateDecorators();
+                        //calendarView.invalidateDecorators();
                         //공휴일 DB에 쓰기
                         for (int i = 0; i < HolidayNames.size(); i++) {
                             CalendarDay day = HolidayDates.get(i);
@@ -228,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                     GetHoliday(year, new AfterTask() {
                         @Override
                         public void ifSuccess(Object result) {
-                            calendarView.invalidateDecorators();
+                            //calendarView.invalidateDecorators();
                             //공휴일 DB에 쓰기
                             for (int i = 0; i < HolidayNames.size(); i++) {
                                 CalendarDay day = HolidayDates.get(i);
