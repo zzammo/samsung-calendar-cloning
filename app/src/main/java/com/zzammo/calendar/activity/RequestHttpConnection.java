@@ -14,6 +14,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class RequestHttpConnection {
+    private int state;
+    public RequestHttpConnection(int state){
+        this.state=state;
+    }
     public String request(String _url, ContentValues _params){
 
         //HttpURLConnection 참조변수
@@ -55,17 +59,31 @@ public class RequestHttpConnection {
             // TimeOut 시간 (Read시 연결 시간)
             conn.setReadTimeout(1000);
 
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Host","apis.openapi.sk.com");
-            conn.setRequestProperty("appKey","l7xxb76eb9ee907444a8b8098322fa488048");
-            conn.setRequestProperty("Accept-Language","ko");
-            conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+            if(this.state==0) {
+                Log.d("여기까지","오냐?");
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Host", "apis.openapi.sk.com");
+                conn.setRequestProperty("Accept-Language", "ko");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("appKey", "l7xxb76eb9ee907444a8b8098322fa488048");
+            }
+            else {
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Host", "apis.openapi.sk.com");
+                conn.setRequestProperty("appKey", "l7xxb76eb9ee907444a8b8098322fa488048");
+                conn.setRequestProperty("Accept-Language", "ko");
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            }
+
+            Log.d("여기까지","오냐?2");
 
             String strParams=sbParams.toString();
             OutputStream os=conn.getOutputStream();
             os.write(strParams.getBytes("UTF-8"));
             os.flush();
             os.close();
+
+            Log.d("여기까지","오냐?3");
 
             System.out.println(conn.getResponseCode());
             if(conn.getResponseCode() !=HttpURLConnection.HTTP_OK) {
@@ -99,12 +117,13 @@ public class RequestHttpConnection {
 
 
         } catch (MalformedURLException e) {
-            Log.e("ㅜㅜ","연결실패...");
+            Log.e("ㅜㅜ", "연결실패...");
             e.printStackTrace();
         } catch (IOException e) {
-            Log.e("ㅜㅜ","연결실패..");
-            e.printStackTrace();
-        }
+        Log.e("ㅜㅜ","연결실패..");
+        e.printStackTrace();
+    }
+
         return null;
     }
 }
