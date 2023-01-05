@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +35,6 @@ import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import android.location.Location;
@@ -58,7 +56,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
     String result1 = "";
     String result2 = "";
 
-    String urlstring="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
+    String giourl ="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F02&coordType=WGS84GEO&version=1&format=json&fullAddr=";
 
 
     private GoogleMap map;
@@ -77,17 +75,18 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
         button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                Log.d("Onclick","nono");
                 if (data1 == null || data2 == null) {
                     Toast.makeText(getApplicationContext(),"출발지와 도착지를 입력해주세요",Toast.LENGTH_SHORT).show();
                 }
                 else {
                     try {
 
-                        data1 = URLEncoder.encode(data1, "utf-8");
-                        URL url1 = new URL(urlstring + data1 + "&appKey=" + key);
+                        String data1_ = URLEncoder.encode(data1, "utf-8");
+                        URL url1 = new URL(giourl + data1_ + "&appKey=" + key);
 
-                        data2=URLEncoder.encode(data2,"utf-8");
-                        URL url2=new URL(urlstring+data2+"&appKey=" + key);
+                        String data2_ =URLEncoder.encode(data2,"utf-8");
+                        URL url2=new URL(giourl +data2_+"&appKey=" + key);
 
                         BufferedReader bf;
                         bf = new BufferedReader(new InputStreamReader(url1.openStream(), "UTF-8"));
@@ -96,7 +95,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                         result2 = bf.readLine();
 
                         Log.i("연결완료1", result1);
-                        Log.i("연결완료2",result2);
+                        Log.i("연결완료2", result2);
 
                         JSONParser jsonParser = new JSONParser();
                         JSONObject jsonObject = (JSONObject) jsonParser.parse(result1);
@@ -105,8 +104,8 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                         JSONArray coordinate = (JSONArray) coordinateInfo.get("coordinate");
                         JSONObject pos = (JSONObject) coordinate.get(0);
 
-                        double lat1 = Double.parseDouble((String) pos.get("lat"));
-                        double lon1 = Double.parseDouble((String) pos.get("lon"));
+                        double lat1 = Double.parseDouble((String) pos.get("newLat"));
+                        double lon1 = Double.parseDouble((String) pos.get("newLon"));
                         LatLng start = new LatLng(lat1, lon1);
 
                         jsonObject = (JSONObject) jsonParser.parse(result2);
@@ -115,8 +114,8 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                         coordinate = (JSONArray) coordinateInfo.get("coordinate");
                         pos = (JSONObject) coordinate.get(0);
 
-                        double lat2 = Double.parseDouble((String) pos.get("lat"));
-                        double lon2 = Double.parseDouble((String) pos.get("lon"));
+                        double lat2 = Double.parseDouble((String) pos.get("newLat"));
+                        double lon2 = Double.parseDouble((String) pos.get("newLon"));
                         LatLng goal = new LatLng(lat2, lon2);
 
                         //////////////2지점 거리랑 중간위치계산
@@ -152,7 +151,15 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
                         Log.i("PSt","connected");
                         if(state==0){
-
+                            ContentValues contentValues0 =new ContentValues();
+                            contentValues0.put("startX",String.valueOf(lon1));
+                            contentValues0.put("startY",String.valueOf(lat1));
+                            contentValues0.put("endX",String.valueOf(lon2));
+                            contentValues0.put("endY",String.valueOf(lat2));
+                            contentValues0.put("format","json");
+                            contentValues0.put("count",10);
+                            NetworkTask networkTask0=new NetworkTask("http://apis.openapi.sk.com/transit/routes",contentValues0);
+                            networkTask0.execute();
                         }
                         else if(state==1){
                             ContentValues contentValues1 =new ContentValues();
@@ -160,8 +167,8 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                             contentValues1.put("startY",String.valueOf(lat1));
                             contentValues1.put("endX",String.valueOf(lon2));
                             contentValues1.put("endY",String.valueOf(lat2));
-                            contentValues1.put("startName",data1);
-                            contentValues1.put("endName",data2);
+                            contentValues1.put("startName",data1_);
+                            contentValues1.put("endName",data2_);
                             NetworkTask networkTask1=new NetworkTask("http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json",contentValues1);
                             networkTask1.execute();
                         }
@@ -175,7 +182,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                             networkTask2.execute();
                         }
                         else{
-
+                            Toast.makeText(getApplicationContext(), "교통수단을 선택해 주세요", Toast.LENGTH_SHORT).show();
                         }
 
                     } catch (Exception e) {
@@ -309,7 +316,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
         @Override
         protected String doInBackground(Void... params) {
             String result="45";
-            RequestHttpConnection requestHttpConnection=new RequestHttpConnection();
+            RequestHttpConnection requestHttpConnection=new RequestHttpConnection(state);
             result=requestHttpConnection.request(url,values);
             Log.e("과연",result);
             return result;
@@ -327,19 +334,31 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                 e.printStackTrace();
             }
 
-            JSONArray features = (JSONArray) jsonObject.get("features");
-            JSONObject sp_features = (JSONObject) features.get(0);
+            Log.d("파싱준비", jsonObject.toString());
 
-            JSONObject properties = (JSONObject) sp_features.get("properties");
-            Log.d("properties",(String) properties.toString());
-            String time = (String) properties.get("totalTime").toString();
-            Log.d("tttttime",time);
+            String time;
+            if(state==0){
+                JSONObject plan = (JSONObject) jsonObject.get("plan");
+                JSONArray itineraries = (JSONArray) plan.get("itineraries");
+                JSONObject totalTime = (JSONObject) itineraries.get(2);
+
+                time = (String) totalTime.toString();
+            }else {
+
+                JSONArray features = (JSONArray) jsonObject.get("features");
+                JSONObject sp_features = (JSONObject) features.get(0);
+
+                JSONObject properties = (JSONObject) sp_features.get("properties");
+                Log.d("properties", (String) properties.toString());
+                time = (String) properties.get("totalTime").toString();
+                Log.d("tttttime", time);
+            }
 
             textView15=(TextView)findViewById(R.id.textView15);
+            Log.e("초초",time);
             textView15.setText(time+"초 소요");
 
 
         }
     }
-
 }
