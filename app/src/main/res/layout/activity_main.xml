@@ -21,7 +21,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/schedule_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="80dp"/>
+            android:layout_height="200dp"/>
 
         <LinearLayout
             android:layout_marginTop="20dp"

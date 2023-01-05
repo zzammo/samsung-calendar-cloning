@@ -52,14 +52,12 @@ public class MainActivity extends AppCompatActivity {
     ScheduleDatabase DB;
 
     MaterialCalendarView calendarView;
-
     RecyclerView scheduleRV;
     ScheduleRVAdapter RVAdapter;
     LinearLayoutManager layoutManager;
     ArrayList<Schedule> scheduleArrayList;
     Intent it;
     Context context;
-    RecyclerView search_recyclerview;
     public static ArrayList<CalendarDay> HolidayDates;
     public static ArrayList<String> HolidayNames;
 
@@ -68,9 +66,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MaterialCalendarView materialCalendarView;
-        materialCalendarView=findViewById((R.id.calendarView));
-        materialCalendarView.addDecorators(
+
+        calendarView = findViewById(R.id.calendarView);
+        calendarView.addDecorators(
                 new SaturdayDecorator(),
                 new SundayDecorator(),
                 new TodayDecorator(),
@@ -90,9 +88,6 @@ public class MainActivity extends AppCompatActivity {
         this.context = this;
 
         DB = ScheduleDatabase.getInstance(context);
-
-        calendarView = findViewById(R.id.calendarView);
-
         scheduleRV = findViewById(R.id.schedule_recyclerView);
         scheduleArrayList = new ArrayList<>();
         RVAdapter = new ScheduleRVAdapter(scheduleArrayList);
@@ -336,26 +331,28 @@ public class MainActivity extends AppCompatActivity {
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                calendarView.setVisibility(View.GONE);
                 searchView.setQueryHint("검색");
                 return true;
             }
 ///검색을 실행하던 도중 뒤로가기 하면 콜랍스 함수가 실행되지만 익스팬더블이 뜨려고 했지만 검색에 검색 중이던 함수가 다시 작동이 되서 어댑터에 리사이클류 그게 뜨지 않고 오류가 발생
 /// 콜랩스 함수가 시작되면 무조건 입력중이던 함수는 적용안되게 수정함
-
             //검색이 종료되었을 때
             @Override
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-                /*q = 1; // 검색하다가 종료했을 때는
-                if(tabtype == 0){
-                    recyclerview = findViewById(R.id.recyclerview);
-                    registerForContextMenu(recyclerview);
-                    DBHelper databaseHelper = new DBHelper(getApplicationContext());
-                    ArrayList<ExpandableListAdapter.Item> mritems = databaseHelper.getItem();
-                    if (mritems != null) {
-                        recyclerview.setAdapter(new ExpandableListAdapter(mritems,ExpandableListAdapter.mContext));
-                        recyclerview.setHasFixedSize(true);
-                    }
-                }*/
+                calendarView.setVisibility(View.VISIBLE);
+                registerForContextMenu(scheduleRV);
+                CalendarDay date = calendarView.getSelectedDate();
+                scheduleArrayList.clear();
+                if(date != null){
+                    Long dateMills = Time.CalendarDayToMill(date);
+                    scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
+                    Collections.sort(scheduleArrayList);
+                }
+                else{
+                    scheduleArrayList = new ArrayList<>(DB.scheduleDao().getAll());
+                }
+                RVAdapter.notifyDataSetChanged();
                 return true;
             }
         });
@@ -363,26 +360,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void search(String keyword){//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|
-        search_recyclerview = findViewById(R.id.schedule_recyclerView);
-        registerForContextMenu(search_recyclerview);
-        //if(keyword.equals(""))Log.d("minseok",keyword);
+        registerForContextMenu(scheduleRV);
         keyword = "%"+keyword+"%";
-        List<Schedule> list = DB.scheduleDao().searchRecords(keyword);
-
-        ArrayList<Schedule> search_scheduleList = new ArrayList<>(list);
-        if (search_scheduleList != null) {
-            search_recyclerview.setAdapter(new ScheduleRVAdapter(search_scheduleList));
-        }
+        scheduleArrayList.clear();
+        scheduleArrayList.addAll(DB.scheduleDao().searchRecords(keyword));
+        RVAdapter.notifyDataSetChanged();
     }
     @Override
     protected void onResume() {
         super.onResume();
         CalendarDay date = calendarView.getSelectedDate();
-
         if(date == null) return;
-
         Long dateMills = Time.CalendarDayToMill(date);
-
         scheduleArrayList.clear();
         scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
         Collections.sort(scheduleArrayList);
