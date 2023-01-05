@@ -65,13 +65,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        HolidayDates = new ArrayList<>(); HolidayNames = new ArrayList<>();
 
         calendarView = findViewById(R.id.calendarView);
         calendarView.addDecorators(
                 new SaturdayDecorator(),
                 new SundayDecorator(),
                 new TodayDecorator(),
+                new HolidayDecorator(HolidayDates, HolidayNames),
                 new MySelectorDecorator(this)
         );
         Button button=(Button) findViewById(R.id.btn);
@@ -131,91 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        HolidayDates = new ArrayList<>(); HolidayNames = new ArrayList<>();
-        calendarView.setOnMonthChangedListener(new OnMonthChangedListener() {
-            @Override
-            public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
-                HolidayDates.clear(); HolidayNames.clear();
-                Log.d("WeGlonD", "onMonthChanged - date : " + date); //calendarday 에서의 month는 1월이 0 ~ 12월이 11 인듯
-                int year = date.getYear(); int month = date.getMonth();
-                Database database = new Database(context);
-                Metadata low_bound_holiday = database.getMetadata("Holi_Min_Year");
-                Metadata high_bound_holiday = database.getMetadata("Holi_Max_Year");
-                int minY, maxY;
-                if(low_bound_holiday == null && high_bound_holiday == null){
-                    minY = maxY = year;
-                    database.insert(new Metadata("Holi_Min_Year", Integer.toString(minY)));
-                    database.insert(new Metadata("Holi_Max_Year", Integer.toString(maxY)));
-                    //공휴일 API에서 가져오기
-                    GetHoliday(year, new AfterTask(){
-                        @Override
-                        public void ifSuccess(Object result) {
-                            //공휴일 DB에 쓰기
-                            for(int i = 0; i < HolidayNames.size(); i++){
-                                CalendarDay day = HolidayDates.get(i);
-                                String datestr = Integer.toString(day.getYear());
-                                if(day.getMonth() < 10) datestr = datestr + "0";
-                                datestr = datestr + day.getMonth();
-                                if(day.getDay() < 10) datestr = datestr + "0";
-                                datestr = datestr + day.getDay();
-                                database.insert(new Holiday(datestr, HolidayNames.get(i)));
-                            }
-                        }
-                        @Override
-                        public void ifFail(Object result) {
-                        }
-                    });
-
-                } else {
-                    minY = Integer.parseInt(low_bound_holiday.data); maxY = Integer.parseInt(high_bound_holiday.data);
-                    if(year < minY || year > maxY){
-                        //공휴일 API에서 가져오기
-                        GetHoliday(year, new AfterTask(){
-                            @Override
-                            public void ifSuccess(Object result) {
-                                //공휴일 DB에 쓰기
-                                for(int i = 0; i < HolidayNames.size(); i++){
-                                    CalendarDay day = HolidayDates.get(i);
-                                    String datestr = Integer.toString(day.getYear());
-                                    if(day.getMonth() < 10) datestr = datestr + "0";
-                                    datestr = datestr + day.getMonth();
-                                    if(day.getDay() < 10) datestr = datestr + "0";
-                                    datestr = datestr + day.getDay();
-                                    database.insert(new Holiday(datestr, HolidayNames.get(i)));
-                                }
-                            }
-                            @Override
-                            public void ifFail(Object result) {
-                            }
-                        });
-
-                        if(year < minY) {
-                            low_bound_holiday.data = Integer.toString(year);
-                            database.update(low_bound_holiday);
-                        }
-                        else{
-                            high_bound_holiday.data = Integer.toString(year);
-                            database.update(high_bound_holiday);
-                        }
-                    }
-                    else{
-                        //공휴일 DB에서 가져오기
-                        String keyword = "%"+year;
-                        if(month < 10) keyword = keyword + "0";
-                        keyword = keyword + month + "%";
-                        List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(keyword);
-                        for(Holiday holi : Holidays){
-                            int rawdata = Integer.parseInt(holi.date);
-                            CalendarDay calendarDay = CalendarDay.from(rawdata/10000,(rawdata%10000)/100,rawdata%100);
-                            HolidayDates.add(calendarDay);
-                            HolidayNames.add(holi.name);
-                            Log.d("WeGlonD", "Holiday DB Read - " + calendarDay + " " + holi.name);
-                        }
-                    }
-                }
-
-            }
-        });
+        calendarView.setOnMonthChangedListener(onMonthChangedListener);
 
         //테스트 용
         EditText email_et = findViewById(R.id.activity_main_emailEt);
@@ -281,6 +198,94 @@ public class MainActivity extends AppCompatActivity {
             }
         }.start();
     }
+
+    public OnMonthChangedListener onMonthChangedListener = new OnMonthChangedListener() {
+        @Override
+        public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+            HolidayDates.clear(); HolidayNames.clear();
+            Log.d("WeGlonD", "onMonthChanged - date : " + date);
+            int year = date.getYear(); int month = date.getMonth();
+            Database database = new Database(context);
+            Metadata low_bound_holiday = database.getMetadata("Holi_Min_Year");
+            Metadata high_bound_holiday = database.getMetadata("Holi_Max_Year");
+            int minY, maxY;
+            if(low_bound_holiday == null && high_bound_holiday == null){
+                minY = maxY = year;
+                database.insert(new Metadata("Holi_Min_Year", Integer.toString(minY)));
+                database.insert(new Metadata("Holi_Max_Year", Integer.toString(maxY)));
+                //공휴일 API에서 가져오기
+                GetHoliday(year, new AfterTask(){
+                    @Override
+                    public void ifSuccess(Object result) {
+                        calendarView.invalidateDecorators();
+                        //공휴일 DB에 쓰기
+                        for(int i = 0; i < HolidayNames.size(); i++){
+                            CalendarDay day = HolidayDates.get(i);
+                            String datestr = Integer.toString(day.getYear());
+                            if(day.getMonth() < 10) datestr = datestr + "0";
+                            datestr = datestr + day.getMonth();
+                            if(day.getDay() < 10) datestr = datestr + "0";
+                            datestr = datestr + day.getDay();
+                            database.insert(new Holiday(datestr, HolidayNames.get(i)));
+                        }
+                    }
+                    @Override
+                    public void ifFail(Object result) {
+                    }
+                });
+
+            } else {
+                minY = Integer.parseInt(low_bound_holiday.data); maxY = Integer.parseInt(high_bound_holiday.data);
+                if(year < minY || year > maxY){
+                    //공휴일 API에서 가져오기
+                    GetHoliday(year, new AfterTask(){
+                        @Override
+                        public void ifSuccess(Object result) {
+                            calendarView.invalidateDecorators();
+                            //공휴일 DB에 쓰기
+                            for(int i = 0; i < HolidayNames.size(); i++){
+                                CalendarDay day = HolidayDates.get(i);
+                                String datestr = Integer.toString(day.getYear());
+                                if(day.getMonth() < 10) datestr = datestr + "0";
+                                datestr = datestr + day.getMonth();
+                                if(day.getDay() < 10) datestr = datestr + "0";
+                                datestr = datestr + day.getDay();
+                                database.insert(new Holiday(datestr, HolidayNames.get(i)));
+                            }
+                        }
+                        @Override
+                        public void ifFail(Object result) {
+                        }
+                    });
+
+                    if(year < minY) {
+                        low_bound_holiday.data = Integer.toString(year);
+                        database.update(low_bound_holiday);
+                    }
+                    else{
+                        high_bound_holiday.data = Integer.toString(year);
+                        database.update(high_bound_holiday);
+                    }
+                }
+                else{
+                    //공휴일 DB에서 가져오기
+                    String keyword = "%"+year;
+                    if(month < 10) keyword = keyword + "0";
+                    keyword = keyword + month + "%";
+                    List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(keyword);
+                    for(Holiday holi : Holidays){
+                        int rawdata = Integer.parseInt(holi.date);
+                        CalendarDay calendarDay = CalendarDay.from(rawdata/10000,(rawdata%10000)/100,rawdata%100);
+                        HolidayDates.add(calendarDay);
+                        HolidayNames.add(holi.name);
+                        Log.d("WeGlonD", "Holiday DB Read - " + calendarDay + " " + holi.name);
+                        calendarView.invalidateDecorators();
+                    }
+                }
+            }
+
+        }
+    };
 
     @Override
     public void onBackPressed() {
@@ -375,6 +380,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("minseok","resume_");
         super.onResume();
         CalendarDay date = calendarView.getSelectedDate();
+        onMonthChangedListener.onMonthChanged(calendarView, calendarView.getCurrentDate());
         if(date == null) return;
         Long dateMills = Time.CalendarDayToMill(date);
         scheduleArrayList.clear();

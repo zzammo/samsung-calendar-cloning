@@ -71,7 +71,7 @@ public class ApiExplorer {
                     eventType = parser.next();
                     if(eventType==XmlPullParser.TEXT) {
                         int rawdata = Integer.parseInt(parser.getText());
-                        datelist.add(CalendarDay.from(rawdata/10000,(rawdata%10000)/100 - 1, rawdata%100));
+                        datelist.add(CalendarDay.from(rawdata/10000,(rawdata%10000)/100, rawdata%100));
                     }
                 }
             }
