@@ -211,7 +211,6 @@ public class MakeSchedule extends AppCompatActivity {
             arrive_hour = Integer.parseInt(ar.substring(3,ar.indexOf("시")));
             depart_minute = Integer.parseInt(de.substring(de.indexOf("시")+2,de.indexOf("분")));
             arrive_minute = Integer.parseInt(ar.substring(ar.indexOf("시")+2,ar.indexOf("분")));
-
             /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 hour = timePicker.getHour();
             else

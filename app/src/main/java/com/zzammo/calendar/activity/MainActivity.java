@@ -34,6 +34,7 @@ import com.zzammo.calendar.database.Metadata;
 import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
+import com.zzammo.calendar.lunar.LunarCalendar;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.test.AuthTestActivity;
 import com.zzammo.calendar.test.DBTestActivity;
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*Log.d("minseok",LunarCalendar.Solar2Lunar("20230105")) ; // 양력을 음력으로 바꾸기
+        Log.d("minseok", LunarCalendar.Lunar2Solar("20010527")) ; // 음력을 양력으로 바꾸기*/
 
         calendarView = findViewById(R.id.calendarView);
         calendarView.addDecorators(
