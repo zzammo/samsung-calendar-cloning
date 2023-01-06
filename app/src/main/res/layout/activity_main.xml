@@ -20,11 +20,11 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/schedule_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="150dp"/>
+            android:layout_height="wrap_content"/>
 
         <LinearLayout
             android:layout_marginTop="20dp"
-            android:layout_gravity="bottom"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <Button
@@ -34,7 +34,7 @@
                 android:text="위치검색"/>
         </LinearLayout>
 
-<!--        테스트용-->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -44,13 +44,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="auth_test"/>
+
             <Button
                 android:id="@+id/activity_main_DB_test_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="db_test"/>
         </LinearLayout>
-<!--        테스트용-->
+
     </LinearLayout>
 
 

@@ -56,7 +56,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
     String result1 = "";
     String result2 = "";
 
-    String giourl ="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F02&coordType=WGS84GEO&version=1&format=json&fullAddr=";
+    String giourl ="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
 
 
     private GoogleMap map;
@@ -103,9 +103,20 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
                         JSONArray coordinate = (JSONArray) coordinateInfo.get("coordinate");
                         JSONObject pos = (JSONObject) coordinate.get(0);
+                        String newmatchflag=pos.get("newMatchFlag").toString();
+                        double lat1;
+                        double lon1;
+                        if(!newmatchflag.isEmpty()){
+                            Log.d("fff","fff");
+                            lat1 = Double.parseDouble((String) pos.get("newLat"));
+                            lon1 = Double.parseDouble((String) pos.get("newLon"));
+                        }
+                        else {
+                            lat1 = Double.parseDouble((String) pos.get("lat"));
+                            lon1 = Double.parseDouble((String) pos.get("lon"));
+                        }
 
-                        double lat1 = Double.parseDouble((String) pos.get("newLat"));
-                        double lon1 = Double.parseDouble((String) pos.get("newLon"));
+
                         LatLng start = new LatLng(lat1, lon1);
 
                         jsonObject = (JSONObject) jsonParser.parse(result2);
@@ -114,8 +125,19 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                         coordinate = (JSONArray) coordinateInfo.get("coordinate");
                         pos = (JSONObject) coordinate.get(0);
 
-                        double lat2 = Double.parseDouble((String) pos.get("newLat"));
-                        double lon2 = Double.parseDouble((String) pos.get("newLon"));
+                        double lat2,lon2;
+
+                        String newmatchflag2=pos.get("newMatchFlag").toString();
+                        if(!newmatchflag2.isEmpty()){
+                            Log.d("fff","fff");
+                            lat2 = Double.parseDouble((String) pos.get("newLat"));
+                            lon2 = Double.parseDouble((String) pos.get("newLon"));
+                        }
+                        else {
+                            lat2 = Double.parseDouble((String) pos.get("lat"));
+                            lon2 = Double.parseDouble((String) pos.get("lon"));
+                        }
+
                         LatLng goal = new LatLng(lat2, lon2);
 
                         //////////////2지점 거리랑 중간위치계산
@@ -157,6 +179,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                             contentValues0.put("endX",String.valueOf(lon2));
                             contentValues0.put("endY",String.valueOf(lat2));
                             contentValues0.put("format","json");
+                            contentValues0.put("lang",0);
                             contentValues0.put("count",10);
                             NetworkTask networkTask0=new NetworkTask("http://apis.openapi.sk.com/transit/routes",contentValues0);
                             networkTask0.execute();
@@ -315,7 +338,9 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
         @Override
         protected String doInBackground(Void... params) {
-            String result="45";
+            String result="";
+
+
             RequestHttpConnection requestHttpConnection=new RequestHttpConnection(state);
             result=requestHttpConnection.request(url,values);
             Log.e("과연",result);

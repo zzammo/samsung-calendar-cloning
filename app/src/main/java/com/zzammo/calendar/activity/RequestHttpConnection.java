@@ -62,11 +62,11 @@ public class RequestHttpConnection {
             if(this.state==0) {
                 Log.d("여기까지","오냐?");
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("Host", "apis.openapi.sk.com");
-                conn.setRequestProperty("Accept-Language", "ko");
-                conn.setRequestProperty("Content-Type", "application/json");
+                //conn.setRequestProperty("accept", "application/json");
+                conn.setRequestProperty("content-type", "application/x-www-form-urlencoded");
                 conn.setRequestProperty("appKey", "l7xxb76eb9ee907444a8b8098322fa488048");
             }
+            //x-www-form-urlencoded
             else {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Host", "apis.openapi.sk.com");
@@ -93,7 +93,7 @@ public class RequestHttpConnection {
                 } else {
                     br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
                 }
-                String line;
+                String line = "";
                 String page = "";
 
                 while ((line = br.readLine()) != null){
@@ -107,13 +107,13 @@ public class RequestHttpConnection {
                     (new InputStreamReader(conn.getInputStream(),"UTF-8"));
 
 
-            String line;
+            String line=reader.readLine();
             String page = "";
 
-            while ((line = reader.readLine()) != null){
-                page += line;
-            }
-            return page;
+//            while ((line = reader.readLine()) != null){
+//                page += line;
+//            }
+            return line;
 
 
         } catch (MalformedURLException e) {
