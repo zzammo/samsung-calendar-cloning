@@ -24,29 +24,56 @@ public class RequestHttpConnection {
         HttpURLConnection conn=null;
         StringBuffer sbParams=new StringBuffer();
 
-        if(_params==null){
-            sbParams.append("");
-        }
-        else{
-            boolean isAnd=false;
-            String key = "";
-            String value="";
+        if(this.state!=0){
+            if(_params==null){
+                sbParams.append("");
+            }
+            else{
+                boolean isAnd=false;
+                String key = "";
+                String value="";
 
-            for(Map.Entry<String,Object> parameter:_params.valueSet()) {
-                key = parameter.getKey();
-                value = parameter.getValue().toString();
+                for(Map.Entry<String,Object> parameter:_params.valueSet()) {
+                    key = parameter.getKey();
+                    value = parameter.getValue().toString();
 
-                if (isAnd)
-                    sbParams.append("&");
+                    if (isAnd)
+                        sbParams.append("&");
 
-                sbParams.append(key).append("=").append(value);
+                    sbParams.append(key).append("=").append(value);
 
-                if (!isAnd)
-                    if (_params.size() >= 2)
-                        isAnd = true;
+                    if (!isAnd)
+                        if (_params.size() >= 2)
+                            isAnd = true;
+                }
             }
         }
-        Log.d("Dirtfy", "?");
+        else {
+            if (_params == null) {
+                sbParams.append("");
+            } else {
+                boolean isAnd = false;
+                String key = "";
+                String value = "";
+                sbParams.append("{");
+                int i=0;
+                for (Map.Entry<String, Object> parameter : _params.valueSet()) {
+                    key = parameter.getKey();
+                    value = parameter.getValue().toString();
+
+                    sbParams.append("\"");
+
+                    sbParams.append(key).append("\"").append(":\"").append(value).append("\"");
+                    i++;
+                    if (i < 5) {
+                        sbParams.append(",");
+                    }
+                }
+
+                sbParams.append("}");
+            }
+        }
+        Log.d("httpsss",sbParams.toString());
 
 
         try {
@@ -62,11 +89,10 @@ public class RequestHttpConnection {
             if(this.state==0) {
                 Log.d("여기까지","오냐?");
                 conn.setRequestMethod("POST");
-                //conn.setRequestProperty("accept", "application/json");
-                conn.setRequestProperty("content-type", "application/x-www-form-urlencoded");
+                conn.setRequestProperty("content-type", "application/json");
+                conn.setRequestProperty("accept", "application/json");
                 conn.setRequestProperty("appKey", "l7xxb76eb9ee907444a8b8098322fa488048");
             }
-            //x-www-form-urlencoded
             else {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Host", "apis.openapi.sk.com");
@@ -107,13 +133,13 @@ public class RequestHttpConnection {
                     (new InputStreamReader(conn.getInputStream(),"UTF-8"));
 
 
-            String line=reader.readLine();
+            String line="";
             String page = "";
 
-//            while ((line = reader.readLine()) != null){
-//                page += line;
-//            }
-            return line;
+            while ((line = reader.readLine()) != null){
+                page += line;
+            }
+            return page;
 
 
         } catch (MalformedURLException e) {

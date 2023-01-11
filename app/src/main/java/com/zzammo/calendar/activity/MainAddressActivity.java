@@ -172,18 +172,18 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
 
                         Log.i("PSt","connected");
+
                         if(state==0){
                             ContentValues contentValues0 =new ContentValues();
-                            contentValues0.put("startX",String.valueOf(lon1));
-                            contentValues0.put("startY",String.valueOf(lat1));
-                            contentValues0.put("endX",String.valueOf(lon2));
-                            contentValues0.put("endY",String.valueOf(lat2));
                             contentValues0.put("format","json");
-                            contentValues0.put("lang",0);
-                            contentValues0.put("count",10);
-                            NetworkTask networkTask0=new NetworkTask("http://apis.openapi.sk.com/transit/routes",contentValues0);
+                            contentValues0.put("endY",String.valueOf(lat2));
+                            contentValues0.put("endX",String.valueOf(lon2));
+                            contentValues0.put("startY",String.valueOf(lat1));
+                            contentValues0.put("startX",String.valueOf(lon1));
+                            NetworkTask networkTask0=new NetworkTask("http://apis.openapi.sk.com/transit/routes/sub",contentValues0);
                             networkTask0.execute();
                         }
+
                         else if(state==1){
                             ContentValues contentValues1 =new ContentValues();
                             contentValues1.put("startX",String.valueOf(lon1));
@@ -195,6 +195,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                             NetworkTask networkTask1=new NetworkTask("http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json",contentValues1);
                             networkTask1.execute();
                         }
+
                         else if(state==2){
                             ContentValues contentValues2 =new ContentValues();
                             contentValues2.put("startX",String.valueOf(lon1));
@@ -365,9 +366,11 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
             if(state==0){
                 JSONObject plan = (JSONObject) jsonObject.get("plan");
                 JSONArray itineraries = (JSONArray) plan.get("itineraries");
-                JSONObject totalTime = (JSONObject) itineraries.get(2);
+                JSONObject index = (JSONObject) itineraries.get(0);
+                JSONObject totalTime = (JSONObject) index.get("totalTime");
 
                 time = (String) totalTime.toString();
+                Log.d("tttttime", time);
             }else {
 
                 JSONArray features = (JSONArray) jsonObject.get("features");
