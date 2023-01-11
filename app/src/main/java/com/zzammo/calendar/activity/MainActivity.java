@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<String> HolidayNames;
 
     CalendarDay preSelectedDate = null;
+    TextView holidayname_textview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,10 +126,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });//버전 올려서 살렸음
 
+        holidayname_textview = findViewById(R.id.holiday_textView);
+        holidayname_textview.setVisibility(View.GONE);
+
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
             if (!selected) return;
 
             Long dateMills = Time.CalendarDayToMill(date);
+            if(HolidayDates.contains(date)){
+                int idx = HolidayDates.indexOf(date);
+                holidayname_textview.setVisibility(View.VISIBLE);
+                holidayname_textview.setText(HolidayNames.get(idx));
+            }
+            else{
+                holidayname_textview.setVisibility(View.GONE);
+            }
 
             scheduleArrayList.clear();
             scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
