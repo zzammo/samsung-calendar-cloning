@@ -35,17 +35,34 @@
             android:id="@+id/activity_DB_test_localDB_insertBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="r_write"/>
+            android:text="l_write"/>
+        <Button
+            android:id="@+id/activity_DB_test_localDB_deleteBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="l_delete"/>
+
         <Button
             android:id="@+id/activity_DB_test_serverDB_insertBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="f_write"/>
+            android:text="s_write"/>
         <Button
             android:id="@+id/activity_DB_test_serverDB_deleteBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="f_delete"/>
+            android:text="s_delete"/>
+
+        <Button
+            android:id="@+id/activity_DB_test_combine_insertBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="c_write"/>
+        <Button
+            android:id="@+id/activity_DB_test_combine_deleteBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="c_delete"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

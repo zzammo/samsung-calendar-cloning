@@ -23,12 +23,29 @@ public class Database {
     MetadataDatabase MetaLocalDB;
     FirebaseFirestore serverDB = null;
 
+    FireStore fireStoreMethod = null;
+
+    class quiet implements AfterTask{
+        @Override
+        public void ifSuccess(Object result) {
+
+        }
+
+        @Override
+        public void ifFail(Object result) {
+
+        }
+    }
+
     public Database(Context context) {
         localDB = ScheduleDatabase.getInstance(context);
         HoliLocalDB = HolidayDatabase.getInstance(context);
         MetaLocalDB = MetadataDatabase.getInstance(context);
         if(serverDB == null){
             serverDB = FirebaseFirestore.getInstance();
+        }
+        if (fireStoreMethod == null){
+            fireStoreMethod = new FireStore();
         }
     }
 
@@ -55,6 +72,14 @@ public class Database {
                 new FireStore().insert(serverDB, schedule, afterTask);
 
         }
+    }
+    public void insert(Schedule schedule, AfterTask afterTask){
+        fireStoreMethod.insert(serverDB, schedule, afterTask);
+        localDB.scheduleDao().insertAll(schedule);
+    }
+    public void insert(Schedule schedule){
+        fireStoreMethod.insert(serverDB, schedule, new quiet());
+        localDB.scheduleDao().insertAll(schedule);
     }
     public void insert(Holiday holiday){
         HoliLocalDB.holidayDao().insertAll(holiday);
@@ -87,6 +112,14 @@ public class Database {
 
         }
     }
+    public void delete(Schedule schedule, AfterTask afterTask){
+        fireStoreMethod.delete(serverDB, schedule, afterTask);
+        localDB.scheduleDao().delete(schedule);
+    }
+    public void delete(Schedule schedule){
+        fireStoreMethod.delete(serverDB, schedule, new quiet());
+        localDB.scheduleDao().delete(schedule);
+    }
     public void delete(Holiday holiday){
         HoliLocalDB.holidayDao().delete(holiday);
     }
@@ -115,6 +148,14 @@ public class Database {
             case SERVER:
                 new FireStore().update(serverDB, schedule, afterTask);
         }
+    }
+    public void update(Schedule schedule, AfterTask afterTask){
+        fireStoreMethod.update(serverDB, schedule, afterTask);
+        localDB.scheduleDao().updateSchedules(schedule);
+    }
+    public void update(Schedule schedule){
+        fireStoreMethod.update(serverDB, schedule, new quiet());
+        localDB.scheduleDao().updateSchedules(schedule);
     }
     public void update(Holiday holiday){
         HoliLocalDB.holidayDao().updateHolidays(holiday);
@@ -145,6 +186,7 @@ public class Database {
                 new FireStore().loadAllScheduleDuring(serverDB, begin, end, schedules, afterTask);
         }
     }
+
 
     public Metadata getMetadata(String keyword){
         return MetaLocalDB.metadataDao().getMetadata(keyword);

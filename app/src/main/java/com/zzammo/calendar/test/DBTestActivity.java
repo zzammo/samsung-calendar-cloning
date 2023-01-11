@@ -25,8 +25,15 @@ public class DBTestActivity extends AppCompatActivity {
     EditText location_et;
 
     Button local_insert_btn;
+    Button local_delete_btn;
     Button server_insert_btn;
     Button server_delete_btn;
+    Button combine_insert_btn;
+    Button combine_delete_btn;
+
+    Schedule test_schedule;
+
+    Database DB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,26 +46,42 @@ public class DBTestActivity extends AppCompatActivity {
         location_et = findViewById(R.id.activity_DB_test_location_editText);
 
         local_insert_btn = findViewById(R.id.activity_DB_test_localDB_insertBtn);
+        local_delete_btn = findViewById(R.id.activity_DB_test_localDB_deleteBtn);
         server_insert_btn = findViewById(R.id.activity_DB_test_serverDB_insertBtn);
         server_delete_btn = findViewById(R.id.activity_DB_test_serverDB_deleteBtn);
+        combine_insert_btn = findViewById(R.id.activity_DB_test_combine_insertBtn);
+        combine_delete_btn = findViewById(R.id.activity_DB_test_combine_deleteBtn);
+
+        DB = new Database(context);
 
         local_insert_btn.setOnClickListener(view -> {
-            Schedule test_schedule = makeTestSchedule();
+            test_schedule = makeTestSchedule();
 
-            new Database(context).insert(Database.LOCAL, test_schedule,
-                    new Q());
+            DB.insert(Database.LOCAL, test_schedule, new Q());
         });
-        server_insert_btn.setOnClickListener(view -> {
-            Schedule test_schedule = makeTestSchedule();
+        local_delete_btn.setOnClickListener(view -> {
+            DB.delete(Database.LOCAL, test_schedule, new Q());
+        });
 
-            new Database(context).insert(Database.SERVER, test_schedule,
-                    new JT(context, "쓰기"));
+        server_insert_btn.setOnClickListener(view -> {
+            test_schedule = makeTestSchedule();
+
+            DB.insert(Database.SERVER, test_schedule,
+                    new JT(context, "s_쓰기"));
         });
         server_delete_btn.setOnClickListener(view -> {
-            Schedule test_schedule = makeTestSchedule();
+            DB.delete(Database.SERVER, test_schedule
+                    , new JT(context, "s_삭제"));
+        });
 
-            new Database(context).delete(Database.SERVER, test_schedule
-                    , new JT(context, "삭제"));
+        combine_insert_btn.setOnClickListener(view -> {
+            test_schedule = makeTestSchedule();
+
+            DB.insert(test_schedule
+                    , new JT(context, "c_쓰기"));
+        });
+        combine_delete_btn.setOnClickListener(view -> {
+            DB.delete(test_schedule, new JT(context, "c_삭제"));
         });
     }
 
