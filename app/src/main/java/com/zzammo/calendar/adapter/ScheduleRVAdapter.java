@@ -1,6 +1,5 @@
 package com.zzammo.calendar.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +45,10 @@ public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH
         Schedule schedule = scheduleArrayList.get(position);
 
         holder.title_tv.setText(schedule.title);
-        holder.location_tv.setText(schedule.location);
-        holder.time_tv.setText(Time.millToHM(schedule.begin_ms));
+        holder.begin_loc_tv.setText(schedule.begin_loc);
+        holder.begin_time_tv.setText(Time.millToHM(schedule.begin_ms));
+        holder.end_loc_tv.setText(schedule.end_loc);
+        holder.end_time_tv.setText(Time.millToHM(schedule.end_ms));
     }
 
     @Override
@@ -57,16 +58,20 @@ public class ScheduleRVAdapter extends RecyclerView.Adapter<ScheduleRVAdapter.VH
 
     class VH extends RecyclerView.ViewHolder{
         TextView title_tv;
-        TextView time_tv;
-        TextView location_tv;
+        TextView begin_time_tv;
+        TextView begin_loc_tv;
+        TextView end_time_tv;
+        TextView end_loc_tv;
         Button delete_btn;
 
         public VH(@NonNull View itemView) {
             super(itemView);
 
             title_tv = itemView.findViewById(R.id.schedule_item_title);
-            time_tv = itemView.findViewById(R.id.schedule_item_time);
-            location_tv = itemView.findViewById(R.id.schedule_item_location);
+            begin_time_tv = itemView.findViewById(R.id.schedule_item_begin_time);
+            begin_loc_tv = itemView.findViewById(R.id.schedule_item_begin_loc);
+            end_time_tv = itemView.findViewById(R.id.schedule_item_end_time);
+            end_loc_tv = itemView.findViewById(R.id.schedule_item_end_loc);
             delete_btn = itemView.findViewById(R.id.schedule_item_deleteBtn);
 
             delete_btn.setOnClickListener(view -> {

@@ -71,7 +71,7 @@ public class ScheduleDialog extends Dialog {
         scheduleArrayList = new ArrayList<>();
         scheduleRVAdapter = new ScheduleRVAdapter(scheduleArrayList);
         scheduleRVAdapter.setOnItemClickListener(position -> {
-            DB.delete(Database.LOCAL, scheduleArrayList.get(position), new non());
+            DB.delete(scheduleArrayList.get(position));
             scheduleArrayList.remove(position);
             scheduleRVAdapter.notifyItemRemoved(position);
         });
@@ -113,4 +113,15 @@ public class ScheduleDialog extends Dialog {
         }
     }
 
+    class adapterNotify implements AfterTask{
+        @Override
+        public void ifSuccess(Object result) {
+            scheduleRVAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void ifFail(Object result) {
+
+        }
+    }
 }

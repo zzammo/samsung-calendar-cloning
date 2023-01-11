@@ -1,7 +1,9 @@
 package com.zzammo.calendar.database;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.zzammo.calendar.database.firestore.FireStore;
 import com.zzammo.calendar.database.room.HolidayDatabase;
@@ -11,9 +13,10 @@ import com.zzammo.calendar.util.AfterTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Database {
-    final String TAG = "database.Database : Dirtfy";
+    final String TAG = "database.DB : Dirtfy";
 
     public final static int LOCAL = 1;
     public final static int SERVER = 2;
@@ -74,12 +77,30 @@ public class Database {
         }
     }
     public void insert(Schedule schedule, AfterTask afterTask){
-        fireStoreMethod.insert(serverDB, schedule, afterTask);
-        localDB.scheduleDao().insertAll(schedule);
+        fireStoreMethod.insert(serverDB, schedule, new AfterTask() {
+            @Override
+            public void ifSuccess(Object result) {
+                localDB.scheduleDao().insertAll(schedule);
+            }
+
+            @Override
+            public void ifFail(Object result) {
+                localDB.scheduleDao().insertAll(schedule);
+            }
+        }, afterTask);
     }
     public void insert(Schedule schedule){
-        fireStoreMethod.insert(serverDB, schedule, new quiet());
-        localDB.scheduleDao().insertAll(schedule);
+        fireStoreMethod.insert(serverDB, schedule, new AfterTask() {
+            @Override
+            public void ifSuccess(Object result) {
+                localDB.scheduleDao().insertAll(schedule);
+            }
+
+            @Override
+            public void ifFail(Object result) {
+                localDB.scheduleDao().insertAll(schedule);
+            }
+        });
     }
     public void insert(Holiday holiday){
         HoliLocalDB.holidayDao().insertAll(holiday);
@@ -117,7 +138,7 @@ public class Database {
         localDB.scheduleDao().delete(schedule);
     }
     public void delete(Schedule schedule){
-        fireStoreMethod.delete(serverDB, schedule, new quiet());
+        fireStoreMethod.delete(serverDB, schedule);
         localDB.scheduleDao().delete(schedule);
     }
     public void delete(Holiday holiday){
@@ -154,7 +175,7 @@ public class Database {
         localDB.scheduleDao().updateSchedules(schedule);
     }
     public void update(Schedule schedule){
-        fireStoreMethod.update(serverDB, schedule, new quiet());
+        fireStoreMethod.update(serverDB, schedule);
         localDB.scheduleDao().updateSchedules(schedule);
     }
     public void update(Holiday holiday){
@@ -162,6 +183,23 @@ public class Database {
     }
     public void update(Metadata metadata) { MetaLocalDB.metadataDao().updateMetadata(metadata); }
 
+    public void sync(){
+        List<Schedule> notSynced = localDB.scheduleDao().getNotSynced();
+        Log.d(TAG, notSynced.size()+"");
+        for (Schedule s : notSynced){
+            fireStoreMethod.insert(serverDB, s, new AfterTask() {
+                @Override
+                public void ifSuccess(Object result) {
+                    localDB.scheduleDao().updateSchedules(s);
+                }
+
+                @Override
+                public void ifFail(Object result) {
+
+                }
+            });
+        }
+    }
 
     /**
      *

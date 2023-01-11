@@ -26,10 +26,15 @@
 <!--            android:layout_height="wrap_content"-->
 <!--            android:timePickerMode="spinner"/>-->
         <EditText
-            android:id="@+id/activity_DB_test_location_editText"
+            android:id="@+id/activity_DB_test_begin_loc_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="location"/>
+            android:hint="begin_loc"/>
+        <EditText
+            android:id="@+id/activity_DB_test_end_loc_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="end_loc"/>
 
         <Button
             android:id="@+id/activity_DB_test_localDB_insertBtn"
@@ -63,6 +68,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="c_delete"/>
+
+        <Button
+            android:id="@+id/activity_DB_test_syncBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="sync"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

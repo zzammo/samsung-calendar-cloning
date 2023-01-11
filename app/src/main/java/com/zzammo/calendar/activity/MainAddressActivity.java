@@ -371,7 +371,8 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
                 Log.d("itineraries",itineraries.toString());
                 JSONObject index = (JSONObject) itineraries.get(0);
                 Log.d("index",index.toString());
-                JSONObject totalTime = (JSONObject) index.get("totalTime");
+                Long totalTime = (Long) index.get("totalTime");
+                Log.d("totalTime",index.toString());
 
                 time = (String) totalTime.toString();
                 Log.d("totalTime", time);

@@ -3,26 +3,22 @@ package com.zzammo.calendar.test;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TimePicker;
 
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.Time;
-
-import java.util.Calendar;
 
 public class DBTestActivity extends AppCompatActivity {
 
     Context context;
 
     EditText title_et;
-    EditText location_et;
+    EditText begin_loc_et;
+    EditText end_loc_et;
 
     Button local_insert_btn;
     Button local_delete_btn;
@@ -30,6 +26,7 @@ public class DBTestActivity extends AppCompatActivity {
     Button server_delete_btn;
     Button combine_insert_btn;
     Button combine_delete_btn;
+    Button sync_btn;
 
     Schedule test_schedule;
 
@@ -43,7 +40,8 @@ public class DBTestActivity extends AppCompatActivity {
         context = this;
 
         title_et = findViewById(R.id.activity_DB_test_title_editText);
-        location_et = findViewById(R.id.activity_DB_test_location_editText);
+        begin_loc_et = findViewById(R.id.activity_DB_test_begin_loc_editText);
+        end_loc_et = findViewById(R.id.activity_DB_test_end_loc_editText);
 
         local_insert_btn = findViewById(R.id.activity_DB_test_localDB_insertBtn);
         local_delete_btn = findViewById(R.id.activity_DB_test_localDB_deleteBtn);
@@ -51,6 +49,7 @@ public class DBTestActivity extends AppCompatActivity {
         server_delete_btn = findViewById(R.id.activity_DB_test_serverDB_deleteBtn);
         combine_insert_btn = findViewById(R.id.activity_DB_test_combine_insertBtn);
         combine_delete_btn = findViewById(R.id.activity_DB_test_combine_deleteBtn);
+        sync_btn = findViewById(R.id.activity_DB_test_syncBtn);
 
         DB = new Database(context);
 
@@ -83,12 +82,17 @@ public class DBTestActivity extends AppCompatActivity {
         combine_delete_btn.setOnClickListener(view -> {
             DB.delete(test_schedule, new JT(context, "c_삭제"));
         });
+
+        sync_btn.setOnClickListener(view -> {
+            DB.sync();
+        });
     }
 
     Schedule makeTestSchedule(){
         String title = title_et.getText().toString();
-        String location = location_et.getText().toString();
+        String begin_loc = begin_loc_et.getText().toString();
+        String end_loc = end_loc_et.getText().toString();
         Long begin = System.currentTimeMillis();
-        return new Schedule(title, location, begin, begin+Time.ONE_HOUR);
+        return new Schedule(title, begin_loc, end_loc, begin, begin+Time.ONE_HOUR);
     }
 }

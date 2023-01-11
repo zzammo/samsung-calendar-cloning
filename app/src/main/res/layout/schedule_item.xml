@@ -20,25 +20,47 @@
             android:textSize="30sp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/schedule_item_time"
-            tools:text="schedule title"/>
-        <TextView
-            android:id="@+id/schedule_item_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="30sp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            tools:text="12:30"/>
+            tools:text="schedule title"/>
 
         <TextView
-            android:id="@+id/schedule_item_location"
-            android:layout_width="match_parent"
+            android:id="@+id/schedule_item_begin_time"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="20sp"
             app:layout_constraintTop_toBottomOf="@id/schedule_item_title"
             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/schedule_item_end_time"
+            tools:text="12:30"/>
+        <TextView
+            android:id="@+id/schedule_item_end_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="@id/schedule_item_title"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/schedule_item_begin_time"
+            tools:text="12:30"/>
+
+        <TextView
+            android:id="@+id/schedule_item_begin_loc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="@id/schedule_item_begin_time"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/schedule_item_end_loc"
             tools:text="schedule location"/>
+        <TextView
+            android:id="@+id/schedule_item_end_loc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="@id/schedule_item_begin_loc"
+            app:layout_constraintLeft_toRightOf="@id/schedule_item_begin_loc"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:text="schedule location"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button

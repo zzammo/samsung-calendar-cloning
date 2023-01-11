@@ -2,16 +2,9 @@ package com.zzammo.calendar.database.firestore;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.AfterTask;
@@ -33,10 +26,12 @@ public class FireStore {
      * if {@code user == null} then {@code Exception} is null<br>
      * else {@code Exception} is {@code @NonNull}
      */
-    public void insert(FirebaseFirestore db, Schedule schedule, AfterTask afterTask){
+    public void insert(FirebaseFirestore db, Schedule schedule, AfterTask... afterTasks){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null){
-            afterTask.ifFail(null);
+            for (AfterTask at : afterTasks){
+                at.ifFail(null);
+            }
             return;
         }
 
@@ -44,12 +39,16 @@ public class FireStore {
             .collection(user.getUid()).add(schedule)
             .addOnSuccessListener(documentReference -> {
                     Log.d(TAG, "insert:success");
-                    schedule.id = documentReference.getId();
-                    afterTask.ifSuccess(documentReference);
+                    schedule.serverId = documentReference.getId();
+                    for (AfterTask at : afterTasks){
+                        at.ifSuccess(documentReference);
+                    }
                 })
                 .addOnFailureListener(e -> {
                     Log.d(TAG, "insert:failure", e);
-                    afterTask.ifFail(e);
+                    for (AfterTask at : afterTasks){
+                        at.ifFail(e);
+                    }
                 });
     }
 
@@ -60,10 +59,12 @@ public class FireStore {
      * else {@code Task[QuerySnapshot]} is {@code @NonNull}
      */
     public void loadAllScheduleDuring(FirebaseFirestore db, Long begin, Long end,
-                                      ArrayList<Schedule> schedules , AfterTask afterTask){
+                                      ArrayList<Schedule> schedules , AfterTask... afterTasks){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null){
-            afterTask.ifFail(null);
+            for (AfterTask at : afterTasks){
+                at.ifFail(null);
+            }
             return;
         }
 
@@ -75,15 +76,19 @@ public class FireStore {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Log.d(TAG, document.getId() + " => " + document.getData());
                             Schedule ts = (Schedule) document.getData();
-                            ts.id = document.getId();
+                            ts.serverId = document.getId();
                             schedules.add(ts);
                         }
                         Log.d(TAG, "loadAllScheduleDuring:success");
-                        afterTask.ifSuccess(task);
+                        for (AfterTask at : afterTasks){
+                            at.ifSuccess(task);
+                        }
                     }
                     else{
                         Log.d(TAG, "loadAllScheduleDuring:failure", task.getException());
-                        afterTask.ifFail(task);
+                        for (AfterTask at : afterTasks){
+                            at.ifFail(task);
+                        }
                     }
                 });
     }
@@ -94,22 +99,28 @@ public class FireStore {
      * if {@code user == null} then {@code Void} is null<br>
      * else {@code Void} is {@code @NonNull}
      */
-    public void update(FirebaseFirestore db, Schedule schedule, AfterTask afterTask){
+    public void update(FirebaseFirestore db, Schedule schedule, AfterTask... afterTasks){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null){
-            afterTask.ifFail(null);
+            for (AfterTask at : afterTasks){
+                at.ifFail(null);
+            }
             return;
         }
 
         db.collection(COL_USERS).document(DOC_SCHEDULES)
                 .collection(user.getUid())
-                .document(schedule.id)
+                .document(schedule.serverId)
                 .set(schedule).addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
-                        afterTask.ifSuccess(task);
+                        for (AfterTask at : afterTasks){
+                            at.ifSuccess(task);
+                        }
                     }
                     else{
-                        afterTask.ifFail(task);
+                        for (AfterTask at : afterTasks){
+                            at.ifFail(task);
+                        }
                     }
                 });
     }
@@ -121,23 +132,29 @@ public class FireStore {
      * if {@code user == null} then {@code Exception} is null<br>
      * else {@code Exception} is {@code @NonNull}
      */
-    public void delete(FirebaseFirestore db, Schedule schedule, AfterTask afterTask){
+    public void delete(FirebaseFirestore db, Schedule schedule, AfterTask... afterTasks){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null){
-            afterTask.ifFail(null);
+            for (AfterTask at : afterTasks){
+                at.ifFail(null);
+            }
             return;
         }
 
         db.collection(COL_USERS).document(DOC_SCHEDULES)
                 .collection(user.getUid())
-                .document(schedule.id)
+                .document(schedule.serverId)
                 .delete().addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "delete:success");
-                        afterTask.ifSuccess(aVoid);
+                    for (AfterTask at : afterTasks){
+                        at.ifSuccess(aVoid);
+                    }
                 })
                 .addOnFailureListener(e -> {
                         Log.w(TAG, "delete:failure", e);
-                        afterTask.ifFail(e);
+                    for (AfterTask at : afterTasks){
+                        at.ifFail(e);
+                    }
                 });
 
     }

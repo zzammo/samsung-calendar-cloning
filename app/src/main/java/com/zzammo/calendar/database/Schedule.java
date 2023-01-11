@@ -2,47 +2,67 @@ package com.zzammo.calendar.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.util.Map;
 
 @Entity
-public class Schedule implements Comparable{
+public class Schedule implements Comparable {
     @PrimaryKey(autoGenerate = true)
     public int key;
-    @Ignore
-    public String id;
+
+    public String serverId;
 
     public String title;
-    public String location;
-    public Double lat;
-    public Double lng;
+
+    public String begin_loc;
+    public Double begin_lat;
+    public Double begin_lng;
+
+    public String end_loc;
+    public Double end_lat;
+    public Double end_lng;
+
     public Long begin_ms;
     public Long end_ms;
+
     public String memo;
 
     public Schedule() {
     }
 
-    public Schedule(String title, String location, Long begin_ms) {
+    public Schedule(String title, String begin_loc, Long begin_ms) {
         this.title = title;
-        this.location = location;
+        this.begin_loc = begin_loc;
         this.begin_ms = begin_ms;
     }
 
-    public Schedule(String title, String location, Long begin_ms, Long end_ms) {
+    public Schedule(String title, String begin_loc, Long begin_ms, Long end_ms) {
         this.title = title;
-        this.location = location;
+        this.begin_loc = begin_loc;
+        this.begin_ms = begin_ms;
+        this.end_ms = end_ms;
+    }
+    public Schedule(String title, String begin_loc, String end_loc, Long begin_ms, Long end_ms) {
+        this.title = title;
+        this.begin_loc = begin_loc;
+        this.end_loc = end_loc;
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
     }
 
-    public Schedule(String title, String location, Double lat, Double lng, Long begin_ms, Long end_ms, String memo) {
+    public Schedule(String title,
+                    String begin_loc, Double begin_lat, Double begin_lng,
+                    String end_loc, Double end_lat, Double end_lng,
+                    Long begin_ms, Long end_ms,
+                    String memo) {
         this.title = title;
-        this.location = location;
-        this.lat = lat;
-        this.lng = lng;
+        this.begin_loc = begin_loc;
+        this.begin_lat = begin_lat;
+        this.begin_lng = begin_lng;
+        this.end_loc = end_loc;
+        this.end_lat = end_lat;
+        this.end_lng = end_lng;
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
         this.memo = memo;
@@ -51,11 +71,18 @@ public class Schedule implements Comparable{
     public Schedule(Map<String, Object> map) {
         key = (int) map.get("key");
         title = (String) map.get("title");
-        location = (String) map.get("location");
-        lat = (Double) map.get("lat");
-        lng = (Double) map.get("lng");
+
+        begin_loc = (String) map.get("begin_loc");
+        begin_lat = (Double) map.get("begin_lat");
+        begin_lng = (Double) map.get("begin_lng");
+
+        end_loc = (String) map.get("end_loc");
+        end_lat = (Double) map.get("end_lat");
+        end_lng = (Double) map.get("end_lng");
+
         begin_ms = (Long) map.get("begin_ms");
         end_ms = (Long) map.get("end_ms");
+
         memo = (String) map.get("memo");
     }
 
@@ -63,16 +90,28 @@ public class Schedule implements Comparable{
         return title;
     }
 
-    public String getLocation() {
-        return location;
+    public String getBegin_loc() {
+        return begin_loc;
     }
 
-    public Double getLat() {
-        return lat;
+    public Double getBegin_lat() {
+        return begin_lat;
     }
 
-    public Double getLng() {
-        return lng;
+    public Double getBegin_lng() {
+        return begin_lng;
+    }
+
+    public String getEnd_loc() {
+        return end_loc;
+    }
+
+    public Double getEnd_lat() {
+        return end_lat;
+    }
+
+    public Double getEnd_lng() {
+        return end_lng;
     }
 
     public Long getBegin_ms() {
@@ -95,10 +134,12 @@ public class Schedule implements Comparable{
     @NonNull
     @Override
     public String toString() {
-        String string = "key : "+key+", id : "+id+
+        String string = "key : "+key+", id : "+ serverId +
                 ", title : "+title+
-                ", location : "+location+
-                "\n, Lat : "+ lat +", Lng : "+ lng +
+                ", begin_loc : "+begin_loc+
+                "\n, begin_Lat : "+ begin_lat +", begin_Lng : "+ begin_lng +
+                ", end_loc : "+end_loc+
+                "\n, end_Lat : "+ end_lat +", end_Lng : "+ end_lng +
                 ", begin_ms : "+ begin_ms +
                 ", end_ms : "+ end_ms +
                 "\n, memo : "+memo;
