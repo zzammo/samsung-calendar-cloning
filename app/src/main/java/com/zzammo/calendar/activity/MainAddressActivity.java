@@ -344,7 +344,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
             RequestHttpConnection requestHttpConnection=new RequestHttpConnection(state);
             result=requestHttpConnection.request(url,values);
-            Log.e("과연",result);
+            Log.d("과연",result);
             return result;
         }
 
@@ -364,13 +364,17 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
 
             String time;
             if(state==0){
-                JSONObject plan = (JSONObject) jsonObject.get("plan");
+                JSONObject metaData = (JSONObject) jsonObject.get("metaData");
+                JSONObject plan = (JSONObject) metaData.get("plan");
+                Log.d("plan",plan.toString());
                 JSONArray itineraries = (JSONArray) plan.get("itineraries");
+                Log.d("itineraries",itineraries.toString());
                 JSONObject index = (JSONObject) itineraries.get(0);
+                Log.d("index",index.toString());
                 JSONObject totalTime = (JSONObject) index.get("totalTime");
 
                 time = (String) totalTime.toString();
-                Log.d("tttttime", time);
+                Log.d("totalTime", time);
             }else {
 
                 JSONArray features = (JSONArray) jsonObject.get("features");
@@ -383,7 +387,7 @@ public class MainAddressActivity extends AppCompatActivity implements OnMapReady
             }
 
             textView15=(TextView)findViewById(R.id.textView15);
-            Log.e("초초",time);
+            Log.d("초초",time);
             textView15.setText(time+"초 소요");
 
 
