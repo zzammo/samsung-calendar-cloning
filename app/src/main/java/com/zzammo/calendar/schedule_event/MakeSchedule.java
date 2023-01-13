@@ -22,13 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MakeSchedule extends AppCompatActivity {
-
-    com.zzammo.calendar.dialog.ScheduleDialog dialog;
     Context mContext;
-
     Long depart_dateTime;
     Long arrive_dateTime;
-
     EditText title_et;
     EditText location_et;
     TimePicker timePicker;
@@ -43,12 +39,6 @@ public class MakeSchedule extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        WindowManager.LayoutParams lpWindow = new WindowManager.LayoutParams();
-        lpWindow.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-        lpWindow.dimAmount = 0.5f;
-        getWindow().setAttributes(lpWindow);
-
         setContentView(R.layout.make_schedule);
 
         depart_date = findViewById(R.id.depart_date);
@@ -238,7 +228,5 @@ public class MakeSchedule extends AppCompatActivity {
             a.setText("오전 " + hour + "시 " + minute + "분");
         }
     }
-    private void putdate(TextView a, int month, int day){
-        a.setText(month + "월 " + day + "일");
-    }
+    private void putdate(TextView a, int month, int day){a.setText(month + "월 " + day + "일");}
 }
