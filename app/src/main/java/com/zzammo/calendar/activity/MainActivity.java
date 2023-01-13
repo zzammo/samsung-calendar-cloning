@@ -10,9 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -27,7 +25,7 @@ import com.prolificinteractive.materialcalendarview.OnDateLongClickListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
-import com.zzammo.calendar.auth.Auth;
+import com.zzammo.calendar.custom_calendar.test;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.database.Holiday;
@@ -35,7 +33,6 @@ import com.zzammo.calendar.database.Metadata;
 import com.zzammo.calendar.holiday.ApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
-import com.zzammo.calendar.lunar.LunarCalendar;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.test.AuthTestActivity;
 import com.zzammo.calendar.test.DBTestActivity;
@@ -174,6 +171,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(it);
         });
 
+        findViewById(R.id.custom_calendar_test_btn).setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), test.class);
+            startActivity(intent);
+        });
     }
 
     void GetHoliday(int year, AfterTask afterTask) {

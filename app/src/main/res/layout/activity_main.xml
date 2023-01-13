@@ -61,6 +61,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="db_test"/>
+
+            <Button
+                android:id="@+id/custom_calendar_test_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="custom_calendar_test"/>
+
         </LinearLayout>
 
     </LinearLayout>
