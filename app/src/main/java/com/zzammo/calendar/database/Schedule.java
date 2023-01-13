@@ -50,6 +50,14 @@ public class Schedule implements Comparable {
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
     }
+    public Schedule(String title, String begin_loc, String end_loc, Long begin_ms, Long end_ms, String memo) {
+        this.title = title;
+        this.begin_loc = begin_loc;
+        this.end_loc = end_loc;
+        this.begin_ms = begin_ms;
+        this.end_ms = end_ms;
+        this.memo = memo;
+    }
 
     public Schedule(String title,
                     String begin_loc, Double begin_lat, Double begin_lng,

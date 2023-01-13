@@ -5,6 +5,7 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Time {
@@ -15,8 +16,7 @@ public class Time {
     public static String millToHM(Long mills){
         String pattern = "HH:mm";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
-        String date = formatter.format(new Timestamp(mills));
-        return date;
+        return formatter.format(new Timestamp(mills));
     }
 
     public static String MillToDate(long mills) {
@@ -43,6 +43,31 @@ public class Time {
         return trans_date.getTime();
     }
 
+
+    public static Calendar MillToCalendar(Long mills) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(mills);
+
+        return calendar;
+    }
+    public static Long CalendarToMill(Calendar calendar) {
+        return calendar.getTimeInMillis();
+    }
+
+    public static CalendarDay CalendarToCalendarDay(Calendar calendar){
+        CalendarDay date = CalendarDay.from(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH)+1,
+                calendar.get(Calendar.DATE));
+        return date;
+    }
+
+    public static CalendarDay MillToCalendarDay(Long mills){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(mills);
+        CalendarDay date = CalendarToCalendarDay(calendar);
+        return date;
+    }
     public static long CalendarDayToMill(CalendarDay date) {
 
         String pattern = "yyyy-MM-dd";

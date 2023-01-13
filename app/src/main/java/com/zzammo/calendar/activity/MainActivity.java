@@ -173,6 +173,14 @@ public class MainActivity extends AppCompatActivity {
             Intent it = new Intent(context, DBTestActivity.class);
             startActivity(it);
         });
+        findViewById(R.id.activity_main_schedule_make_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, ScheduleMakeActivity.class);
+            if (calendarView.getSelectedDate() != null){
+                Long mills = Time.CalendarDayToMill(calendarView.getSelectedDate());
+                it.putExtra("timeInMill", mills);
+            }
+            startActivity(it);
+        });
 
     }
 
