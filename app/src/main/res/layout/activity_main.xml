@@ -2,119 +2,79 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/bg_white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-        android:id="@+id/calendarView"
-        android:background="@color/bg_white"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.6"
-        android:layout_margin="10sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.4"
-        tools:layout_editor_absoluteX="64dp">
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <TextView
-            android:fontFamily="@font/nanum_brg"
-            android:textColor="@color/text_white"
-            android:id="@+id/lunardate"
+            android:id="@+id/holiday_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5sp"
-            android:autoSizeMaxTextSize="50sp"
-            android:autoSizeMinTextSize="25sp"
-            android:autoSizeStepGranularity="2sp"
-            android:layout_marginTop="3sp"
-            android:padding="5sp"
-            android:text="음력날짜"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:layout_gravity="left"
+            android:layout_marginLeft="10dp"
+            android:text="공휴일이름"
+            android:textColor="@color/red"
+            android:textSize="25dp"
+            android:visibility="gone" />
 
-        <TextView
-            android:fontFamily="@font/nanum_brg"
-            android:textColor="@color/text_white"
-            android:id="@+id/or"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/schedule_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5sp"
-            android:autoSizeMaxTextSize="50sp"
-            android:autoSizeMinTextSize="25sp"
-            android:autoSizeStepGranularity="2sp"
-            android:layout_marginTop="3sp"
-            android:padding="5sp"
-            android:text="|"
-            app:layout_constraintLeft_toRightOf="@+id/lunardate"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <TextView
-            android:fontFamily="@font/nanum_brg"
-            android:textColor="@color/text_white"
-            android:id="@+id/temperature"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5sp"
-            android:autoSizeMaxTextSize="50sp"
-            android:autoSizeMinTextSize="25sp"
-            android:autoSizeStepGranularity="2sp"
-            android:layout_marginTop="3sp"
-            android:padding="5sp"
-            android:text="현재 기온"
-            app:layout_constraintLeft_toRightOf="@+id/or"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5sp"
-            android:layout_marginLeft="5sp"
-            android:layout_marginTop="3sp"
-            android:padding="5sp"
-            android:src="@drawable/ic_baseline_wb_sunny_24"
-            app:layout_constraintLeft_toRightOf="@+id/temperature"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <EditText
-            android:fontFamily="@font/nanum_brg"
-            android:textColor="@color/text_white"
-            android:id="@+id/edit_"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintWidth_percent="0.72"
-            android:autoSizeMaxTextSize="50sp"
-            android:autoSizeMinTextSize="25sp"
-            android:autoSizeStepGranularity="2sp"
-            android:layout_marginVertical="30sp"
-            android:layout_marginHorizontal="15sp"
-            android:padding="10sp"
-            android:background="@drawable/ed_text"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="0dp"
-            android:layout_marginBottom="20sp"
-            android:src="@drawable/add_circle_svgrepo_com"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.3"
-            app:layout_constraintWidth_percent="0.3"/>
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="위치검색"/>
+        </LinearLayout>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/activity_main_auth_test_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="auth_test"/>
+
+            <Button
+                android:id="@+id/activity_main_DB_test_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="db_test"/>
+            <Button
+                android:id="@+id/activity_main_schedule_make_test_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="make"/>
+
+            <Button
+                android:id="@+id/custom_calendar_test_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="custom_calendar_test"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

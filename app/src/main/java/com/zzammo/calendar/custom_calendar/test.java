@@ -23,7 +23,6 @@ public class test extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.test);
         binding = DataBindingUtil.setContentView(this, R.layout.test);
         binding.setVariable(BR.model, new ViewModelProvider(this).get(CalendarListViewModel.class));
         binding.setLifecycleOwner(this);
