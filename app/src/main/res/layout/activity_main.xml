@@ -39,7 +39,7 @@
             android:padding="5sp"
             android:text="음력날짜"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:fontFamily="@font/nanum_brg"
@@ -55,7 +55,7 @@
             android:padding="5sp"
             android:text="|"
             app:layout_constraintLeft_toRightOf="@+id/lunardate"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:fontFamily="@font/nanum_brg"
@@ -71,7 +71,7 @@
             android:padding="5sp"
             android:text="현재 기온"
             app:layout_constraintLeft_toRightOf="@+id/or"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageView
             android:layout_width="wrap_content"
@@ -82,7 +82,7 @@
             android:padding="5sp"
             android:src="@drawable/ic_baseline_wb_sunny_24"
             app:layout_constraintLeft_toRightOf="@+id/temperature"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <EditText
             android:fontFamily="@font/nanum_brg"
@@ -111,8 +111,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.3"
-            app:layout_constraintWidth_percent="0.3"
-            />
+            app:layout_constraintWidth_percent="0.3"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
