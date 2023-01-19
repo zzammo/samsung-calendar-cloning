@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../go%20yang/AppData/Local/Android/Sdk/icons/material/materialicons/add/baseline_add_24.xml" />
+                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../go%20yang/AppData/Local/Android/Sdk/icons/material/materialicons/access_alarms/baseline_access_alarms_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,7 +28,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_baseline_add_24" />
+                            <entry key="color" value="00000a" />
+                            <entry key="outputName" value="ic_baseline_access_alarms_24" />
                             <entry key="sourceFile" value="C:\Users\user\Calendar" />
                           </map>
                         </option>
