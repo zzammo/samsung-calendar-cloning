@@ -36,6 +36,7 @@
         <LinearLayout
             android:layout_marginTop="20dp"
             android:layout_gravity="center"
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <Button
@@ -43,6 +44,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="위치검색"/>
+            <Button
+                android:id="@+id/next_xml"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="재모의 디자인"/>
         </LinearLayout>
 
 
@@ -72,6 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="custom_calendar_test"/>
+
         </LinearLayout>
 
     </LinearLayout>

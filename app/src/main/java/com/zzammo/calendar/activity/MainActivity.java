@@ -94,6 +94,17 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        Button btn = (Button) findViewById(R.id.next_xml);
+        btn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), schedule_main.class);
+                startActivity(intent);
+            }
+
+        });
+
         this.context = this;
 
         DB = ScheduleDatabase.getInstance(context);

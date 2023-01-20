@@ -66,6 +66,7 @@
         <activity android:name=".activity.MainAddressActivity" />
         <activity android:name=".activity.AdressApiActivity" />
         <activity android:name=".schedule_event.MakeSchedule" />
+        <activity android:name=".activity.schedule_main" />
     </application>
 
 </manifest>
