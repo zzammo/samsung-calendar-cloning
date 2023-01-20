@@ -3,8 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_white"
+    android:animateLayoutChanges="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         
@@ -16,6 +18,7 @@
 
 
             <EditText
+                android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="15sp"
@@ -23,7 +26,7 @@
                 android:layout_marginHorizontal="10sp"
                 android:textColor="@color/text_white"
                 android:background="@null"
-                android:text=" 제목"/>
+                android:hint=" 제목"/>
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -48,21 +51,24 @@
                     app:layout_constraintTop_toTopOf="parent"/>
 
                 <Switch
+                    android:id="@+id/allday_switch"
                     android:text="하루종일    "
                     android:textColor="@color/text_white"
-                    android:id="@+id/allday_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8sp"
                     android:layout_margin="5sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"/>
+
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_margin="7sp"
                     android:padding="7sp"
+                    android:animateLayoutChanges="true"
                     app:layout_constraintTop_toBottomOf="@+id/allday_switch"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent">
@@ -70,7 +76,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:animateLayoutChanges="true">
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -80,6 +87,8 @@
                             android:padding="5sp"
                             android:textAlignment="center"/>
                         <TextView
+                            android:id="@+id/start_time"
+                            android:visibility="visible"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textAlignment="center"
@@ -92,7 +101,8 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:animateLayoutChanges="true">
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -105,7 +115,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:animateLayoutChanges="true">
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -115,6 +126,8 @@
                             android:textSize="18sp"
                             android:padding="5sp"/>
                         <TextView
+                            android:id="@+id/end_time"
+                            android:visibility="visible"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textAlignment="center"
@@ -486,66 +499,50 @@
                         android:layout_margin="7sp"
                         android:src="@drawable/ic_baseline_edit_note_24"/>
                     <EditText
+                        android:id="@+id/memo"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:textColor="@color/text_white"
                         android:paddingVertical="7sp"
                         android:paddingHorizontal="14sp"
                         android:textSize="18sp"
-                        android:textAlignment="center"
                         android:layout_marginHorizontal="7sp"
                         android:layout_gravity="center"
                         android:background="@null"
-                        android:text="메모"/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="1dp"
-                        android:background="@color/line_white"
-                        android:layout_marginVertical="3sp"/>
-                    <TimePicker
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginVertical="5sp"
-                        android:timePickerMode="spinner"/>
+                        android:hint="메모"/>
                 </LinearLayout>
             </LinearLayout>
 
-
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60sp"/>
         </LinearLayout>
     </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10sp"
-        android:layout_marginHorizontal="5sp">
+        android:layout_alignParentBottom="true">
         <Button
             android:paddingVertical="10sp"
+            android:textSize="15sp"
             android:background="@color/edit_white"
             android:textColor="@color/text_white"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:text="취소"
             android:layout_weight="1"
-            android:layout_marginHorizontal="5sp"
             app:strokeColor="@color/line_white"
             app:strokeWidth="2dp"/>
         <Button
             android:paddingVertical="10sp"
+            android:textSize="15sp"
             android:background="@color/edit_white"
             android:textColor="@color/text_white"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:text="저장"
             android:layout_weight="1"
-            android:layout_marginHorizontal="5sp"
             app:strokeColor="@color/line_white"
             app:strokeWidth="2dp"/>
 
