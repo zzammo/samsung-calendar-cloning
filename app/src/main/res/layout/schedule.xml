@@ -13,18 +13,31 @@
             android:layout_height="match_parent"
             android:layout_margin="10sp"
             android:orientation="vertical">
+
+
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20sp"
+                android:padding="15sp"
                 android:layout_marginVertical="5sp"
+                android:layout_marginHorizontal="10sp"
                 android:textColor="@color/text_white"
-                android:shadowColor="@color/text_white"
+                android:background="@null"
                 android:text=" 제목"/>
+
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10sp">
+                android:layout_marginHorizontal="10sp"
+                android:layout_marginVertical="5sp">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/line_white"
+                    android:layout_marginBottom="10sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -113,10 +126,12 @@
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_margin="10sp"
                 android:visibility="gone">
                 <View
                     android:layout_width="wrap_content"
@@ -131,10 +146,12 @@
                     android:headerBackground="@color/text_white" />
             </LinearLayout>
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_margin="10sp"
                 android:visibility="gone">
                 <View
                     android:layout_width="wrap_content"
@@ -151,10 +168,11 @@
             </LinearLayout>
 
 
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10sp"
+                android:layout_marginVertical="5sp"
                 android:orientation="vertical">
                 <View
                     android:layout_width="wrap_content"
@@ -169,7 +187,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="출발전 알람"
+                        android:text="출발 전 알람"
                         android:textColor="@color/text_white"
                         android:padding="7sp"/>
                     <Switch
@@ -182,10 +200,13 @@
                 </LinearLayout>
             </LinearLayout>
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_marginHorizontal="10sp"
+                android:layout_marginVertical="5sp"
                 android:visibility="visible">
 
                 <View
@@ -266,7 +287,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10sp"
+                    android:layout_marginHorizontal="10sp"
+                    android:layout_marginVertical="5sp"
                     android:orientation="horizontal">
                     <TextView
                         android:layout_width="wrap_content"
@@ -292,55 +314,209 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10sp">
-                    <LinearLayout
+                    android:layout_marginHorizontal="10sp"
+                    android:layout_marginVertical="5sp"
+                    android:orientation="horizontal">
+                    <RadioGroup
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="7sp"
                         android:orientation="horizontal">
-                        <ImageView
+                        <RadioButton
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="7sp"
-                            android:layout_weight="1"
-                            android:src="@drawable/ic_baseline_access_alarms_24"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:textColor="@color/text_white"
-                            android:padding="7sp"
-                            android:textSize="18sp"
+                            android:text="도보"
                             android:textAlignment="center"
-                            android:layout_marginHorizontal="7sp"
-                            android:layout_gravity="center"
-                            android:layout_weight="1"
-                            android:background="@drawable/ed_text"
-                            android:text="10분 전"/>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-                        <View
+                            android:textColor="@color/text_white"
+                            android:layout_weight="1"/>
+                        <RadioButton
                             android:layout_width="wrap_content"
-                            android:layout_height="1dp"
-                            android:background="@color/line_white"
-                            android:layout_marginVertical="3sp"/>
-                        <TimePicker
-                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginVertical="5sp"
-                            android:timePickerMode="spinner"/>
-                    </LinearLayout>
+                            android:text="대중교통"
+                            android:textAlignment="center"
+                            android:textColor="@color/text_white"
+                            android:layout_weight="1"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="자가용"
+                            android:textAlignment="center"
+                            android:textColor="@color/text_white"
+                            android:layout_weight="1"/>
+                    </RadioGroup>
+
                 </LinearLayout>
 
                 <com.google.android.gms.maps.MapView
-                    android:layout_margin="10sp"
+                    android:layout_marginHorizontal="10sp"
+                    android:layout_marginVertical="5sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="10sp"
+                android:layout_marginVertical="5sp">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/line_white"
+                    android:layout_marginBottom="10sp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="7sp"
+                    android:layout_marginTop="7sp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="7sp"
+                        android:src="@drawable/ic_baseline_access_alarms_24"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/text_white"
+                        android:paddingVertical="7sp"
+                        android:paddingHorizontal="14sp"
+                        android:textSize="18sp"
+                        android:textAlignment="center"
+                        android:layout_marginHorizontal="7sp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/ed_text"
+                        android:text="10분 전"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="1dp"
+                        android:background="@color/line_white"
+                        android:layout_marginVertical="3sp"/>
+                    <TimePicker
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5sp"
+                        android:timePickerMode="spinner"/>
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="10sp"
+                android:layout_marginVertical="5sp">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/line_white"
+                    android:layout_marginBottom="10sp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="7sp"
+                    android:layout_marginTop="7sp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="7sp"
+                        android:src="@drawable/ic_baseline_repeat_24"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/text_white"
+                        android:paddingVertical="7sp"
+                        android:paddingHorizontal="14sp"
+                        android:textSize="18sp"
+                        android:textAlignment="center"
+                        android:layout_marginHorizontal="7sp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/ed_text"
+                        android:text="반복 안 함"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="1dp"
+                        android:background="@color/line_white"
+                        android:layout_marginVertical="3sp"/>
+                    <TimePicker
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5sp"
+                        android:timePickerMode="spinner"/>
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="10sp"
+                android:layout_marginVertical="5sp">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/line_white"
+                    android:layout_marginBottom="10sp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="7sp"
+                    android:layout_marginTop="7sp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="7sp"
+                        android:src="@drawable/ic_baseline_edit_note_24"/>
+                    <EditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/text_white"
+                        android:paddingVertical="7sp"
+                        android:paddingHorizontal="14sp"
+                        android:textSize="18sp"
+                        android:textAlignment="center"
+                        android:layout_marginHorizontal="7sp"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:text="메모"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="1dp"
+                        android:background="@color/line_white"
+                        android:layout_marginVertical="3sp"/>
+                    <TimePicker
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5sp"
+                        android:timePickerMode="spinner"/>
+                </LinearLayout>
+            </LinearLayout>
+
+
         </LinearLayout>
     </ScrollView>
 
