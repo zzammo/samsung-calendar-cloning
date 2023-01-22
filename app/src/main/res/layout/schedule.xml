@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/bg_white"
     android:animateLayoutChanges="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -204,6 +205,7 @@
                         android:textColor="@color/text_white"
                         android:padding="7sp"/>
                     <Switch
+                        android:id="@+id/alarm_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="7sp"
@@ -215,12 +217,13 @@
 
 
             <LinearLayout
+                android:id="@+id/path_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="10sp"
                 android:layout_marginVertical="5sp"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <View
                     android:layout_width="wrap_content"
@@ -359,15 +362,26 @@
 
                 </LinearLayout>
 
-                <com.google.android.gms.maps.MapView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10sp"
                     android:layout_marginVertical="5sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:orientation="vertical">
+                    <fragment
+                        android:layout_width="300dp"
+                        android:layout_height="300dp"
+                        android:layout_gravity="center_horizontal"
+                        android:id="@+id/map"
+                        tools:context=".MapsActivity"
+                        android:name="com.google.android.gms.maps.SupportMapFragment" />
+                </LinearLayout>
+
             </LinearLayout>
 
 
             <LinearLayout
+                android:id="@+id/ago_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -402,22 +416,26 @@
                         android:background="@drawable/ed_text"
                         android:text="10분 전"/>
                 </LinearLayout>
-                <LinearLayout
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ago_timepicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginHorizontal="10sp"
+                android:layout_marginVertical="5sp">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/line_white"
+                    android:layout_marginVertical="3sp"/>
+                <TimePicker
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="1dp"
-                        android:background="@color/line_white"
-                        android:layout_marginVertical="3sp"/>
-                    <TimePicker
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginVertical="5sp"
-                        android:timePickerMode="spinner"/>
-                </LinearLayout>
+                    android:layout_marginVertical="5sp"
+                    android:timePickerMode="spinner"/>
             </LinearLayout>
 
 
