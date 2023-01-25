@@ -145,7 +145,28 @@
 
 
             <LinearLayout
-                android:id="@+id/date_picker"
+                android:id="@+id/date_src_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="10sp"
+                android:animateLayoutChanges="true"
+                android:visibility="gone">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/line_white"
+                    android:layout_marginVertical="3sp"/>
+                <DatePicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:calendarTextColor="@color/text_white"
+                    android:headerBackground="@color/text_white" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/date_dst_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -167,7 +188,29 @@
 
 
             <LinearLayout
-                android:id="@+id/time_picker"
+                android:id="@+id/time_src_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="10sp"
+                android:animateLayoutChanges="true"
+                android:visibility="gone">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:background="@color/line_white"
+                    android:layout_marginVertical="3sp"/>
+                <TimePicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:calendarTextColor="@color/text_white"
+                    android:headerBackground="@color/text_white"
+                    android:timePickerMode="spinner"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/time_dst_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -259,6 +302,7 @@
                             android:padding="5sp"
                             android:textAlignment="center"/>
                         <TextView
+                            android:id="@+id/src_address"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@drawable/ed_text"
@@ -296,6 +340,7 @@
                             android:textSize="18sp"
                             android:padding="5sp"/>
                         <TextView
+                            android:id="@+id/dst_address"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textAlignment="center"

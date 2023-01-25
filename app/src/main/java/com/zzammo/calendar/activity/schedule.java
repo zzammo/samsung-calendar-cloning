@@ -1,5 +1,7 @@
 package com.zzammo.calendar.activity;
 
+import static java.lang.Math.log;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,6 +14,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +26,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,13 +47,22 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.zzammo.calendar.R;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -66,15 +80,20 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     LinearLayout path_panel;
     LinearLayout ago_timepicker;
     LinearLayout ago_panel;
-    LinearLayout time_picker;
-    LinearLayout date_picker;
+    LinearLayout time_src_layout;
+    LinearLayout date_src_layout;
+    LinearLayout time_dst_layout;
+    LinearLayout date_dst_layout;
+    TextView src_address;
+    TextView dst_address;
 
     private boolean ago_flag = true;
-    private boolean date_picker_flag = true;
-    private boolean time_picker_flag = true;
+    private int date_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
+    private int time_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
 
     private GoogleMap mMap;
-    private Marker currentMarker = null;
+    private Marker srcMarker = null;
+    private Marker dstMarker = null;
 
     private static final String TAG = "googlemap_example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -91,8 +110,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};  // 외부 저장소
 
 
-    Location mCurrentLocatiion;
-    LatLng currentPosition;
+    Location srcLocation=null;
+    LatLng srcPosition=null;
+    Location dstLocation=null;
+    LatLng dstPosition=null;
 
 
     private FusedLocationProviderClient mFusedLocationClient;
@@ -102,6 +123,17 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
     private View mLayout;  // Snackbar 사용하기 위해서는 View가 필요합니다.
     // (참고로 Toast에서는 Context가 필요했습니다.)
+
+    private String address_data_src=null;
+    private String address_data_dst=null;
+    // 인증키 (개인이 받아와야함)
+    String key = "l7xxb76eb9ee907444a8b8098322fa488048";
+
+    // 파싱한 데이터를 저장할 변수
+    String result1 = "";
+    String result2 = "";
+
+    String giourl ="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
 
 
 
@@ -119,8 +151,12 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         path_panel = findViewById(R.id.path_panel);
         ago_panel = findViewById(R.id.ago_panel);
         ago_timepicker = findViewById(R.id.ago_timepicker);
-        time_picker=findViewById(R.id.time_picker);
-        date_picker=findViewById(R.id.date_picker);
+
+        time_src_layout=findViewById(R.id.time_src_layout);
+        date_src_layout=findViewById(R.id.date_src_layout);
+
+        time_dst_layout=findViewById(R.id.time_dst_layout);
+        date_dst_layout=findViewById(R.id.date_dst_layout);
 
 
         mLayout = findViewById(R.id.layout_schedule);
@@ -142,65 +178,119 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync((OnMapReadyCallback) schedule.this);
 
-
+        /// 일정 시간 설정 src
         src_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(time_picker_flag){
-                    time_picker.setVisibility(View.VISIBLE);
+                if(date_picker_flag!=0) {
+                    if(date_picker_flag==1) {
+                        date_src_layout.setVisibility(View.GONE);
+                    }else{
+                        date_dst_layout.setVisibility(View.GONE);
+                    }
+                    date_picker_flag=0;
                 }
-                else{
-                    time_picker.setVisibility(View.GONE);
+                if (time_picker_flag == 0) {
+                    time_src_layout.setVisibility(View.VISIBLE);
+                    time_picker_flag = 1;
+                } else if (time_picker_flag == 1) {
+                    time_src_layout.setVisibility(View.GONE);
+                    time_picker_flag = 0;
+                } else {
+                    time_dst_layout.setVisibility(View.GONE);
+                    time_src_layout.setVisibility(View.VISIBLE);
+                    time_picker_flag = 1;
                 }
-                time_picker_flag=!time_picker_flag;
             }
         });
-
+        // 일정 날짜 설정 src
         src_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(date_picker_flag){
-                    date_picker.setVisibility(View.VISIBLE);
+                if(time_picker_flag!=0) {
+                    if(time_picker_flag==1) {
+                        time_src_layout.setVisibility(View.GONE);
+                    }else{
+                        time_dst_layout.setVisibility(View.GONE);
+                    }
+                    time_picker_flag=0;
                 }
-                else{
-                    date_picker.setVisibility(View.GONE);
+                if (date_picker_flag == 0) {
+                    date_src_layout.setVisibility(View.VISIBLE);
+                    date_picker_flag = 1;
+                } else if (date_picker_flag == 1) {
+                    date_src_layout.setVisibility(View.GONE);
+                    date_picker_flag = 0;
+                } else {
+                    date_dst_layout.setVisibility(View.GONE);
+                    date_src_layout.setVisibility(View.VISIBLE);
+                    date_picker_flag = 1;
                 }
-                date_picker_flag=!date_picker_flag;
             }
         });
-
+        // 일정 시간 설정 dst
         dst_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(time_picker_flag){
-                    time_picker.setVisibility(View.VISIBLE);
+                if(date_picker_flag!=0) {
+                    if(date_picker_flag==1) {
+                        date_src_layout.setVisibility(View.GONE);
+                    }else{
+                        date_dst_layout.setVisibility(View.GONE);
+                    }
+                    date_picker_flag=0;
                 }
-                else{
-                    time_picker.setVisibility(View.GONE);
+                if (time_picker_flag == 0) {
+                    time_dst_layout.setVisibility(View.VISIBLE);
+                    time_picker_flag = 2;
+                } else if (time_picker_flag == 2) {
+                    time_dst_layout.setVisibility(View.GONE);
+                    time_picker_flag = 0;
+                } else {
+                    time_src_layout.setVisibility(View.GONE);
+                    time_dst_layout.setVisibility(View.VISIBLE);
+                    time_picker_flag = 2;
                 }
-                time_picker_flag=!time_picker_flag;
             }
         });
-
+        // 일정 날짜 설정 dst
         dst_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(date_picker_flag){
-                    date_picker.setVisibility(View.VISIBLE);
+                if(time_picker_flag!=0) {
+                    if(time_picker_flag==1) {
+                        time_src_layout.setVisibility(View.GONE);
+                    }else{
+                        time_dst_layout.setVisibility(View.GONE);
+                    }
+                    time_picker_flag=0;
                 }
-                else{
-                    date_picker.setVisibility(View.GONE);
+                if (date_picker_flag == 0) {
+                    date_dst_layout.setVisibility(View.VISIBLE);
+                    date_picker_flag = 2;
+                } else if (date_picker_flag == 2) {
+                    date_dst_layout.setVisibility(View.GONE);
+                    date_picker_flag = 0;
+                } else {
+                    date_src_layout.setVisibility(View.GONE);
+                    date_dst_layout.setVisibility(View.VISIBLE);
+                    date_picker_flag = 2;
                 }
-                date_picker_flag=!date_picker_flag;
             }
         });
-
+        // 하루종일 스위치
         allday_switch.setOnCheckedChangeListener(new OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b) {
                     src_time.setVisibility(View.GONE);
                     dst_time.setVisibility(View.GONE);
+                    date_dst_layout.setVisibility(View.GONE);
+                    date_src_layout.setVisibility(View.GONE);
+                    time_dst_layout.setVisibility(View.GONE);
+                    time_src_layout.setVisibility(View.GONE);
+                    time_picker_flag=0;
+                    date_picker_flag=0;
                 }
                 else{
                     src_time.setVisibility(View.VISIBLE);
@@ -208,7 +298,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 }
             }
         });
-
+        // 출발지 도착지 를 입력할지 말지 결정하는 스위치
         alarm_switch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -220,7 +310,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 }
             }
         });
-
+        // 몇 분 전 알람 선택
         ago_panel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -231,6 +321,48 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     ago_timepicker.setVisibility(View.GONE);
                 }
                 ago_flag=!ago_flag;
+            }
+        });
+        // webview 불러오기
+        src_address =  findViewById(R.id.src_address);
+        dst_address =  findViewById(R.id.dst_address);
+
+        src_address.setFocusable(false);
+        dst_address.setFocusable(false);
+
+        src_address.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Log.i("주소설정페이지", "주소입력창 클릭");
+                int status = NetworkStatus.getConnectivityStatus(getApplicationContext());
+                if (status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
+                    Log.i("주소설정페이지", "주소입력창 클릭");
+                    Intent i = new Intent(getApplicationContext(), AdressApiActivity.class);
+                    //화면전환 애니메이션 없애기
+                    // overridePendingTransition(5,5);
+                    // 주소결과
+                    mStartForResult.launch(i);
+                }else {
+                    Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        dst_address.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Log.i("주소설정페이지","주소입력창 클릭");
+                int status = NetworkStatus.getConnectivityStatus(getApplicationContext());
+                if(status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
+                    Log.i("주소설정페이지","주소입력창 클릭");
+                    Intent i=new Intent(getApplicationContext(), AdressApiActivity.class);
+                    //화면전환 애니메이션 없애기
+                    // overridePendingTransition(5,5);
+                    // 주소결과
+                    mStartForResult2.launch(i);
+                }else {
+                    Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -320,11 +452,11 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 location = locationList.get(locationList.size() - 1);
                 //location = locationList.get(0);
 
-                currentPosition
+                srcPosition
                         = new LatLng(location.getLatitude(), location.getLongitude());
 
 
-                String markerTitle = getCurrentAddress(currentPosition);
+                String markerTitle = getCurrentAddress(srcPosition);
                 String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                         + " 경도:" + String.valueOf(location.getLongitude());
 
@@ -332,9 +464,9 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
 
                 //현재 위치에 마커 생성하고 이동
-                setCurrentLocation(location, markerTitle, markerSnippet);
+                setSrcLocation(location, markerTitle, markerSnippet);
 
-                mCurrentLocatiion = location;
+                srcLocation = location;
             }
 
 
@@ -458,26 +590,57 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     }
 
 
-    public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
+    public void setSrcLocation(Location location, String markerTitle, String markerSnippet) { //flag ->0 src ->1 dst
 
+        if (srcMarker != null) srcMarker.remove();
 
-        if (currentMarker != null) currentMarker.remove();
-
-
-        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
 
         MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(currentLatLng);
-        markerOptions.title(markerTitle);
+        markerOptions.position(latlng);
+        markerOptions.title("출발지 :" + markerTitle);
         markerOptions.snippet(markerSnippet);
         markerOptions.draggable(true);
 
+        srcMarker = mMap.addMarker(markerOptions);
+        srcMarker.showInfoWindow();
 
-        currentMarker = mMap.addMarker(markerOptions);
+        if (dstMarker == null) {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latlng);
+            mMap.moveCamera(cameraUpdate);
+        } else {
+            LatLngBounds.Builder zoomToFitBuilder = new LatLngBounds.Builder();
+            zoomToFitBuilder.include(latlng);
+            zoomToFitBuilder.include(dstPosition);
+            LatLngBounds zoomToFitBound = zoomToFitBuilder.build();
+            int padding = 300;
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(zoomToFitBound, padding);
+            mMap.animateCamera(cameraUpdate);
+        }
+    }
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
-        mMap.moveCamera(cameraUpdate);
+    public void setDstLocation(Location location, String markerTitle, String markerSnippet) {
+        Log.d("make", "dstmarker");
+        if (dstMarker != null) dstMarker.remove();
 
+        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latlng);
+        markerOptions.title("도착지 :" + markerTitle);
+        markerOptions.snippet(markerSnippet);
+        markerOptions.draggable(true);
+
+        dstMarker = mMap.addMarker(markerOptions);
+        dstMarker.showInfoWindow();
+
+        LatLngBounds.Builder zoomToFitBuilder = new LatLngBounds.Builder();
+        zoomToFitBuilder.include(latlng);
+        zoomToFitBuilder.include(srcPosition);
+        LatLngBounds zoomToFitBound = zoomToFitBuilder.build();
+        int padding = 300;
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(zoomToFitBound, padding);
+        mMap.animateCamera(cameraUpdate);
     }
 
 
@@ -490,7 +653,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
 
 
-        if (currentMarker != null) currentMarker.remove();
+        if (srcMarker != null) srcMarker.remove();
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(DEFAULT_LOCATION);
@@ -498,7 +661,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         markerOptions.snippet(markerSnippet);
         markerOptions.draggable(true);
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        currentMarker = mMap.addMarker(markerOptions);
+        srcMarker = mMap.addMarker(markerOptions);
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
         mMap.moveCamera(cameraUpdate);
@@ -645,6 +808,165 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 break;
         }
     }
+
+    ActivityResultLauncher<Intent> mStartForResult=registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if(result.getResultCode()==RESULT_OK){
+                    address_data_src=result.getData().getExtras().getString("data");
+                    if(address_data_src!=null){
+                        Log.d("text","data: "+address_data_src);
+                        new Thread(()->{try {
+                            Log.d("지오코딩",address_data_src);
+                            String data_ = URLEncoder.encode(address_data_src, "utf-8");
+                            Log.d("encode","done");
+                            URL url = new URL(giourl + data_ + "&appKey=" + key);
+                            Log.d("make",url.toString());
+                            Log.d("bfreader","ready");
+                            BufferedReader  bf;
+
+                            bf = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
+                            Log.d("bfreader","done");
+                            String temp = bf.readLine();
+
+                            Log.d("연결완료", temp);
+
+                            JSONParser jsonParser = new JSONParser();
+                            JSONObject jsonObject = (JSONObject) jsonParser.parse(temp);
+                            JSONObject coordinateInfo = (JSONObject) jsonObject.get("coordinateInfo");
+
+                            JSONArray coordinate = (JSONArray) coordinateInfo.get("coordinate");
+                            JSONObject pos = (JSONObject) coordinate.get(0);
+                            String newmatchflag = pos.get("newMatchFlag").toString();
+                            double lat;
+                            double lon;
+                            if (!newmatchflag.isEmpty()) {
+                                Log.d("fff", "fff");
+                                lat = Double.parseDouble((String) pos.get("newLat"));
+                                lon = Double.parseDouble((String) pos.get("newLon"));
+                            } else {
+                                lat = Double.parseDouble((String) pos.get("lat"));
+                                lon = Double.parseDouble((String) pos.get("lon"));
+                            }
+
+                            srcPosition
+                                    = new LatLng(lat, lon);
+
+                            Log.d("lat",String.valueOf(lat));
+                            location.setLatitude(lat);
+                            Log.d("latdst","done");
+                            location.setLongitude(lon);
+
+
+                            String markerTitle = getCurrentAddress(srcPosition);
+                            String markerSnippet = "위도:" + String.valueOf(lat)
+                                    + " 경도:" + String.valueOf(lon);
+
+                            Log.d(TAG, "srconLocationResult : " + markerSnippet);
+
+
+                            Log.d("lat",String.valueOf(lat));
+                            location.setLatitude(lat);
+                            Log.d("latdst","done");
+                            location.setLongitude(lon);
+                            Log.d("srcmarker",markerTitle);
+                            srcLocation=location;
+
+                            schedule.this.runOnUiThread(new Runnable(){
+                                @Override
+                                public void run() {
+                                    src_address.setText(markerTitle);
+                                    setSrcLocation(srcLocation, markerTitle, markerSnippet);
+                                }
+                            });
+
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }}).start();
+                    }
+                }
+            }
+    );
+
+    ActivityResultLauncher<Intent> mStartForResult2=registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if(result.getResultCode()==RESULT_OK){
+                    address_data_dst=result.getData().getExtras().getString("data");
+                    if(address_data_dst!=null){
+                        Log.i("text","data: "+address_data_dst);
+                        new Thread(()->{try {
+                            Log.d("지오코딩",address_data_dst);
+                            String data_ = URLEncoder.encode(address_data_dst, "utf-8");
+                            Log.d("encode","done");
+                            URL url = new URL(giourl + data_ + "&appKey=" + key);
+                            Log.d("make",url.toString());
+                            Log.d("bfreader","ready");
+                            BufferedReader  bf;
+
+                            bf = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
+                            Log.d("bfreader","done");
+                            String temp = bf.readLine();
+
+                            Log.d("연결완료", temp);
+
+                            JSONParser jsonParser = new JSONParser();
+                            JSONObject jsonObject = (JSONObject) jsonParser.parse(temp);
+                            JSONObject coordinateInfo = (JSONObject) jsonObject.get("coordinateInfo");
+
+                            JSONArray coordinate = (JSONArray) coordinateInfo.get("coordinate");
+                            JSONObject pos = (JSONObject) coordinate.get(0);
+                            String newmatchflag = pos.get("newMatchFlag").toString();
+                            double lat;
+                            double lon;
+                            if (!newmatchflag.isEmpty()) {
+                                Log.d("fff", "fff");
+                                lat = Double.parseDouble((String) pos.get("newLat"));
+                                lon = Double.parseDouble((String) pos.get("newLon"));
+                            } else {
+                                lat = Double.parseDouble((String) pos.get("lat"));
+                                lon = Double.parseDouble((String) pos.get("lon"));
+                            }
+
+                            dstPosition
+                                    = new LatLng(lat, lon);
+
+                            Log.d("lat",String.valueOf(lat));
+                            location.setLatitude(lat);
+                            Log.d("latdst","done");
+                            location.setLongitude(lon);
+
+
+                            String markerTitle = getCurrentAddress(dstPosition);
+                            String markerSnippet = "위도:" + String.valueOf(lat)
+                                    + " 경도:" + String.valueOf(lon);
+
+                            Log.d(TAG, "dstonLocationResult : " + markerSnippet);
+
+
+                            Log.d("lat",String.valueOf(lat));
+                            location.setLatitude(lat);
+                            Log.d("latdst","done");
+                            location.setLongitude(lon);
+                            Log.d("dstmarker",markerTitle);
+                            dstLocation=location;
+
+
+                            schedule.this.runOnUiThread(new Runnable(){
+                                @Override
+                                public void run() {
+                                    dst_address.setText(markerTitle);
+                                    setDstLocation(dstLocation, markerTitle, markerSnippet);
+                                }
+                            });
+
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }}).start();
+                    }
+                }
+            }
+    );
 
 
 }
