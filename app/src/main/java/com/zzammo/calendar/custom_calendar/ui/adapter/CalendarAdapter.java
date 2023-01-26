@@ -1,5 +1,7 @@
 package com.zzammo.calendar.custom_calendar.ui.adapter;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import com.google.gson.Gson;
@@ -7,9 +9,14 @@ import com.zzammo.calendar.R;
 import com.zzammo.calendar.custom_calendar.ui.viewmodel.CalendarHeaderViewModel;
 import com.zzammo.calendar.custom_calendar.ui.viewmodel.CalendarViewModel;
 import com.zzammo.calendar.custom_calendar.ui.viewmodel.EmptyViewModel;
+import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.databinding.CalendarHeaderBinding;
 import com.zzammo.calendar.databinding.DayItemBinding;
 import com.zzammo.calendar.databinding.EmptyDayBinding;
+import com.zzammo.calendar.util.Time;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
@@ -23,9 +30,21 @@ public class CalendarAdapter extends ListAdapter<Object, RecyclerView.ViewHolder
     private final int HEADER_TYPE = 0;
     private final int EMPTY_TYPE = 1;
     private final int DAY_TYPE = 2;
+    public Context mContext;
+    public Database DB;
+    ArrayList<Schedule> mScheduled;
 
+    public interface OnItemClickListener{
+        void onItemClick(int position);
+    }
 
-    public CalendarAdapter() {
+    OnItemClickListener mListener = null;
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.mListener = listener;
+    }
+
+    public CalendarAdapter(Context mContext) {
         super(new DiffUtil.ItemCallback<Object>() {
             @Override
             public boolean areItemsTheSame(@NonNull Object oldItem, @NonNull Object newItem) {
@@ -38,7 +57,12 @@ public class CalendarAdapter extends ListAdapter<Object, RecyclerView.ViewHolder
                 return gson.toJson(oldItem).equals(gson.toJson(newItem));
             }
         });
+        this.mContext=mContext;
+        mScheduled=new ArrayList<>();
+        DB = new Database(mContext);
     }
+
+
 
 
     @Override
@@ -96,6 +120,15 @@ public class CalendarAdapter extends ListAdapter<Object, RecyclerView.ViewHolder
             if (item instanceof Calendar) {
                 model.setCalendar((Calendar) item);
             }
+            Log.d("minseok",((Calendar)item).get(Calendar.YEAR)+" "+((Calendar)item).get(Calendar.MONTH)+" "+((Calendar)item).get(Calendar.DATE)+"");
+            Long startmill = Time.CalendarToMill((Calendar)item);
+            mScheduled.clear();
+            DB.loadAllScheduleDuring(startmill,startmill+Time.ONE_DAY,mScheduled);
+            if(mScheduled.size()>0)Log.d("minseok",mScheduled.size()+"");
+            while(mScheduled.size()<3){
+                mScheduled.add(null);
+            }
+            model.mSchedule.setValue(mScheduled);
             holder.setViewModel(model);
         }
     }

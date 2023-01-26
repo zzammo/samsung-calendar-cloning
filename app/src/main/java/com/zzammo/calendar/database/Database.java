@@ -224,6 +224,9 @@ public class Database {
                 new FireStore().loadAllScheduleDuring(serverDB, begin, end, schedules, afterTask);
         }
     }
+    public void loadAllScheduleDuring(Long begin, Long end, ArrayList<Schedule> schedules){
+        schedules.addAll(Arrays.asList(localDB.scheduleDao().loadAllScheduleDuring(begin, end)));
+    }
 
 
     public Metadata getMetadata(String keyword){

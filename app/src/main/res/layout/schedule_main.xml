@@ -26,7 +26,6 @@
         tools:layout_editor_absoluteX="64dp">
 
         <TextView
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/lunardate"
             android:layout_width="wrap_content"
@@ -42,7 +41,6 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/or"
             android:layout_width="wrap_content"
@@ -58,7 +56,6 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/temperature"
             android:layout_width="wrap_content"
@@ -85,7 +82,6 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <EditText
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/edit_"
             android:layout_width="0dp"

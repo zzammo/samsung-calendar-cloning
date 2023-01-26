@@ -2,6 +2,8 @@ package com.zzammo.calendar.custom_calendar.bindingAdapter;
 import android.widget.TextView;
 import androidx.databinding.BindingAdapter;
 import com.zzammo.calendar.custom_calendar.utils.DateFormat;
+import com.zzammo.calendar.database.Schedule;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -11,6 +13,17 @@ public class TextBindingAdapter {
         try {
             if (date != null) {
                 view.setText(DateFormat.getDate(date, DateFormat.CALENDAR_HEADER_FORMAT));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @BindingAdapter({"setScheduleText"})
+    public static void setScheduleText(TextView view, Schedule x){
+        try {
+            if (x != null) {
+                view.setText(x.title);
             }
         } catch (Exception e) {
             e.printStackTrace();
