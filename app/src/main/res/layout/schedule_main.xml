@@ -25,8 +25,8 @@
         app:layout_constraintHeight_percent="0.4"
         tools:layout_editor_absoluteX="64dp">
 
+<!--        android:fontFamily="@font/nanum_brg"-->
         <TextView
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/lunardate"
             android:layout_width="wrap_content"
@@ -41,8 +41,8 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
+<!--        android:fontFamily="@font/nanum_brg"-->
         <TextView
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/or"
             android:layout_width="wrap_content"
@@ -57,8 +57,8 @@
             app:layout_constraintLeft_toRightOf="@+id/lunardate"
             app:layout_constraintTop_toTopOf="parent"/>
 
+<!--        android:fontFamily="@font/nanum_brg"-->
         <TextView
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/temperature"
             android:layout_width="wrap_content"
@@ -84,8 +84,8 @@
             app:layout_constraintLeft_toRightOf="@+id/temperature"
             app:layout_constraintTop_toTopOf="parent"/>
 
+<!--        android:fontFamily="@font/nanum_brg"-->
         <EditText
-            android:fontFamily="@font/nanum_brg"
             android:textColor="@color/text_white"
             android:id="@+id/edit_"
             android:layout_width="0dp"
@@ -103,6 +103,7 @@
             app:layout_constraintStart_toStartOf="parent"/>
 
         <ImageView
+            android:id="@+id/add_schedule"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginHorizontal="0dp"

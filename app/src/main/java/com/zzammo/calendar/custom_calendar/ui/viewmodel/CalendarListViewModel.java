@@ -69,5 +69,4 @@ public class CalendarListViewModel extends ViewModel {
         }
         mCalendarList.setValue(calendarList);
     }
-
 }

@@ -27,6 +27,7 @@ import com.prolificinteractive.materialcalendarview.OnDateLongClickListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
+import com.zzammo.calendar.custom_calendar.teest.activity.ViewPagerActivity;
 import com.zzammo.calendar.custom_calendar.test;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.dialog.ScheduleDialog;
@@ -93,6 +94,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), MainAddressActivity.class);
+                startActivity(intent);
+            }
+
+        });
+
+        Button btn = (Button) findViewById(R.id.next_xml);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), schedule_main.class);
                 startActivity(intent);
             }
 
@@ -180,6 +191,18 @@ public class MainActivity extends AppCompatActivity {
                 Long mills = Time.CalendarDayToMill(calendarView.getSelectedDate());
                 it.putExtra("timeInMill", mills);
             }
+            startActivity(it);
+        });
+        findViewById(R.id.activity_main_schedule_make_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, ScheduleMakeActivity.class);
+            if (calendarView.getSelectedDate() != null){
+                Long mills = Time.CalendarDayToMill(calendarView.getSelectedDate());
+                it.putExtra("timeInMill", mills);
+            }
+            startActivity(it);
+        });
+        findViewById(R.id.activity_main_viewPager_test_btn).setOnClickListener(v -> {
+            Intent it = new Intent(context, ViewPagerActivity.class);
             startActivity(it);
         });
 

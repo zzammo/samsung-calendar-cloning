@@ -30,7 +30,7 @@ public class test extends AppCompatActivity {
         binding.getModel().initCalendarList();
 
         StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(7, StaggeredGridLayoutManager.VERTICAL);
-        calendarAdapter = new CalendarAdapter();
+        calendarAdapter = new CalendarAdapter(this);
         binding.pagerCalendar.setLayoutManager(manager);
         binding.pagerCalendar.setAdapter(calendarAdapter);
         observe();
