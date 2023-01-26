@@ -18,10 +18,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,12 +86,27 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     LinearLayout date_src_layout;
     LinearLayout time_dst_layout;
     LinearLayout date_dst_layout;
+    LinearLayout alarm_time_layout;
+    LinearLayout alarm_time_checkbox_layout;
+    LinearLayout iterator_layout;
     TextView src_address;
     TextView dst_address;
+    RadioGroup iterator_radiogroup;
+    TextView iterator_textview;
+    TextView alarm_time_textview;
+
+    CheckBox checkbox_ontime;
+    CheckBox checkbox_10_min_ago;
+    CheckBox checkbox_hourago;
+    CheckBox checkbox_dayago;
 
     private boolean ago_flag = true;
     private int date_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
     private int time_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
+    private boolean alarm_time=true;
+    private boolean iterator_time=true;
+    private int operator_flag=0;
+    private boolean[] ago_checkboxes={false,true,false,false};
 
     private GoogleMap mMap;
     private Marker srcMarker = null;
@@ -157,6 +174,18 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
         time_dst_layout=findViewById(R.id.time_dst_layout);
         date_dst_layout=findViewById(R.id.date_dst_layout);
+        alarm_time_layout=findViewById(R.id.alarm_time_layout);
+        alarm_time_checkbox_layout=findViewById(R.id.alarm_time_checkbox_layout);
+
+        iterator_layout=findViewById(R.id.iterator_layout);
+        iterator_radiogroup=findViewById(R.id.iterator_radiogroup);
+        iterator_textview=findViewById(R.id.iterator_textview);
+
+        checkbox_ontime=findViewById(R.id.checkbox_ontime);
+        checkbox_10_min_ago=findViewById(R.id.checkbox_10_min_ago);
+        checkbox_hourago=findViewById(R.id.checkbox_hourago);
+        checkbox_dayago=findViewById(R.id.checkbox_dayago);
+        alarm_time_textview=findViewById(R.id.alarm_time_textview);
 
 
         mLayout = findViewById(R.id.layout_schedule);
@@ -323,6 +352,117 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 ago_flag=!ago_flag;
             }
         });
+
+        alarm_time_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(alarm_time){
+                    alarm_time_checkbox_layout.setVisibility(View.VISIBLE);
+                }else{
+                    alarm_time_checkbox_layout.setVisibility(View.GONE);
+                    String text="";
+                    String[] temp={"일정 시작시간","10분 전","1시간 전","1일 전"};
+                    for(int i=0;i<4;i++){
+                        if(ago_checkboxes[i]){
+                            text+=temp[i];
+                            text+=", ";
+                        }
+                    }
+                    text=text.substring(0,text.length()-2);
+                    alarm_time_textview.setText(text);
+                }
+                alarm_time=!alarm_time;
+            }
+        });
+
+        iterator_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(iterator_time){
+                    iterator_radiogroup.setVisibility(View.VISIBLE);
+                }else{
+                    iterator_radiogroup.setVisibility(View.GONE);
+                }
+                iterator_time=!iterator_time;
+            }
+        });
+        iterator_radiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if(i==R.id.radiobutton_norepeat){
+                    operator_flag=0;
+                    iterator_textview.setText("반복 안 함");
+                    iterator_radiogroup.setVisibility(View.GONE);
+                    iterator_time=!iterator_time;
+                }
+                else if(i==R.id.radiobutton_everyday){
+                    operator_flag=1;
+                    iterator_textview.setText("매일");
+                    iterator_radiogroup.setVisibility(View.GONE);
+                    iterator_time=!iterator_time;
+                }
+                else if(i==R.id.radiobutton_everyweek) {
+                    operator_flag=2;
+                    iterator_textview.setText("매주");
+                    iterator_radiogroup.setVisibility(View.GONE);
+                    iterator_time=!iterator_time;
+                }
+                else if(i==R.id.radiobutton_everymonth) {
+                    operator_flag=3;
+                    iterator_textview.setText("매월");
+                    iterator_radiogroup.setVisibility(View.GONE);
+                    iterator_time=!iterator_time;
+                }
+                else if(i==R.id.radiobutton_everyyear) {
+                    operator_flag=4;
+                    iterator_textview.setText("매년");
+                    iterator_radiogroup.setVisibility(View.GONE);
+                    iterator_time=!iterator_time;
+                }
+            }
+        });
+
+        checkbox_ontime.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[0]=true;
+                }else{
+                    ago_checkboxes[0]=false;
+                }
+            }
+        });
+        checkbox_10_min_ago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[1]=true;
+                }else{
+                    ago_checkboxes[1]=false;
+                }
+            }
+        });
+        checkbox_hourago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[2]=true;
+                }else{
+                    ago_checkboxes[2]=false;
+                }
+            }
+        });
+        checkbox_dayago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[3]=true;
+                }else{
+                    ago_checkboxes[3]=false;
+                }
+            }
+        });
+
         // webview 불러오기
         src_address =  findViewById(R.id.src_address);
         dst_address =  findViewById(R.id.dst_address);
@@ -613,7 +753,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             zoomToFitBuilder.include(latlng);
             zoomToFitBuilder.include(dstPosition);
             LatLngBounds zoomToFitBound = zoomToFitBuilder.build();
-            int padding = 300;
+            int padding = 100;
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(zoomToFitBound, padding);
             mMap.animateCamera(cameraUpdate);
         }
@@ -638,7 +778,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         zoomToFitBuilder.include(latlng);
         zoomToFitBuilder.include(srcPosition);
         LatLngBounds zoomToFitBound = zoomToFitBuilder.build();
-        int padding = 300;
+        int padding = 100;
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(zoomToFitBound, padding);
         mMap.animateCamera(cameraUpdate);
     }
@@ -791,13 +931,11 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         switch (requestCode) {
 
             case GPS_ENABLE_REQUEST_CODE:
-
                 //사용자가 GPS 활성 시켰는지 검사
                 if (checkLocationServicesStatus()) {
                     if (checkLocationServicesStatus()) {
 
                         Log.d(TAG, "onActivityResult : GPS 활성화 되있음");
-
 
                         needRequest = true;
 

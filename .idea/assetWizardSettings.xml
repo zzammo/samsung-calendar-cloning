@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../go%20yang/AppData/Local/Android/Sdk/icons/material/materialicons/edit_note/baseline_edit_note_24.xml" />
+                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../go%20yang/AppData/Local/Android/Sdk/icons/material/materialicons/arrow_downward/baseline_arrow_downward_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,7 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="00000a" />
-                            <entry key="outputName" value="ic_baseline_edit_note_24" />
+                            <entry key="outputName" value="ic_baseline_arrow_downward_24" />
                             <entry key="sourceFile" value="C:\Users\user\Calendar" />
                           </map>
                         </option>
