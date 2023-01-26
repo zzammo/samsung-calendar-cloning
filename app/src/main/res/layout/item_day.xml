@@ -34,9 +34,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
+                    android:id="@+id/schedule_main_date"
                     setDayText="@{model.mCalendar}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAlignment="center"
                     android:layout_margin="4dp"
                     android:textSize="9sp"
                     tools:text="1" />
@@ -57,6 +59,14 @@
                 setScheduleText="@{model.mSchedule.get(2)}"
                 android:id="@+id/schedule_main_schedule3_tv"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"/>
+            <TextView
+                android:text="..."
+                android:id="@+id/schedule_main_more"
+                android:layout_width="match_parent"
+                android:textAlignment="center"
+                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"/>
 
