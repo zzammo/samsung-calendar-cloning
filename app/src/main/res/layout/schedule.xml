@@ -316,7 +316,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="7sp">
+                        android:layout_marginVertical="10sp">
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -358,6 +358,7 @@
                     android:layout_marginVertical="5sp"
                     android:orientation="horizontal">
                     <TextView
+                        android:id="@+id/time_requiered_click"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_white"
@@ -365,8 +366,9 @@
                         android:textAlignment="center"
                         android:textSize="12sp"
                         android:padding="7sp"
-                        android:text="소요 시간         :"/>
+                        android:text="소요 시간 (CLICK)     :"/>
                     <TextView
+                        android:id="@+id/time_requiered_textview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_white"
@@ -385,10 +387,12 @@
                     android:layout_marginVertical="5sp"
                     android:orientation="horizontal">
                     <RadioGroup
+                        android:id="@+id/means_radiogroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
                         <RadioButton
+                            android:id="@+id/radiobutton_walk"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="도보"
@@ -396,6 +400,7 @@
                             android:textColor="@color/text_white"
                             android:layout_weight="1"/>
                         <RadioButton
+                            android:id="@+id/radiobutton_public"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="대중교통"
@@ -403,6 +408,7 @@
                             android:textColor="@color/text_white"
                             android:layout_weight="1"/>
                         <RadioButton
+                            android:id="@+id/radiobutton_car"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="자가용"

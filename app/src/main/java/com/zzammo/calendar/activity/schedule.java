@@ -3,6 +3,7 @@ package com.zzammo.calendar.activity;
 import static java.lang.Math.log;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -59,6 +61,7 @@ import com.zzammo.calendar.R;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -94,11 +97,16 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     RadioGroup iterator_radiogroup;
     TextView iterator_textview;
     TextView alarm_time_textview;
+    TextView time_requiered_textview;
+    TextView time_requiered_click;
+
 
     CheckBox checkbox_ontime;
     CheckBox checkbox_10_min_ago;
     CheckBox checkbox_hourago;
     CheckBox checkbox_dayago;
+
+    RadioGroup means_radiogroup;
 
     private boolean ago_flag = true;
     private int date_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
@@ -107,6 +115,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     private boolean iterator_time=true;
     private int operator_flag=0;
     private boolean[] ago_checkboxes={false,true,false,false};
+    private int means_flag=-1;
 
     private GoogleMap mMap;
     private Marker srcMarker = null;
@@ -186,6 +195,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         checkbox_hourago=findViewById(R.id.checkbox_hourago);
         checkbox_dayago=findViewById(R.id.checkbox_dayago);
         alarm_time_textview=findViewById(R.id.alarm_time_textview);
+        time_requiered_textview=findViewById(R.id.time_requiered_textview);
+
+        means_radiogroup=findViewById(R.id.means_radiogroup);
+        time_requiered_click=findViewById(R.id.time_requiered_click);
 
 
         mLayout = findViewById(R.id.layout_schedule);
@@ -368,8 +381,12 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                             text+=", ";
                         }
                     }
-                    text=text.substring(0,text.length()-2);
-                    alarm_time_textview.setText(text);
+                    if(text==""){
+                        alarm_time_textview.setText("알람 설정 없음");
+                    }else {
+                        text=text.substring(0,text.length()-2);
+                        alarm_time_textview.setText(text);
+                    }
                 }
                 alarm_time=!alarm_time;
             }
@@ -418,6 +435,33 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     iterator_textview.setText("매년");
                     iterator_radiogroup.setVisibility(View.GONE);
                     iterator_time=!iterator_time;
+                }
+            }
+        });
+
+        time_requiered_click.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(means_flag>=0&&address_data_src!=null&&address_data_dst!=null){
+                    NetworkTask networkTask=new NetworkTask();
+                    networkTask.execute();
+                }else{
+                    Toast.makeText(getApplicationContext(),"출발지 도착지 이동 수단을 모두 입력해주세요!",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        means_radiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if(i==R.id.radiobutton_walk){
+                   means_flag=1;
+                }
+                else if(i==R.id.radiobutton_public){
+                   means_flag=0;
+                }
+                else if(i==R.id.radiobutton_car) {
+                    means_flag=2;
                 }
             }
         });
@@ -597,6 +641,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
 
                 String markerTitle = getCurrentAddress(srcPosition);
+                address_data_src=markerTitle;
                 String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                         + " 경도:" + String.valueOf(location.getLongitude());
 
@@ -1106,5 +1151,97 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
     );
 
+    public class NetworkTask extends AsyncTask<Void,Void,String> {
 
+        @Override
+        protected String doInBackground(Void... params) {
+            String result="";
+            String url="";
+            ContentValues contentValues=new ContentValues();
+            if(means_flag==0){
+                url="http://apis.openapi.sk.com/transit/routes/sub";
+                contentValues.put("format","json");
+                contentValues.put("endY",String.valueOf(dstPosition.latitude));
+                contentValues.put("endX",String.valueOf(dstPosition.longitude));
+                contentValues.put("startY",String.valueOf(srcPosition.latitude));
+                contentValues.put("startX",String.valueOf(srcPosition.longitude));
+            }else if(means_flag==1){
+                url="http://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json";
+                contentValues.put("startX",String.valueOf(srcPosition.longitude));
+                contentValues.put("startY",String.valueOf(srcPosition.latitude));
+                contentValues.put("endX",String.valueOf(dstPosition.longitude));
+                contentValues.put("endY",String.valueOf(dstPosition.latitude));
+                contentValues.put("startName",address_data_src);
+                contentValues.put("endName",address_data_dst);
+            }else if(means_flag==2){
+                url="http://apis.openapi.sk.com/tmap/routes?version=1&format=json";
+                contentValues.put("startX",String.valueOf(srcPosition.longitude));
+                contentValues.put("startY",String.valueOf(srcPosition.latitude));
+                contentValues.put("endX",String.valueOf(dstPosition.longitude));
+                contentValues.put("endY",String.valueOf(dstPosition.latitude));
+            }
+
+            RequestHttpConnection requestHttpConnection=new RequestHttpConnection(means_flag);
+            result=requestHttpConnection.request(url,contentValues);
+            Log.d("result: ",result);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            super.onPostExecute(s);
+
+            JSONParser jsonParser = new JSONParser();
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = (JSONObject) jsonParser.parse(s);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            Log.d("파싱준비", jsonObject.toString());
+
+            String time;
+            if(means_flag==0){
+                JSONObject metaData = (JSONObject) jsonObject.get("metaData");
+                JSONObject plan = (JSONObject) metaData.get("plan");
+                Log.d("plan",plan.toString());
+                JSONArray itineraries = (JSONArray) plan.get("itineraries");
+                Log.d("itineraries",itineraries.toString());
+                JSONObject index = (JSONObject) itineraries.get(0);
+                Log.d("index",index.toString());
+                Long totalTime = (Long) index.get("totalTime");
+                Log.d("totalTime",index.toString());
+
+                time = (String) totalTime.toString();
+                Log.d("totalTime", time);
+            }else {
+
+                JSONArray features = (JSONArray) jsonObject.get("features");
+                JSONObject sp_features = (JSONObject) features.get(0);
+
+                JSONObject properties = (JSONObject) sp_features.get("properties");
+                Log.d("properties", (String) properties.toString());
+                time = (String) properties.get("totalTime").toString();
+                Log.d("tttttime", time);
+            }
+            int required_time=Integer.parseInt(time);
+            int hour=required_time/3600;
+            required_time%=3600;
+            int minute=required_time/60;
+            required_time%=60;
+            int second=required_time;
+            String text="";
+            if(hour>0){
+                text+=String.valueOf(hour)+"시간 ";
+            }
+            if(minute>0){
+                text+=String.valueOf(minute)+"분 ";
+            }
+            if(second>0){
+                text+=String.valueOf(second)+"초 ";
+            }
+            time_requiered_textview.setText(text.substring(0,text.length()-1));
+        }
+    }
 }
