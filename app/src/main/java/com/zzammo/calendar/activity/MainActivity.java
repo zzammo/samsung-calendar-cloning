@@ -109,6 +109,16 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        Button btn1 = (Button) findViewById(R.id.activity_main_slidingpanelayout_test);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), slidingpanetest.class);
+                startActivity(intent);
+            }
+
+        });
+
         this.context = this;
 
         DB = ScheduleDatabase.getInstance(context);

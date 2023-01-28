@@ -50,8 +50,8 @@ public class TextBindingAdapter {
                 GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
                 view.setText(DateFormat.getDate(gregorianCalendar.getTimeInMillis(), DateFormat.DAY_FORMAT));
                 CalendarDay day = Time.CalendarToCalendarDay(calendar);
-                //if(DecorateSunday(day)||IsHoliday(day))view.setTextColor(Color.RED);
-                if(DecorateSunday(day))view.setTextColor(Color.RED);
+                if(DecorateSunday(day)||IsHoliday(day))view.setTextColor(Color.RED);
+                //if(DecorateSunday(day))view.setTextColor(Color.RED);
                 else if(DecorateSaturday(day))view.setTextColor(Color.BLUE);
                 if(DecorateDay(day))view.setTextColor(Color.LTGRAY);
             }
