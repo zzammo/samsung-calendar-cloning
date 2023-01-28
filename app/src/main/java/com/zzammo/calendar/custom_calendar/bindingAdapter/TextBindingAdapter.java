@@ -1,4 +1,7 @@
 package com.zzammo.calendar.custom_calendar.bindingAdapter;
+import android.app.ActionBar;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.databinding.BindingAdapter;
 import com.zzammo.calendar.custom_calendar.utils.DateFormat;
@@ -41,4 +44,17 @@ public class TextBindingAdapter {
             e.printStackTrace();
         }
     }
+
+//    @BindingAdapter("android:layout_height")
+//    public static void setHeight(View view, int height){
+//        try{
+//            int width = view.getLayoutParams().width;
+//            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(width, height);
+//            view.setLayoutParams(lp);
+//        }
+//        catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
+
 }
