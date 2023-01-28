@@ -23,16 +23,19 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -68,7 +71,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -78,17 +84,17 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     EditText memo;
     Switch allday_switch;
     Switch alarm_switch;
-    TextView src_time;
-    TextView src_date;
-    TextView dst_time;
-    TextView dst_date;
+    TextView start_time_textview;
+    TextView start_date_textview;
+    TextView end_time_textview;
+    TextView end_date_textview;
     LinearLayout path_panel;
     LinearLayout ago_timepicker;
     LinearLayout ago_panel;
-    LinearLayout time_src_layout;
-    LinearLayout date_src_layout;
-    LinearLayout time_dst_layout;
-    LinearLayout date_dst_layout;
+    LinearLayout time_start_layout;
+    LinearLayout date_start_layout;
+    LinearLayout time_end_layout;
+    LinearLayout date_end_layout;
     LinearLayout alarm_time_layout;
     LinearLayout alarm_time_checkbox_layout;
     LinearLayout iterator_layout;
@@ -107,6 +113,32 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     CheckBox checkbox_dayago;
 
     RadioGroup means_radiogroup;
+
+    DatePicker date_start_datepicker;
+    DatePicker date_end_datepicker;
+
+    TimePicker time_start_timepicker;
+    TimePicker time_end_timepicker;
+
+    private boolean isToday=false;
+
+    private int start_hour=8;
+    private int start_minute=0;
+    private int start_month;
+    private int start_day;
+    private int start_year;
+    private int start_week;
+
+    private int end_hour=9;
+    private int end_minute=0;
+    private int end_month;
+    private int end_day;
+    private int end_year;
+    private int end_week;
+
+    private boolean[] clicked={false,false,false,false}; // 0 start_date 1 start_time 2 end_date 3 end_time
+
+
 
     private boolean ago_flag = true;
     private int date_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
@@ -161,28 +193,40 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
     String giourl ="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
 
+    public schedule(int year,int month,int day){
+        start_year=year;
+        start_month=month;
+        start_day=day;
+    }
+    public schedule(){
+        start_year=2023;
+        start_month=1;
+        start_day=28;
+    }
 
 
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule);
         memo = findViewById(R.id.memo);
         allday_switch = findViewById(R.id.allday_switch);
-        src_time = findViewById(R.id.src_time);
-        src_date = findViewById(R.id.src_date);
-        dst_time = findViewById(R.id.dst_time);
-        dst_date = findViewById(R.id.dst_date);
+        start_time_textview = findViewById(R.id.start_time_textview);
+        start_date_textview = findViewById(R.id.start_date_textview);
+        end_time_textview = findViewById(R.id.end_time_textview);
+        end_date_textview = findViewById(R.id.end_date_textview);
         alarm_switch = findViewById(R.id.alarm_switch);
         path_panel = findViewById(R.id.path_panel);
         ago_panel = findViewById(R.id.ago_panel);
-        ago_timepicker = findViewById(R.id.ago_timepicker);
 
-        time_src_layout=findViewById(R.id.time_src_layout);
-        date_src_layout=findViewById(R.id.date_src_layout);
+        time_start_layout=findViewById(R.id.time_start_layout);
+        date_start_layout=findViewById(R.id.date_start_layout);
 
-        time_dst_layout=findViewById(R.id.time_dst_layout);
-        date_dst_layout=findViewById(R.id.date_dst_layout);
+        time_end_layout=findViewById(R.id.time_end_layout);
+        date_end_layout=findViewById(R.id.date_end_layout);
         alarm_time_layout=findViewById(R.id.alarm_time_layout);
         alarm_time_checkbox_layout=findViewById(R.id.alarm_time_checkbox_layout);
 
@@ -199,6 +243,12 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
         means_radiogroup=findViewById(R.id.means_radiogroup);
         time_requiered_click=findViewById(R.id.time_requiered_click);
+
+        date_start_datepicker=findViewById(R.id.date_start_datepicker);
+        date_end_datepicker=findViewById(R.id.date_end_datepicker);
+
+        time_start_timepicker=findViewById(R.id.time_start_timepicker);
+        time_end_timepicker=findViewById(R.id.time_end_timepicker);
 
 
         mLayout = findViewById(R.id.layout_schedule);
@@ -220,123 +270,227 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync((OnMapReadyCallback) schedule.this);
 
-        /// 일정 시간 설정 src
-        src_time.setOnClickListener(new View.OnClickListener() {
+        end_year=start_year;
+        end_day=start_day;
+        end_month=start_month;
+
+        LocalDateTime localDatetime=LocalDateTime.now();
+        int cur_week=localDatetime.getDayOfWeek().getValue();
+        start_week=end_week=cur_week;
+        int cur_day=localDatetime.getDayOfMonth();
+        int cur_month=localDatetime.getMonthValue();
+        int cur_year=localDatetime.getYear();
+        int cur_hour=localDatetime.getHour();
+        int cur_minute=localDatetime.getMinute();
+        Log.d("cur_year",String.valueOf(cur_year));
+        Log.d("cur_month",String.valueOf(cur_month));
+        Log.d("cur_day",String.valueOf(cur_day));
+        Log.d("cur_hour",String.valueOf(cur_hour));
+        Log.d("cur_minute",String.valueOf(cur_minute));
+        if(cur_day==start_day&&cur_month==start_month&&cur_year==start_year){
+            isToday=true;
+            if(cur_minute==0){
+                start_hour=cur_hour;
+                end_hour=cur_hour+1;
+            }else{
+                start_hour=cur_hour+1;
+                end_hour=cur_hour+2;
+            }
+        }
+        time_start_timepicker.setIs24HourView(true);
+        time_start_timepicker.setHour(start_hour);
+        time_start_timepicker.setMinute(start_minute);
+
+        time_end_timepicker.setIs24HourView(true);
+        time_end_timepicker.setHour(end_hour);
+        time_end_timepicker.setMinute(end_minute);
+
+        start_date_textview.setText(getDateText(start_month,start_day,start_week));
+        end_date_textview.setText(getDateText(end_month,end_day,start_week));
+        start_time_textview.setText(getTimeText(start_hour,start_minute));
+        end_time_textview.setText(getTimeText(end_hour,end_minute));
+
+        /// 일정 시간 설정 start
+        start_time_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(date_picker_flag!=0) {
                     if(date_picker_flag==1) {
-                        date_src_layout.setVisibility(View.GONE);
+                        date_start_layout.setVisibility(View.GONE);
+                        setOffClicked(0);
                     }else{
-                        date_dst_layout.setVisibility(View.GONE);
+                        date_end_layout.setVisibility(View.GONE);
+                        setOffClicked(2);
                     }
                     date_picker_flag=0;
                 }
                 if (time_picker_flag == 0) {
-                    time_src_layout.setVisibility(View.VISIBLE);
+                    time_start_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(1);
                     time_picker_flag = 1;
                 } else if (time_picker_flag == 1) {
-                    time_src_layout.setVisibility(View.GONE);
+                    time_start_layout.setVisibility(View.GONE);
+                    setOffClicked(1);
                     time_picker_flag = 0;
                 } else {
-                    time_dst_layout.setVisibility(View.GONE);
-                    time_src_layout.setVisibility(View.VISIBLE);
+                    time_end_layout.setVisibility(View.GONE);
+                    setOffClicked(3);
+                    time_start_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(1);
                     time_picker_flag = 1;
                 }
             }
         });
-        // 일정 날짜 설정 src
-        src_date.setOnClickListener(new View.OnClickListener() {
+        // 일정 날짜 설정 start
+        start_date_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(time_picker_flag!=0) {
                     if(time_picker_flag==1) {
-                        time_src_layout.setVisibility(View.GONE);
+                        time_start_layout.setVisibility(View.GONE);
+                        setOffClicked(1);
                     }else{
-                        time_dst_layout.setVisibility(View.GONE);
+                        time_end_layout.setVisibility(View.GONE);
+                        setOffClicked(3);
                     }
                     time_picker_flag=0;
                 }
                 if (date_picker_flag == 0) {
-                    date_src_layout.setVisibility(View.VISIBLE);
+                    date_start_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(0);
                     date_picker_flag = 1;
                 } else if (date_picker_flag == 1) {
-                    date_src_layout.setVisibility(View.GONE);
+                    date_start_layout.setVisibility(View.GONE);
+                    setOffClicked(0);
                     date_picker_flag = 0;
                 } else {
-                    date_dst_layout.setVisibility(View.GONE);
-                    date_src_layout.setVisibility(View.VISIBLE);
+                    date_end_layout.setVisibility(View.GONE);
+                    setOffClicked(2);
+                    date_start_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(0);
                     date_picker_flag = 1;
                 }
             }
         });
-        // 일정 시간 설정 dst
-        dst_time.setOnClickListener(new View.OnClickListener() {
+        // 일정 시간 설정 end
+        end_time_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(date_picker_flag!=0) {
                     if(date_picker_flag==1) {
-                        date_src_layout.setVisibility(View.GONE);
+                        date_start_layout.setVisibility(View.GONE);
+                        setOffClicked(0);
                     }else{
-                        date_dst_layout.setVisibility(View.GONE);
+                        date_end_layout.setVisibility(View.GONE);
+                        setOffClicked(2);
                     }
                     date_picker_flag=0;
                 }
                 if (time_picker_flag == 0) {
-                    time_dst_layout.setVisibility(View.VISIBLE);
+                    time_end_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(3);
                     time_picker_flag = 2;
                 } else if (time_picker_flag == 2) {
-                    time_dst_layout.setVisibility(View.GONE);
+                    time_end_layout.setVisibility(View.GONE);
+                    setOffClicked(3);
                     time_picker_flag = 0;
                 } else {
-                    time_src_layout.setVisibility(View.GONE);
-                    time_dst_layout.setVisibility(View.VISIBLE);
+                    time_start_layout.setVisibility(View.GONE);
+                    setOffClicked(1);
+                    time_end_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(3);
                     time_picker_flag = 2;
                 }
             }
         });
-        // 일정 날짜 설정 dst
-        dst_date.setOnClickListener(new View.OnClickListener() {
+        // 일정 날짜 설정 end
+        end_date_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 if(time_picker_flag!=0) {
                     if(time_picker_flag==1) {
-                        time_src_layout.setVisibility(View.GONE);
+                        time_start_layout.setVisibility(View.GONE);
+                        setOffClicked(1);
                     }else{
-                        time_dst_layout.setVisibility(View.GONE);
+                        time_end_layout.setVisibility(View.GONE);
+                        setOffClicked(3);
                     }
                     time_picker_flag=0;
                 }
                 if (date_picker_flag == 0) {
-                    date_dst_layout.setVisibility(View.VISIBLE);
+                    date_end_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(2);
                     date_picker_flag = 2;
                 } else if (date_picker_flag == 2) {
-                    date_dst_layout.setVisibility(View.GONE);
+                    date_end_layout.setVisibility(View.GONE);
+                    setOffClicked(2);
                     date_picker_flag = 0;
                 } else {
-                    date_src_layout.setVisibility(View.GONE);
-                    date_dst_layout.setVisibility(View.VISIBLE);
+                    date_start_layout.setVisibility(View.GONE);
+                    setOffClicked(0);
+                    date_end_layout.setVisibility(View.VISIBLE);
+                    setOnClicked(2);
                     date_picker_flag = 2;
                 }
             }
         });
+
+        time_start_timepicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker timePicker, int i, int i1) {
+                start_hour=i;
+                start_minute=i1;
+                start_time_textview.setText(getTimeText(start_hour,start_minute));
+            }
+        });
+        date_start_datepicker.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker datePicker, int i, int i1, int i2) {
+                start_year=i;
+                start_month=i1+1;
+                start_day=i2;
+                start_week=LocalDate.of(i,i1+1,i2).getDayOfWeek().getValue();
+                start_date_textview.setText(getDateText(start_month,start_day,start_week));
+            }
+        });
+        time_end_timepicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker timePicker, int i, int i1) {
+                end_hour=i;
+                end_minute=i1;
+                end_time_textview.setText(getTimeText(end_hour,end_minute));
+            }
+        });
+        date_end_datepicker.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker datePicker, int i, int i1, int i2) {
+                end_year=i;
+                end_month=i1+1;
+                end_day=i2;
+                end_week=LocalDate.of(i,i1+1,i2).getDayOfWeek().getValue();
+                end_date_textview.setText(getDateText(end_month,end_day,end_week));
+            }
+        });
+
+
         // 하루종일 스위치
         allday_switch.setOnCheckedChangeListener(new OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b) {
-                    src_time.setVisibility(View.GONE);
-                    dst_time.setVisibility(View.GONE);
-                    date_dst_layout.setVisibility(View.GONE);
-                    date_src_layout.setVisibility(View.GONE);
-                    time_dst_layout.setVisibility(View.GONE);
-                    time_src_layout.setVisibility(View.GONE);
+                    start_time_textview.setVisibility(View.GONE);
+                    end_time_textview.setVisibility(View.GONE);
+                    date_end_layout.setVisibility(View.GONE);
+                    date_start_layout.setVisibility(View.GONE);
+                    time_start_layout.setVisibility(View.GONE);
+                    time_end_layout.setVisibility(View.GONE);
                     time_picker_flag=0;
                     date_picker_flag=0;
                 }
                 else{
-                    src_time.setVisibility(View.VISIBLE);
-                    dst_time.setVisibility(View.VISIBLE);
+                    start_time_textview.setVisibility(View.VISIBLE);
+                    end_time_textview.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -371,8 +525,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             public void onClick(View view) {
                 if(alarm_time){
                     alarm_time_checkbox_layout.setVisibility(View.VISIBLE);
+                    alarm_time_textview.setBackground(ContextCompat.getDrawable(schedule.this,R.drawable.ed_text));
                 }else{
                     alarm_time_checkbox_layout.setVisibility(View.GONE);
+                    alarm_time_textview.setBackgroundColor(ContextCompat.getColor(schedule.this,R.color.bg_white));
                     String text="";
                     String[] temp={"일정 시작시간","10분 전","1시간 전","1일 전"};
                     for(int i=0;i<4;i++){
@@ -397,8 +553,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             public void onClick(View view) {
                 if(iterator_time){
                     iterator_radiogroup.setVisibility(View.VISIBLE);
+                    iterator_textview.setBackground(ContextCompat.getDrawable(schedule.this,R.drawable.ed_text));
                 }else{
                     iterator_radiogroup.setVisibility(View.GONE);
+                    iterator_textview.setBackgroundColor(ContextCompat.getColor(schedule.this,R.color.bg_white));
                 }
                 iterator_time=!iterator_time;
             }
@@ -409,33 +567,26 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 if(i==R.id.radiobutton_norepeat){
                     operator_flag=0;
                     iterator_textview.setText("반복 안 함");
-                    iterator_radiogroup.setVisibility(View.GONE);
-                    iterator_time=!iterator_time;
                 }
                 else if(i==R.id.radiobutton_everyday){
                     operator_flag=1;
                     iterator_textview.setText("매일");
-                    iterator_radiogroup.setVisibility(View.GONE);
-                    iterator_time=!iterator_time;
                 }
                 else if(i==R.id.radiobutton_everyweek) {
                     operator_flag=2;
                     iterator_textview.setText("매주");
-                    iterator_radiogroup.setVisibility(View.GONE);
-                    iterator_time=!iterator_time;
                 }
                 else if(i==R.id.radiobutton_everymonth) {
                     operator_flag=3;
                     iterator_textview.setText("매월");
-                    iterator_radiogroup.setVisibility(View.GONE);
-                    iterator_time=!iterator_time;
                 }
                 else if(i==R.id.radiobutton_everyyear) {
                     operator_flag=4;
                     iterator_textview.setText("매년");
-                    iterator_radiogroup.setVisibility(View.GONE);
-                    iterator_time=!iterator_time;
                 }
+                iterator_radiogroup.setVisibility(View.GONE);
+                iterator_time=!iterator_time;
+                iterator_textview.setBackgroundColor(ContextCompat.getColor(schedule.this,R.color.bg_white));
             }
         });
 
@@ -551,6 +702,31 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         });
     }
 
+    public void setOffClicked(int i){
+        clicked[i] = false;
+        if (i == 0) {
+            start_date_textview.setBackgroundColor(ContextCompat.getColor(this, R.color.bg_white));
+        } else if (i == 1) {
+            start_time_textview.setBackgroundColor(ContextCompat.getColor(this, R.color.bg_white));
+        } else if (i == 2) {
+            end_date_textview.setBackgroundColor(ContextCompat.getColor(this, R.color.bg_white));
+        } else if (i == 3) {
+            end_time_textview.setBackgroundColor(ContextCompat.getColor(this, R.color.bg_white));
+        }
+    }
+    public void setOnClicked(int i){
+        clicked[i] = true;
+        if (i == 0) {
+            start_date_textview.setBackground(ContextCompat.getDrawable(this, R.drawable.ed_text));
+        } else if (i == 1) {
+            start_time_textview.setBackground(ContextCompat.getDrawable(this, R.drawable.ed_text));
+        } else if (i == 2) {
+            end_date_textview.setBackground(ContextCompat.getDrawable(this, R.drawable.ed_text));
+        } else if (i == 3) {
+            end_time_textview.setBackground(ContextCompat.getDrawable(this, R.drawable.ed_text));
+        }
+    }
+
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d(TAG, "onMapReady :");
@@ -624,6 +800,27 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
         });
     }
+    private String getDateText(int month,int day,int dayofWeek){
+        String ret="";
+        ret+=month+"월 "+day+"일 ("+getWeek(dayofWeek)+")";
+        return ret;
+    }
+    private String getTimeText(int hour,int minute){
+        String ret="";
+        if(hour<12){
+            ret+="오전 "+String.valueOf(hour)+":";
+        }else {
+            ret += "오후 "+String.valueOf(hour-12)+":";
+        }
+        if(minute<10){
+            ret+="0"+String.valueOf(minute);
+        }else{
+            ret+=String.valueOf(minute);
+        }
+        return ret;
+    }
+
+
 
     LocationCallback locationCallback = new LocationCallback() {
         @Override
@@ -711,8 +908,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 mMap.setMyLocationEnabled(true);
 
         }
-
-
     }
 
 
@@ -940,6 +1135,25 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
 
         }
+    }
+
+    private String getWeek(int week){
+        if(week==1){
+            return "일";
+        }else if(week==2){
+            return "월";
+        }else if(week==3){
+            return "화";
+        }else if(week==4){
+            return "수";
+        }else if(week==5){
+            return "목";
+        }else if(week==6){
+            return "금";
+        }else if(week==7){
+            return "토";
+        }
+        return "";
     }
 
 

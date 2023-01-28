@@ -3,6 +3,7 @@ package com.zzammo.calendar.custom_calendar.ui.adapter;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import com.google.gson.Gson;
 import com.zzammo.calendar.R;
@@ -125,6 +126,7 @@ public class CalendarAdapter extends ListAdapter<Object, RecyclerView.ViewHolder
             mScheduled.clear();
             DB.loadAllScheduleDuring(startmill,startmill+Time.ONE_DAY,mScheduled);
             if(mScheduled.size()>0)Log.d("minseok",mScheduled.size()+"");
+            if(mScheduled.size()>3)holder.binding.scheduleMainMore.setVisibility(View.VISIBLE);
             while(mScheduled.size()<3){
                 mScheduled.add(null);
             }

@@ -6,8 +6,7 @@
     <item android:id="@+id/today_move"
         android:icon="@drawable/ic_baseline_calendar_today_24"
         android:title="Today"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView" />
+        app:showAsAction="always" />
 
     <item android:id="@+id/name_search"
         android:icon="@drawable/ic_baseline_search_24"

@@ -81,7 +81,7 @@
                         android:layout_weight="1"
                         android:animateLayoutChanges="true">
                         <TextView
-                            android:id="@+id/src_date"
+                            android:id="@+id/start_date_textview"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="1월 18일 (수)"
@@ -90,7 +90,7 @@
                             android:padding="5sp"
                             android:textAlignment="center"/>
                         <TextView
-                            android:id="@+id/src_time"
+                            android:id="@+id/start_time_textview"
                             android:visibility="visible"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
                         android:layout_weight="1"
                         android:animateLayoutChanges="true">
                         <TextView
-                            android:id="@+id/dst_date"
+                            android:id="@+id/end_date_textview"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textAlignment="center"
@@ -130,7 +130,7 @@
                             android:textSize="18sp"
                             android:padding="5sp"/>
                         <TextView
-                            android:id="@+id/dst_time"
+                            android:id="@+id/end_time_textview"
                             android:visibility="visible"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -145,7 +145,7 @@
 
 
             <LinearLayout
-                android:id="@+id/date_src_layout"
+                android:id="@+id/date_start_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -158,6 +158,7 @@
                     android:background="@color/line_white"
                     android:layout_marginVertical="3sp"/>
                 <DatePicker
+                    android:id="@+id/date_start_datepicker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -166,7 +167,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/date_dst_layout"
+                android:id="@+id/date_end_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -179,6 +180,7 @@
                     android:background="@color/line_white"
                     android:layout_marginVertical="3sp"/>
                 <DatePicker
+                    android:id="@+id/date_end_datepicker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -188,7 +190,7 @@
 
 
             <LinearLayout
-                android:id="@+id/time_src_layout"
+                android:id="@+id/time_start_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -201,6 +203,7 @@
                     android:background="@color/line_white"
                     android:layout_marginVertical="3sp"/>
                 <TimePicker
+                    android:id="@+id/time_start_timepicker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -210,7 +213,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/time_dst_layout"
+                android:id="@+id/time_end_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -223,6 +226,7 @@
                     android:background="@color/line_white"
                     android:layout_marginVertical="3sp"/>
                 <TimePicker
+                    android:id="@+id/time_end_timepicker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -472,7 +476,6 @@
                         android:textAlignment="center"
                         android:layout_marginHorizontal="7sp"
                         android:layout_gravity="center"
-                        android:background="@drawable/ed_text"
                         android:text="10분 전"/>
                 </LinearLayout>
 
@@ -525,27 +528,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/ago_timepicker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:layout_marginHorizontal="10sp"
-                android:layout_marginVertical="5sp">
-                <View
-                    android:layout_width="wrap_content"
-                    android:layout_height="1dp"
-                    android:background="@color/line_white"
-                    android:layout_marginVertical="3sp"/>
-                <TimePicker
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5sp"
-                    android:timePickerMode="spinner"/>
-            </LinearLayout>
-
-
-            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -580,7 +562,6 @@
                         android:textAlignment="center"
                         android:layout_marginHorizontal="7sp"
                         android:layout_gravity="center"
-                        android:background="@drawable/ed_text"
                         android:text="반복 안 함"/>
                 </LinearLayout>
 

@@ -3,6 +3,7 @@ package com.zzammo.calendar.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -31,7 +33,7 @@ import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Metadata;
-import com.zzammo.calendar.holiday.ApiExplorer;
+import com.zzammo.calendar.holiday.HolidayApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
@@ -39,6 +41,7 @@ import com.zzammo.calendar.test.AuthTestActivity;
 import com.zzammo.calendar.test.DBTestActivity;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
+import com.zzammo.calendar.weather.WeatherApiExplorer;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     CalendarDay preSelectedDate = null;
     TextView holidayname_textview;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +104,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), schedule_main.class);
+                startActivity(intent);
+            }
+
+        });
+
+        Button btn1 = (Button) findViewById(R.id.activity_main_slidingpanelayout_test);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), slidingpanetest.class);
                 startActivity(intent);
             }
 
@@ -213,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    ApiExplorer apiExplorer = new ApiExplorer(context);
+                    HolidayApiExplorer apiExplorer = new HolidayApiExplorer(context);
                     apiExplorer.getHolidays(year, -1, HolidayNames, HolidayDates);
                     for (int i = 0; i < HolidayNames.size(); i++) {
                         Log.d("WeGlonD", HolidayDates.get(i).toString() + ' ' + HolidayNames.get(i));
