@@ -70,7 +70,7 @@ public class Time {
     }
     public static long CalendarDayToMill(CalendarDay date) {
 
-        String pattern = "yyyy-MM-dd";
+        String pattern = "yyyy-M-d";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
 
         String dateString = date.getYear()+"-"+date.getMonth()+"-"+date.getDay();
@@ -91,6 +91,17 @@ public class Time {
         int month = calendar.get(Calendar.MONTH)+1;
 
         return year+"년 "+month+"월";
+    }
+
+    public static Long YMDToMills(String ymd){
+        Integer int_ymd = Integer.parseInt(ymd);
+        int year = int_ymd/10000;
+        int month = (int_ymd%10000)/100;
+        int date = int_ymd%100;
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month - 1, date, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
     }
 
 }

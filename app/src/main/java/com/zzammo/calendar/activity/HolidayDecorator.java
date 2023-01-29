@@ -14,16 +14,16 @@ import java.util.Calendar;
 public class HolidayDecorator implements DayViewDecorator {
 
     private Calendar calendar = Calendar.getInstance();
-    private ArrayList<CalendarDay> holiDates;
+    private ArrayList<Long> holiDates;
     private ArrayList<String> holiNames;
 
-    public HolidayDecorator(ArrayList<CalendarDay> holiDates, ArrayList<String> holiNames) {
+    public HolidayDecorator(ArrayList<Long> holiDates, ArrayList<String> holiNames) {
         this.holiDates = holiDates; this.holiNames = holiNames;
     }
 
     @Override
     public boolean shouldDecorate(CalendarDay day) {
-        return holiDates.contains(day);
+        return holiDates.contains(Time.CalendarDayToMill(day));
     }
 
     @Override
