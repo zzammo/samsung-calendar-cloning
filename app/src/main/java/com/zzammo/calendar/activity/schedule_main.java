@@ -77,9 +77,7 @@ public class schedule_main extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
-
         inflater.inflate(R.menu.menu_option, menu);
-
         return true;
     }
 
@@ -101,7 +99,6 @@ public class schedule_main extends AppCompatActivity {
         }
 
         toast.show();
-
         return super.onOptionsItemSelected(item);
     }
 

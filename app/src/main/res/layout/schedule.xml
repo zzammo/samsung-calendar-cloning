@@ -524,7 +524,62 @@
                         android:text="1일 전"
                         android:textColor="@color/text_white" />
 
+                    <LinearLayout
+                        android:id="@+id/custom_alram_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:orientation="vertical">
+                        <CheckBox
+                            android:id="@+id/checkbox_custom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20sp"
+                            android:layout_marginVertical="5sp"
+                            android:checked="true"
+                            android:text="5분 전"
+                            android:textSize="20sp"/>
+                        <LinearLayout
+                            android:id="@+id/numpicker_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            android:orientation="horizontal">
+                            <NumberPicker
+                                android:id="@+id/numpicker"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:selectionDividerHeight="0dp"
+                                android:layout_weight="1"/>
+
+                            <NumberPicker
+                                android:id="@+id/charpicker"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:selectionDividerHeight="0dp"
+                                android:layout_weight="1"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/custom_alram_btn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginVertical="5sp">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/baseline_add_24"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="20sp"
+                            android:text="직접 설정" />
+                    </LinearLayout>
+
                 </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout

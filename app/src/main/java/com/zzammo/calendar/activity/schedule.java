@@ -19,6 +19,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -26,6 +28,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -40,6 +43,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.adapters.NumberPickerBindingAdapter;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -98,6 +102,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     LinearLayout alarm_time_layout;
     LinearLayout alarm_time_checkbox_layout;
     LinearLayout iterator_layout;
+
     TextView src_address;
     TextView dst_address;
     RadioGroup iterator_radiogroup;
@@ -119,6 +124,13 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
     TimePicker time_start_timepicker;
     TimePicker time_end_timepicker;
+
+    LinearLayout custom_alram_btn;
+    LinearLayout custom_alram_layout;
+    CheckBox checkbox_custom;
+    LinearLayout numpicker_layout;
+    NumberPicker numpicker;
+    NumberPicker charpicker;
 
     private boolean isToday=false;
 
@@ -162,6 +174,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     boolean needRequest = false;
+
+    private boolean customChecked=false;
+    private int customVal=5;
+    private int customIndex=0; //0 분 1 시간 2 일 3 주
 
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
@@ -212,6 +228,11 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule);
+
+        getSupportActionBar().setElevation(0);
+        getSupportActionBar().hide();
+
+
         memo = findViewById(R.id.memo);
         allday_switch = findViewById(R.id.allday_switch);
         start_time_textview = findViewById(R.id.start_time_textview);
@@ -250,6 +271,12 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         time_start_timepicker=findViewById(R.id.time_start_timepicker);
         time_end_timepicker=findViewById(R.id.time_end_timepicker);
 
+        custom_alram_btn=findViewById(R.id.custom_alram_btn);
+        custom_alram_layout=findViewById(R.id.custom_alram_layout);
+        checkbox_custom=findViewById(R.id.checkbox_custom);
+        numpicker_layout=findViewById(R.id.numpicker_layout);
+        numpicker=findViewById(R.id.numpicker);
+        charpicker=findViewById(R.id.charpicker);
 
         mLayout = findViewById(R.id.layout_schedule);
 
@@ -309,6 +336,8 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         end_date_textview.setText(getDateText(end_month,end_day,start_week));
         start_time_textview.setText(getTimeText(start_hour,start_minute));
         end_time_textview.setText(getTimeText(end_hour,end_minute));
+
+
 
         /// 일정 시간 설정 start
         start_time_textview.setOnClickListener(new View.OnClickListener() {
@@ -519,7 +548,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 ago_flag=!ago_flag;
             }
         });
-
+        /////////////////////////////////////
         alarm_time_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -537,6 +566,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                             text+=", ";
                         }
                     }
+                    if(customChecked){
+                        text+=getCustomText(customVal,customIndex);
+                        text+=", ";
+                    }
                     if(text==""){
                         alarm_time_textview.setText("알람 설정 없음");
                     }else {
@@ -547,6 +580,96 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 alarm_time=!alarm_time;
             }
         });
+
+        checkbox_ontime.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[0]=true;
+                }else{
+                    ago_checkboxes[0]=false;
+                }
+            }
+        });
+        checkbox_10_min_ago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[1]=true;
+                }else{
+                    ago_checkboxes[1]=false;
+                }
+            }
+        });
+        checkbox_hourago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[2]=true;
+                }else{
+                    ago_checkboxes[2]=false;
+                }
+            }
+        });
+        checkbox_dayago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    ago_checkboxes[3]=true;
+                }else{
+                    ago_checkboxes[3]=false;
+                }
+            }
+        });
+
+        charpicker.setMaxValue(4);
+        charpicker.setMinValue(0);
+        charpicker.setDisplayedValues(new String[]{
+                "분","시간","일","주"
+        });
+        numpicker.setMinValue(1);
+        custom_alram_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                custom_alram_layout.setVisibility(View.VISIBLE);
+                checkbox_custom.setText(getCustomText(customVal,customIndex));
+                custom_alram_btn.setClickable(false);
+            }
+        });
+
+        checkbox_custom.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    setNumpicker();
+                    numpicker.setValue(customVal);
+                    charpicker.setValue(customIndex);
+                    numpicker_layout.setVisibility(View.VISIBLE);
+                    customChecked=true;
+                }else{
+                    numpicker_layout.setVisibility(View.GONE);
+                    customChecked=false;
+                }
+            }
+        });
+
+        numpicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                customVal=i1;
+                checkbox_custom.setText(getCustomText(customVal,customIndex));
+            }
+        });
+
+        charpicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                customIndex=i1;
+                checkbox_custom.setText(getCustomText(customVal,customIndex));
+            }
+        });
+
+        /////////////////////////////////////////////////////////////////////
 
         iterator_layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -617,47 +740,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
         });
 
-        checkbox_ontime.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    ago_checkboxes[0]=true;
-                }else{
-                    ago_checkboxes[0]=false;
-                }
-            }
-        });
-        checkbox_10_min_ago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    ago_checkboxes[1]=true;
-                }else{
-                    ago_checkboxes[1]=false;
-                }
-            }
-        });
-        checkbox_hourago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    ago_checkboxes[2]=true;
-                }else{
-                    ago_checkboxes[2]=false;
-                }
-            }
-        });
-        checkbox_dayago.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    ago_checkboxes[3]=true;
-                }else{
-                    ago_checkboxes[3]=false;
-                }
-            }
-        });
-
         // webview 불러오기
         src_address =  findViewById(R.id.src_address);
         dst_address =  findViewById(R.id.dst_address);
@@ -702,6 +784,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         });
     }
 
+
     public void setOffClicked(int i){
         clicked[i] = false;
         if (i == 0) {
@@ -726,6 +809,36 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             end_time_textview.setBackground(ContextCompat.getDrawable(this, R.drawable.ed_text));
         }
     }
+
+    public void setNumpicker(){
+        switch (customIndex){
+            case 0:
+                numpicker.setMaxValue(360);
+            case 1:
+                numpicker.setMaxValue(99);
+            case 2:
+                numpicker.setMaxValue(365);
+            case 3:
+                numpicker.setMaxValue(52);
+        }
+    }
+
+    public String getCustomText(int val,int index){
+        String ret="";
+        ret+=String.valueOf(val);
+        switch (index){
+            case 0:
+                ret+="분 전";
+            case 1:
+                ret+="시간 전";
+            case 2:
+                ret+="일 전";
+            case 3:
+                ret+="주 전";
+        }
+        return ret;
+    }
+
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
