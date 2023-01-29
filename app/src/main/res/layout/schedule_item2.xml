@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/start_time_title"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:text="88:88"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/schedule_color"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:src="@drawable/schedule_line"
+        app:layout_constraintBottom_toBottomOf="@id/start_time_title"
+        app:layout_constraintLeft_toRightOf="@+id/start_time_title"
+        app:layout_constraintRight_toLeftOf="@+id/schedule_title"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/schedule_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="일정 이름"
+        android:textSize="20dp"
+        android:textColor="@color/black"
+        app:layout_constraintLeft_toRightOf="@+id/schedule_color"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/start_time_title"/>
+
+    <TextView
+        android:id="@+id/schedule_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="오전 10:00 - 오후 2:00"
+        app:layout_constraintTop_toBottomOf="@+id/schedule_title"
+        app:layout_constraintLeft_toLeftOf="@+id/schedule_title"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
