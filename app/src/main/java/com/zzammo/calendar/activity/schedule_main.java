@@ -17,16 +17,26 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.adapter.ScheduleRVAdapter;
+import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
+import com.zzammo.calendar.database.Schedule;
+import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.lunar.LunarCalendar;
+import com.zzammo.calendar.util.Time;
 import com.zzammo.calendar.weather.WeatherApiExplorer;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class schedule_main extends AppCompatActivity {
@@ -37,6 +47,11 @@ public class schedule_main extends AppCompatActivity {
     TextView temperature, lunardate, or;
     ImageView weatherView;
     MaterialCalendarView calendarView;
+    ScheduleDatabase DB;
+    RecyclerView scheduleRV;
+    ArrayList<Schedule> scheduleArrayList;
+    schedule_main_RVAdapter RVAdapter;
+    LinearLayoutManager layoutManager;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -65,6 +80,37 @@ public class schedule_main extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
                 startActivity(intent);
             }
+        });
+
+        DB = ScheduleDatabase.getInstance(context);
+        scheduleRV = findViewById(R.id.schedule_recyclerView);
+        scheduleArrayList = new ArrayList<>();
+
+        calendarView.setOnDateChangedListener((widget, date, selected) ->{
+            String str_date = date.toString().substring(12,date.toString().length() - 1);
+            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
+            Log.d("WeGlonD", str_date);
+            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
+            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
+            ShowWeatherInfo(localDate);
+            scheduleArrayList.clear();
+
+            Long dateMills = Time.CalendarDayToMill(date);
+            scheduleArrayList.clear();
+            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
+            Collections.sort(scheduleArrayList);
+            RVAdapter.notifyDataSetChanged();
+        });
+
+        RVAdapter = new schedule_main_RVAdapter(scheduleArrayList);
+        layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        scheduleRV.setLayoutManager(layoutManager);
+        scheduleRV.setAdapter(RVAdapter);
+        RVAdapter.setOnItemClickListener(position -> {
+//            바꿔야함
+//            DB.scheduleDao().delete(scheduleArrayList.get(position));
+//            scheduleArrayList.remove(position);
+//            RVAdapter.notifyItemRemoved(position);
         });
 
         LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -114,32 +160,7 @@ public class schedule_main extends AppCompatActivity {
                     temperature.post(new Runnable() {
                         @Override
                         public void run() {
-                            or.setVisibility(View.VISIBLE); temperature.setVisibility(View.VISIBLE); weatherView.setVisibility(View.VISIBLE);
-                            temperature.setText(weather.get(LocalDate.now()).get("TMP").toString() + "ºC");
-                            int pty = weather.get(LocalDate.now()).get("PTY");
-                            int sky = weather.get(LocalDate.now()).get("SKY");
-                            if(pty > 0){
-                                if(pty == 1 || pty == 4){
-                                    weatherView.setImageResource(R.drawable.rainy_2_svgrepo_com);
-                                }
-                                else if(pty == 2){
-                                    weatherView.setImageResource(R.drawable.cloud_snow_rain_svgrepo_com);
-                                }
-                                else{
-                                    weatherView.setImageResource(R.drawable.snow_outline_svgrepo_com);
-                                }
-                            }
-                            else{
-                                if(sky == 1){
-                                    weatherView.setImageResource(R.drawable.ic_baseline_wb_sunny_24);
-                                }
-                                else if(sky == 2){
-                                    weatherView.setImageResource(R.drawable.cloudy_svgrepo_com);
-                                }
-                                else{
-                                    weatherView.setImageResource(R.drawable.ic_twotone_wb_cloudy_24);
-                                }
-                            }
+                            ShowWeatherInfo(LocalDate.now());
                         }
                     });
                 } catch (IOException e) {
@@ -147,5 +168,45 @@ public class schedule_main extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    void ShowWeatherInfo(LocalDate date){
+        if(weather.containsKey(date)) {
+            or.setVisibility(View.VISIBLE);
+            temperature.setVisibility(View.VISIBLE);
+            weatherView.setVisibility(View.VISIBLE);
+
+            if(weather.get(date).containsKey("TMP")){
+                temperature.setText(weather.get(date).get("TMP").toString() + "ºC");
+            }
+            else{
+                temperature.setText(weather.get(date).get("MAX") + "º/" + weather.get(date).get("MIN") + "ºC");
+            }
+
+            int pty = weather.get(date).get("PTY");
+            int sky = weather.get(date).get("SKY");
+            if (pty > 0) {
+                if (pty == 1 || pty == 4) {
+                    weatherView.setImageResource(R.drawable.rainy_2_svgrepo_com);
+                } else if (pty == 2) {
+                    weatherView.setImageResource(R.drawable.cloud_snow_rain_svgrepo_com);
+                } else {
+                    weatherView.setImageResource(R.drawable.snow_outline_svgrepo_com);
+                }
+            } else {
+                if (sky == 1) {
+                    weatherView.setImageResource(R.drawable.ic_baseline_wb_sunny_24);
+                } else if (sky == 2) {
+                    weatherView.setImageResource(R.drawable.cloudy_svgrepo_com);
+                } else {
+                    weatherView.setImageResource(R.drawable.ic_twotone_wb_cloudy_24);
+                }
+            }
+        }
+        else{
+            or.setVisibility(View.GONE);
+            temperature.setVisibility(View.GONE);
+            weatherView.setVisibility(View.GONE);
+        }
     }
 }

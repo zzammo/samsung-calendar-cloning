@@ -7,13 +7,13 @@ import androidx.room.PrimaryKey;
 public class Holiday implements Comparable{
     @PrimaryKey(autoGenerate = true)
     public int key;
-    public String date;
+    public Long date;
     public String name;
 
     public Holiday() {
     }
 
-    public Holiday(String date, String name) {
+    public Holiday(Long date, String name) {
         this.date = date;
         this.name = name;
     }

@@ -29,6 +29,9 @@ public interface HolidayDao {
     @Query("SELECT * FROM holiday WHERE date LIKE :keyword")
     List<Holiday> searchHolidayByDate(String keyword);
 
+    @Query("SELECT * FROM holiday WHERE date BETWEEN :begin AND :end")
+    List<Holiday> searchHolidayByDate(Long begin, Long end);
+
     @Query("SELECT * FROM holiday WHERE name LIKE :keyword")
     List<Holiday> searchHolidayByName(String keyword);
 }

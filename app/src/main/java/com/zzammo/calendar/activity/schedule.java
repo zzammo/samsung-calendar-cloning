@@ -209,10 +209,12 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
     String giourl ="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
 
-    public schedule(int year,int month,int day){
+    public schedule(int year,int month,int day,double latitude,double longitude){
         start_year=year;
         start_month=month;
         start_day=day;
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
     }
     public schedule(){
         start_year=2023;

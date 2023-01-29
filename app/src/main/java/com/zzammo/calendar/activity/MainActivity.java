@@ -46,8 +46,11 @@ import com.zzammo.calendar.weather.WeatherApiExplorer;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Schedule> scheduleArrayList;
     Intent it;
     Context context;
-    public static ArrayList<CalendarDay> HolidayDates;
+    public static ArrayList<Long> HolidayDates;
     public static ArrayList<String> HolidayNames;
 
     CalendarDay preSelectedDate = null;
@@ -249,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public OnMonthChangedListener onMonthChangedListener = new OnMonthChangedListener() {
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
             HolidayDates.clear();
@@ -271,13 +275,7 @@ public class MainActivity extends AppCompatActivity {
                         //calendarView.invalidateDecorators();
                         //공휴일 DB에 쓰기
                         for (int i = 0; i < HolidayNames.size(); i++) {
-                            CalendarDay day = HolidayDates.get(i);
-                            String datestr = Integer.toString(day.getYear());
-                            if (day.getMonth() < 10) datestr = datestr + "0";
-                            datestr = datestr + day.getMonth();
-                            if (day.getDay() < 10) datestr = datestr + "0";
-                            datestr = datestr + day.getDay();
-                            database.insert(new Holiday(datestr, HolidayNames.get(i)));
+                            database.insert(new Holiday(HolidayDates.get(i), HolidayNames.get(i)));
                         }
                     }
 
@@ -297,13 +295,7 @@ public class MainActivity extends AppCompatActivity {
                             //calendarView.invalidateDecorators();
                             //공휴일 DB에 쓰기
                             for (int i = 0; i < HolidayNames.size(); i++) {
-                                CalendarDay day = HolidayDates.get(i);
-                                String datestr = Integer.toString(day.getYear());
-                                if (day.getMonth() < 10) datestr = datestr + "0";
-                                datestr = datestr + day.getMonth();
-                                if (day.getDay() < 10) datestr = datestr + "0";
-                                datestr = datestr + day.getDay();
-                                database.insert(new Holiday(datestr, HolidayNames.get(i)));
+                                database.insert(new Holiday(HolidayDates.get(i), HolidayNames.get(i)));
                             }
                             if(!HolidayNames.isEmpty()) {
                                 if (year < minY) {
@@ -323,20 +315,27 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     //공휴일 DB에서 가져오기
-                    String keyword = "%" + year;
-                    if (month < 10) keyword = keyword + "0";
-                    keyword = keyword + month + "%";
-                    List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(keyword);
+//                    String keyword = "%" + year;
+//                    if (month < 10) keyword = keyword + "0";
+//                    keyword = keyword + month + "%";
+                    LocalDate lo = LocalDate.parse(date.toString().substring(12, date.toString().length() - 1), DateTimeFormatter.ofPattern("yyyy-M-d"));
+                    lo = lo.plusMonths(1); lo = lo.minusDays(1);
+                    CalendarDay endday = CalendarDay.from(lo.getYear(), lo.getMonthValue(),lo.getDayOfMonth());
+                    Long begin = Time.CalendarDayToMill(date),  end = Time.CalendarDayToMill(endday);
+                    Log.d("Dirtfy", "begin : " + begin + " end : " + end);
+                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
+                    List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(begin, end);
+                    Log.d("Dirtfy", "Holidays size : "+Holidays.size()+"");
                     for (Holiday holi : Holidays) {
-                        int rawdata = Integer.parseInt(holi.date);
-                        CalendarDay calendarDay = CalendarDay.from(rawdata / 10000, (rawdata % 10000) / 100, rawdata % 100);
-                        HolidayDates.add(calendarDay);
+                        HolidayDates.add(holi.date);
                         HolidayNames.add(holi.name);
-                        Log.d("WeGlonD", "Holiday DB Read - " + calendarDay + " " + holi.name);
+                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
                         calendarView.invalidateDecorators();
                     }
                 }
             }
+//            Log.d("Dirtfy", "HolidayDates : " + HolidayDates.toString());
+//            Log.d("Dirtfy", "HolidayNames : "  + HolidayNames.toString());
         }
     };
 
@@ -443,5 +442,7 @@ public class MainActivity extends AppCompatActivity {
         Collections.sort(scheduleArrayList);
         RVAdapter.notifyDataSetChanged();
     }
+
+
 
 }

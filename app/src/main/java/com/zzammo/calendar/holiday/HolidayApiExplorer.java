@@ -5,6 +5,7 @@ import android.util.Log;
 import android.util.Xml;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.zzammo.calendar.util.Time;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -23,7 +24,7 @@ public class HolidayApiExplorer {
 //    ArrayList<String> datelist;
     public HolidayApiExplorer(){}
     public HolidayApiExplorer(Context c) {context = c; }
-    public void getHolidays(int Year, int Month, ArrayList<String> namelist, ArrayList<CalendarDay> datelist) throws IOException, XmlPullParserException {
+    public void getHolidays(int Year, int Month, ArrayList<String> namelist, ArrayList<Long> datelist) throws IOException, XmlPullParserException {
         Log.d("WeGlonD", "11");
         String key = "Iw10j3Acrg3WrDmYl0%2FXMM08AJStZ0qjmSPPaS2Lb7oazhsvcADHN2v%2BkkSotAJWWHqErRHUUK9no0Z8o6hLrA%3D%3D";
         String year = Integer.valueOf(Year).toString(); String month = Integer.valueOf(Month).toString();
@@ -64,16 +65,15 @@ public class HolidayApiExplorer {
                 }else if(name.equals("locdate")){
                     eventType = parser.next();
                     if(eventType==XmlPullParser.TEXT) {
-                        int rawdata = Integer.parseInt(parser.getText());
-                        datelist.add(CalendarDay.from(rawdata/10000,(rawdata%10000)/100, rawdata%100));
+                        datelist.add(Time.YMDToMills(parser.getText()));
                     }
                 }
             }
             eventType = parser.next();
         }
-//        for(int i = 0; i < datelist.size(); i++){
-//            Log.d("WeGlonD", datelist.get(i).toString() + ' ' + namelist.get(i));
-//        }
+        for(int i = 0; i < datelist.size(); i++){
+            Log.d("WeGlonD", datelist.get(i).toString() + ' ' + namelist.get(i));
+        }
 
         rd.close();
         conn.disconnect();
