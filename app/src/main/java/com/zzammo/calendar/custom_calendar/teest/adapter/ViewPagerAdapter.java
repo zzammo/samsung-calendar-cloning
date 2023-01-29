@@ -1,13 +1,10 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.zzammo.calendar.R;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.data.PageData;
 import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
@@ -15,30 +12,35 @@ import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.util.Time;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
     Database DB;
-    Context context;
 
     ArrayList<PageData> data;
-    CustomCalendar.OnDataClickListener listener;
+    CustomCalendar.OnDateClickListener dateClickListener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
-    boolean setSchedule;
+    boolean showSchedule;
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data) {
         super(fragmentActivity);
         this.data = data;
 
-        context = fragmentActivity.getApplicationContext();
+        DB = new Database(fragmentActivity.getApplicationContext());
+    }
 
-        todayColor = context.getResources().getColor(R.color.text_white);
-        sundayColor = context.getResources().getColor(R.color.red);
-        saturdayColor = context.getResources().getColor(R.color.blue);
-        basicColor = context.getResources().getColor(R.color.text_black);
-        setSchedule = true;
+    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data,
+                            boolean showSchedule,
+                            int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
+        super(fragmentActivity);
+        this.data = data;
+        this.showSchedule = showSchedule;
+        this.sundayColor = sundayColor;
+        this.saturdayColor = saturdayColor;
+        this.holidayColor = holidayColor;
+        this.todayColor = todayColor;
+        this.basicColor = basicColor;
 
         DB = new Database(fragmentActivity.getApplicationContext());
     }
@@ -46,15 +48,17 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        for (CalendarDate cd : data.get(position).getDays()){
-            if (cd.getCalendar() == null) continue;
-            if (cd.getSchedules() != null) break;
+        if (showSchedule){
+            for (CalendarDate cd : data.get(position).getDays()){
+                if (cd.getCalendar() == null) continue;
+                if (cd.getSchedules() != null) break;
 
-            cd.setSchedules(new ArrayList<>());
-            Long begin = Time.CalendarToMill(cd.getCalendar());
-            DB.loadAllScheduleDuring(begin, begin+ Time.ONE_DAY, cd.getSchedules());
+                cd.setSchedules(new ArrayList<>());
+                Long begin = Time.CalendarToMill(cd.getCalendar());
+                DB.loadAllScheduleDuring(begin, begin+ Time.ONE_DAY, cd.getSchedules());
+            }
         }
-        return new PageFragment(data.get(position), listener,
+        return new PageFragment(data.get(position), dateClickListener,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor);
     }
 
@@ -63,8 +67,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         return data.size();
     }
 
-    public void setListener(CustomCalendar.OnDataClickListener listener) {
-        this.listener = listener;
+    public void setDateClickListener(CustomCalendar.OnDateClickListener dateClickListener) {
+        this.dateClickListener = dateClickListener;
     }
 
     public void setSundayColor(int sundayColor) {
@@ -87,7 +91,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         this.basicColor = basicColor;
     }
 
-    public void setSetSchedule(boolean setSchedule) {
-        this.setSchedule = setSchedule;
+    public void setShowSchedule(boolean showSchedule) {
+        this.showSchedule = showSchedule;
     }
 }

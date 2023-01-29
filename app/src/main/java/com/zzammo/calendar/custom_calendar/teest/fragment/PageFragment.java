@@ -31,19 +31,19 @@ public class PageFragment extends Fragment {
     GridLayoutManager layoutManager;
 
     PageData pageData;
-    CustomCalendar.OnDataClickListener listener;
+    CustomCalendar.OnDateClickListener listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
 
     public PageFragment() {
         // Required empty public constructor
     }
 
-    public PageFragment(PageData pageData, CustomCalendar.OnDataClickListener listener) {
+    public PageFragment(PageData pageData, CustomCalendar.OnDateClickListener listener) {
         this.pageData = pageData;
         this.listener = listener;
     }
 
-    public PageFragment(PageData pageData, CustomCalendar.OnDataClickListener listener,
+    public PageFragment(PageData pageData, CustomCalendar.OnDateClickListener listener,
                         int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
         this.pageData = pageData;
         this.listener = listener;

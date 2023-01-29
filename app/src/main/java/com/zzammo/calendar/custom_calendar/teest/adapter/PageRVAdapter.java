@@ -26,11 +26,11 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     Database DB;
 
     ArrayList<CalendarDate> data;
-    CustomCalendar.OnDataClickListener listener;
+    CustomCalendar.OnDateClickListener listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
 
     public PageRVAdapter(Context context, ArrayList<CalendarDate> data,
-                         CustomCalendar.OnDataClickListener listener,
+                         CustomCalendar.OnDateClickListener listener,
                          int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
         this.context = context;
         this.data = data;
@@ -129,6 +129,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
             schedule_more = itemView.findViewById(R.id.page_date_item_schedule_more);
 
             itemView.setOnClickListener(v -> {
+                if (listener == null) return;
                 listener.dateClickListener(data.get(getAdapterPosition()));
             });
         }
