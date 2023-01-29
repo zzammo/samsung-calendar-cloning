@@ -85,4 +85,12 @@ public class Time {
 
         return trans_date.getTime();
     }
+
+    public static String CalendarToYM(Calendar calendar){
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH)+1;
+
+        return year+"년 "+month+"월";
+    }
+
 }

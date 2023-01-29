@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomCalendar">
+        <attr name="viewMode" format="reference|integer" />
+        <attr name="sundayColor" format="reference|color"/>
+        <attr name="saturdayColor" format="reference|color"/>
+        <attr name="holidayColor" format="reference|color"/>
+        <attr name="todayColor" format="reference|color"/>
+        <attr name="basicColor" format="reference|color"/>
+        <attr name="showSchedule" format="reference|boolean"/>
+        <attr name="pageCount" format="reference|integer"/>
+    </declare-styleable>
+</resources>
