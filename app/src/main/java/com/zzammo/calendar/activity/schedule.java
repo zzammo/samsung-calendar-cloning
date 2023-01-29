@@ -624,16 +624,18 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
         });
 
-        charpicker.setMaxValue(4);
+        charpicker.setMaxValue(3);
         charpicker.setMinValue(0);
         charpicker.setDisplayedValues(new String[]{
                 "분","시간","일","주"
         });
         numpicker.setMinValue(1);
+        charpicker.setWrapSelectorWheel(false);
         custom_alram_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 custom_alram_layout.setVisibility(View.VISIBLE);
+                numpicker_layout.setVisibility(View.VISIBLE);
                 checkbox_custom.setText(getCustomText(customVal,customIndex));
                 custom_alram_btn.setClickable(false);
             }
@@ -816,12 +818,16 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         switch (customIndex){
             case 0:
                 numpicker.setMaxValue(360);
+                break;
             case 1:
                 numpicker.setMaxValue(99);
+                break;
             case 2:
                 numpicker.setMaxValue(365);
+                break;
             case 3:
                 numpicker.setMaxValue(52);
+                break;
         }
     }
 
@@ -831,12 +837,16 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         switch (index){
             case 0:
                 ret+="분 전";
+                break;
             case 1:
                 ret+="시간 전";
+                break;
             case 2:
                 ret+="일 전";
+                break;
             case 3:
                 ret+="주 전";
+                break;
         }
         return ret;
     }
