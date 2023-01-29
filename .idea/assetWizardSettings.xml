@@ -33,9 +33,10 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffbd0b" />
-                            <entry key="outputName" value="ic_baseline_wb_sunny_24" />
-                            <entry key="sourceFile" value="C:\Users\User\Downloads\cloud-snow-rain-svgrepo-com.svg" />
+                            <entry key="outputName" value="schedule_line" />
+                            <entry key="sourceFile" value="C:\Users\User\Downloads\schedule_line.svg" />
                           </map>
                         </option>
                       </PersistentState>
