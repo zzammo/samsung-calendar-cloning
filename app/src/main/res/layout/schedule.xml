@@ -428,7 +428,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10sp"
                     android:layout_marginVertical="5sp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:clickable="false">
                     <fragment
                         android:layout_width="300dp"
                         android:layout_height="300dp"
@@ -695,7 +696,7 @@
                     <EditText
                         android:id="@+id/memo"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:textColor="@color/text_white"
                         android:paddingVertical="7sp"
                         android:paddingHorizontal="14sp"
@@ -718,6 +719,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
         <Button
+            android:id="@+id/cancel_btn"
             android:paddingVertical="10sp"
             android:textSize="15sp"
             android:background="@color/edit_white"
@@ -729,6 +731,7 @@
             app:strokeColor="@color/line_white"
             app:strokeWidth="2dp"/>
         <Button
+            android:id="@+id/save_btn"
             android:paddingVertical="10sp"
             android:textSize="15sp"
             android:background="@color/edit_white"

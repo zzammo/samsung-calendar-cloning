@@ -10,10 +10,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
@@ -52,6 +55,9 @@ public class schedule_main extends AppCompatActivity {
     ArrayList<Schedule> scheduleArrayList;
     schedule_main_RVAdapter RVAdapter;
     LinearLayoutManager layoutManager;
+    private int day;
+    private int month;
+    private int year;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -62,6 +68,7 @@ public class schedule_main extends AppCompatActivity {
         weather = new HashMap<>();
 
         calendarView = findViewById(R.id.calendarView);
+
 
         getSupportActionBar().setElevation(0); // appbar shadow remove
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 툴바 홈버튼 활성화
@@ -78,7 +85,10 @@ public class schedule_main extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
-                startActivity(intent);
+                intent.putExtra("year",year);
+                intent.putExtra("month",month);
+                intent.putExtra("day",day);
+                startActivityForResult(intent,78);
             }
         });
 
@@ -87,6 +97,9 @@ public class schedule_main extends AppCompatActivity {
         scheduleArrayList = new ArrayList<>();
 
         calendarView.setOnDateChangedListener((widget, date, selected) ->{
+            year= date.getYear();
+            month=date.getMonth();
+            day=date.getDay();
             String str_date = date.toString().substring(12,date.toString().length() - 1);
             LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
             Log.d("WeGlonD", str_date);

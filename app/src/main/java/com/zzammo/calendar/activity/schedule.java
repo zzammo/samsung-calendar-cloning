@@ -18,10 +18,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -44,6 +47,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.adapters.NumberPickerBindingAdapter;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -86,6 +90,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback{
 
     EditText memo;
+    EditText title;
     Switch allday_switch;
     Switch alarm_switch;
     TextView start_time_textview;
@@ -93,8 +98,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     TextView end_time_textview;
     TextView end_date_textview;
     LinearLayout path_panel;
-    LinearLayout ago_timepicker;
-    LinearLayout ago_panel;
+
     LinearLayout time_start_layout;
     LinearLayout date_start_layout;
     LinearLayout time_end_layout;
@@ -132,6 +136,9 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     NumberPicker numpicker;
     NumberPicker charpicker;
 
+    Button save_btn;
+    Button cancel_btn;
+
     private boolean isToday=false;
 
     private int start_hour=8;
@@ -152,7 +159,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
 
 
-    private boolean ago_flag = true;
     private int date_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
     private int time_picker_flag = 0;// 0 -> off 1 -> src 2-> dst
     private boolean alarm_time=true;
@@ -209,18 +215,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
     String giourl ="http://apis.openapi.sk.com/tmap/geo/fullAddrGeo?addressFlag=F00&coordType=WGS84GEO&version=1&format=json&fullAddr=";
 
-    public schedule(int year,int month,int day,double latitude,double longitude){
-        start_year=year;
-        start_month=month;
-        start_day=day;
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
-    }
-    public schedule(){
-        start_year=2023;
-        start_month=1;
-        start_day=28;
-    }
 
 
 
@@ -234,7 +228,13 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         getSupportActionBar().setElevation(0);
         getSupportActionBar().hide();
 
+        Intent intent=getIntent();
+        start_year=intent.getIntExtra("year",2000);
+        start_month=intent.getIntExtra("month",1);
+        start_day=intent.getIntExtra("day",1);
 
+
+        title =findViewById(R.id.title);
         memo = findViewById(R.id.memo);
         allday_switch = findViewById(R.id.allday_switch);
         start_time_textview = findViewById(R.id.start_time_textview);
@@ -243,7 +243,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         end_date_textview = findViewById(R.id.end_date_textview);
         alarm_switch = findViewById(R.id.alarm_switch);
         path_panel = findViewById(R.id.path_panel);
-        ago_panel = findViewById(R.id.ago_panel);
 
         time_start_layout=findViewById(R.id.time_start_layout);
         date_start_layout=findViewById(R.id.date_start_layout);
@@ -279,6 +278,9 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         numpicker_layout=findViewById(R.id.numpicker_layout);
         numpicker=findViewById(R.id.numpicker);
         charpicker=findViewById(R.id.charpicker);
+
+        save_btn=findViewById(R.id.save_btn);
+        cancel_btn=findViewById(R.id.cancel_btn);
 
         mLayout = findViewById(R.id.layout_schedule);
 
@@ -538,18 +540,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
         });
         // 몇 분 전 알람 선택
-        ago_panel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(ago_flag){
-                    ago_timepicker.setVisibility(View.VISIBLE);
-                }
-                else{
-                    ago_timepicker.setVisibility(View.GONE);
-                }
-                ago_flag=!ago_flag;
-            }
-        });
+
         /////////////////////////////////////
         alarm_time_layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -629,14 +620,16 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         charpicker.setDisplayedValues(new String[]{
                 "분","시간","일","주"
         });
-        numpicker.setMinValue(1);
         charpicker.setWrapSelectorWheel(false);
         custom_alram_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 custom_alram_layout.setVisibility(View.VISIBLE);
-                numpicker_layout.setVisibility(View.VISIBLE);
+                setNumpicker(customIndex);
+                numpicker.setValue(customVal);
+                charpicker.setValue(customIndex);
                 checkbox_custom.setText(getCustomText(customVal,customIndex));
+                numpicker_layout.setVisibility(View.VISIBLE);
                 custom_alram_btn.setClickable(false);
             }
         });
@@ -645,7 +638,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b){
-                    setNumpicker();
+                    setNumpicker(customIndex);
                     numpicker.setValue(customVal);
                     charpicker.setValue(customIndex);
                     numpicker_layout.setVisibility(View.VISIBLE);
@@ -669,6 +662,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                 customIndex=i1;
+                setNumpicker(customIndex);
                 checkbox_custom.setText(getCustomText(customVal,customIndex));
             }
         });
@@ -744,6 +738,44 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
         });
 
+        // 메모
+
+        memo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                memo.setFocusable(false);
+            }
+        });
+
+        // 제목
+
+        title.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                title.setFocusable(false);
+            }
+        });
+
+
         // webview 불러오기
         src_address =  findViewById(R.id.src_address);
         dst_address =  findViewById(R.id.dst_address);
@@ -786,6 +818,22 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 }
             }
         });
+
+        save_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+
+        cancel_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
     }
 
 
@@ -814,21 +862,17 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         }
     }
 
-    public void setNumpicker(){
-        switch (customIndex){
-            case 0:
-                numpicker.setMaxValue(360);
-                break;
-            case 1:
-                numpicker.setMaxValue(99);
-                break;
-            case 2:
-                numpicker.setMaxValue(365);
-                break;
-            case 3:
-                numpicker.setMaxValue(52);
-                break;
+    public void setNumpicker(int index){
+        if(index==0) {
+            numpicker.setMaxValue(360);
+        }else if(index==1) {
+            numpicker.setMaxValue(99);
+        }else if(index==2) {
+            numpicker.setMaxValue(365);
+        }else if(index==3) {
+            numpicker.setMaxValue(52);
         }
+        numpicker.setMinValue(1);
     }
 
     public String getCustomText(int val,int index){
@@ -861,8 +905,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
         //지도의 초기위치를 서울로 이동
         setDefaultLocation();
-
-
 
         //런타임 퍼미션 처리
         // 1. 위치 퍼미션을 가지고 있는지 체크합니다.
