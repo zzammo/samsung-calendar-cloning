@@ -9,14 +9,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,9 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.zzammo.calendar.R;
-import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
