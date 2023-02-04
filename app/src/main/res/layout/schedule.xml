@@ -390,6 +390,34 @@
                     android:layout_marginHorizontal="10sp"
                     android:layout_marginVertical="5sp"
                     android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_white"
+                        android:layout_weight="1"
+                        android:textAlignment="center"
+                        android:textSize="12sp"
+                        android:padding="7sp"
+                        android:text="출발 예정 시각 :"/>
+                    <TextView
+                        android:id="@+id/pre_src_time_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_white"
+                        android:layout_weight="1"
+                        android:textAlignment="center"
+                        android:padding="7sp"
+                        android:textSize="18sp"
+                        android:background="@drawable/ed_text"
+                        android:text="12월 12일 오전 12시 60분"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10sp"
+                    android:layout_marginVertical="5sp"
+                    android:orientation="horizontal">
                     <RadioGroup
                         android:id="@+id/means_radiogroup"
                         android:layout_width="match_parent"
