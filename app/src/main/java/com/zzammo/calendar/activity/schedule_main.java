@@ -108,14 +108,14 @@ public class schedule_main extends AppCompatActivity {
                 preSelectedDate = mill;
                 view.setBackgroundColor(getColor(R.color.text_white));
             } else if (date.getSchedules().size() == 0) {
-                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
+//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
                 intent.putExtra("year",year);
                 intent.putExtra("month",month);
                 intent.putExtra("day",day);
                 startActivityForResult(intent,78);
             } else {
-                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
+//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 ScheduleDialog oDialog = new ScheduleDialog(this,
                         Time.CalendarToMill(cal));
                 oDialog.show();

@@ -63,6 +63,13 @@ public class TextBindingAdapter {
         }
     }
 
+    @BindingAdapter("setHeight")
+    public static void setLayoutHeight(View view, int height) {
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        layoutParams.height = height;
+        view.setLayoutParams(layoutParams);
+    }
+
 
     public static boolean DecorateSaturday(CalendarDay day) {
         Long mill = Time.CalendarDayToMill(day);
