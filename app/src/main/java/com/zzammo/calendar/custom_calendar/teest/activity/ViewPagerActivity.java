@@ -82,8 +82,11 @@ public class ViewPagerActivity extends AppCompatActivity {
         calendar.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //Log.d("minseok","touch");
-                calendar.performClick();
+                //true : 그 뒤 리스너까지 이벤트를 전달하지 않고, 터치만 하고 끝낸다.
+                //false : 그 뒤 이벤트까지 액션을 전달한다.
+                //onTouch --> onClick --> onLongClick
+                Log.d("minseok","touch");
+                //calendar.performClick();
                 moveview(event);
                 return true;
             }
@@ -117,7 +120,6 @@ public class ViewPagerActivity extends AppCompatActivity {
                 oDialog.show();
             }
         });
-        calendar.setPageCount(3);
         calendar.setActivity(this);
 
         findViewById(R.id.activity_view_pager_add_btn).setOnClickListener(v -> {
@@ -130,8 +132,9 @@ public class ViewPagerActivity extends AppCompatActivity {
         //calendar.getViewPager().invalidate();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                calendar.setClickable(false);
                 Log.d("minseok", "mode" + mode + " " + max_h[mode] + " " + min_h[mode]);
+                calendar.setClickable(false);
+                calendar.getViewPager().setUserInputEnabled(false);
                 y1 = event.getY();
                 init_view1_h = calendar.getHeight();
                 init_view2_h = recyclerViewlist.getHeight();
@@ -148,7 +151,6 @@ public class ViewPagerActivity extends AppCompatActivity {
                     params2.height = (int) (total_h - params1.height);
                     calendar.setLayoutParams(params1);
                     recyclerViewlist.setLayoutParams(params2);
-                    make_view();
                     changemode = -1;
                 } else if (y1 > y2) {
                     //위로 슬라이딩
@@ -159,7 +161,6 @@ public class ViewPagerActivity extends AppCompatActivity {
                     params2.height = (int) (total_h - params1.height);
                     calendar.setLayoutParams(params1);
                     recyclerViewlist.setLayoutParams(params2);
-                    make_view();
                     changemode = 1;
                 }
                 break;
@@ -177,12 +178,12 @@ public class ViewPagerActivity extends AppCompatActivity {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
                         calendar.setClickable(false);
+                        calendar.getViewPager().setUserInputEnabled(false);
                         float value = (float) animation.getAnimatedValue();
                         params1.height = (int) (value + 0.5f);
                         params2.height = (int) (total_h - params1.height);
                         calendar.setLayoutParams(params1);
                         recyclerViewlist.setLayoutParams(params2);
-                        make_view();
 
                         RecyclerView rc = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
 
@@ -192,6 +193,7 @@ public class ViewPagerActivity extends AppCompatActivity {
                         rc.requestLayout();
                         calendar.requestLayout();
                         calendar.setClickable(true);
+                        calendar.getViewPager().setUserInputEnabled(true);
                     }
                 });
                 Log.d("minseok","animation start");
@@ -201,7 +203,7 @@ public class ViewPagerActivity extends AppCompatActivity {
                 if (mode > 2) mode = 2;
                 else if (mode < 0) mode = 0;
                 calendar.setClickable(true);
-
+                calendar.getViewPager().setUserInputEnabled(true);
                 break;
         }
 
@@ -213,15 +215,4 @@ public class ViewPagerActivity extends AppCompatActivity {
         rc.requestLayout();
         calendar.requestLayout();
     }
-
-    void make_view(){
-        ViewPager2 viewPager2 = calendar.getViewPager();
-        View vview = viewPager2.getChildAt(0);
-        RecyclerView recyclerview = vview.findViewById(R.id.fragment_page_recyclerView);
-        Log.d("minseok",recyclerview.getHeight()+"");
-        /*GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams) recyclerview.getLayoutParams();
-        lp.height = recyclerview.getMeasuredHeight() / 6;
-        recyclerview.setLayoutParams(lp);*/
-    }
-
 }

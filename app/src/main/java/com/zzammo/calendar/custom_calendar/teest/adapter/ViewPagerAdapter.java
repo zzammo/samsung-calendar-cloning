@@ -28,7 +28,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean showSchedule;
 
-
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data) {
         super(fragmentActivity);
         this.data = data;

@@ -68,6 +68,7 @@ public class slidingpanetest extends AppCompatActivity {
     void moveview(MotionEvent event){
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                Log.d("minseok","!!down");
                 Log.d("minseok","mode"+mode+" "+max_h[mode]+" "+min_h[mode]);
                 y1 = event.getY();
                 init_view1_h=view1.getHeight();
@@ -100,6 +101,7 @@ public class slidingpanetest extends AppCompatActivity {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                Log.d("minseok","!!");
                 float tmp;
                 if(changemode==1){tmp = min_h[mode];}
                 else{tmp = max_h[mode];}
