@@ -68,7 +68,7 @@ public class PageFragment extends Fragment {
         title_tv = view.findViewById(R.id.fragment_page_title_textView);
 
         recyclerView = view.findViewById(R.id.fragment_page_recyclerView);
-        adapter = new PageRVAdapter(getContext(), pageData.getDays(), listener,
+        adapter = new PageRVAdapter(getActivity(), getContext(), pageData.getDays(), listener,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor);
         layoutManager = new GridLayoutManager(getContext(), 7);
 

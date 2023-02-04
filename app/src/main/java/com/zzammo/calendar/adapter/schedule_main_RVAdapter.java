@@ -1,10 +1,13 @@
 package com.zzammo.calendar.adapter;
 
+import android.content.Context;
 import android.os.Build;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +15,7 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.Time;
 
@@ -22,19 +26,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_RVAdapter.VH>{
-    public interface OnItemClickListener{
-        void onItemClick(int position);
-    }
-
-    schedule_main_RVAdapter.OnItemClickListener mListener = null;
     ArrayList<Schedule> scheduleArrayList;
+    Context context;
 
-    public schedule_main_RVAdapter(ArrayList<Schedule> scheduleArrayList) {
+    public schedule_main_RVAdapter(ArrayList<Schedule> scheduleArrayList, Context context) {
         this.scheduleArrayList = scheduleArrayList;
-    }
-
-    public void setOnItemClickListener(schedule_main_RVAdapter.OnItemClickListener listener) {
-        this.mListener = listener;
+        this.context = context;
     }
 
     @NonNull
@@ -69,11 +66,35 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
 
         public VH(@NonNull View itemView) {
             super(itemView);
-
             start_time_tv = itemView.findViewById(R.id.start_time_title);
             time_duration_tv = itemView.findViewById(R.id.schedule_time);
             schedule_name_tv = itemView.findViewById(R.id.schedule_title);
-
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu popupMenu = new PopupMenu(context, view);
+                    popupMenu.inflate(R.menu.menu_recycler);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            int position = getAdapterPosition();
+                            Schedule currSchedule = scheduleArrayList.get(position);
+                            switch(menuItem.getItemId()){
+                                case R.id.edit:
+                                    //수정하는 코드 추가 예정
+                                    return true;
+                                case R.id.delete:
+                                    Database db = new Database(context);
+                                    db.delete(currSchedule);
+                                    scheduleArrayList.remove(position);
+                                    notify();
+                                    return true;
+                            }
+                            return false;
+                        }
+                    });
+                }
+            });
         }
     }
 }

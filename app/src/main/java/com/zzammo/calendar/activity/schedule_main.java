@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -124,14 +125,14 @@ public class schedule_main extends AppCompatActivity {
                 preSelectedDate = mill;
                 view.setBackgroundColor(getColor(R.color.text_white));
             } else if (date.getSchedules().size() == 0) {
-                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
+//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
                 intent.putExtra("year",year);
                 intent.putExtra("month",month);
                 intent.putExtra("day",day);
                 startActivityForResult(intent,78);
             } else {
-                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
+//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 ScheduleDialog oDialog = new ScheduleDialog(this,
                         Time.CalendarToMill(cal));
                 oDialog.show();
@@ -251,16 +252,10 @@ public class schedule_main extends AppCompatActivity {
 //            RVAdapter.notifyDataSetChanged();
 //        });
 
-        RVAdapter = new schedule_main_RVAdapter(scheduleArrayList);
+        RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
         layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         scheduleRV.setLayoutManager(layoutManager);
         scheduleRV.setAdapter(RVAdapter);
-        RVAdapter.setOnItemClickListener(position -> {
-//            //바꿔야함
-//            DB.scheduleDao().delete(scheduleArrayList.get(position));
-//            scheduleArrayList.remove(position);
-//            RVAdapter.notifyItemRemoved(position);
-        });
 
         LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
         lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");

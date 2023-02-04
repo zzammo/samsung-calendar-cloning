@@ -52,7 +52,6 @@ public class CustomCalendar extends LinearLayout {
 
     LinearLayout background;
     ViewPager2 viewPager;
-
     ViewPagerAdapter viewPagerAdapter;
 
     FragmentActivity activity;
@@ -179,15 +178,12 @@ public class CustomCalendar extends LinearLayout {
             mOnTouchListener.onTouch(this, ev);
         }
         return super.onInterceptTouchEvent(ev);
+        //true : 상위 뷰페이저 이벤트 전달
+        //false : 하위 뷰페이저 이벤트 전달
     }
 
     public void setOnTouchListener(OnTouchListener onTouchListener) {
         mOnTouchListener = onTouchListener;
-    }
-
-    @Override
-    public boolean performClick() {
-        return super.performClick();
     }
 
     public void setActivity(FragmentActivity activity) {
@@ -202,6 +198,8 @@ public class CustomCalendar extends LinearLayout {
         viewPagerAdapter.setDateClickListener(dateClickListener);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+
+
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -218,7 +216,7 @@ public class CustomCalendar extends LinearLayout {
             }
         });
 
-        viewPager.setCurrentItem(pageCount);
+        viewPager.setCurrentItem(pageCount, false);
 
         invalidate();
         requestLayout();
