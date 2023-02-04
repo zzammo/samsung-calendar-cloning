@@ -75,16 +75,11 @@ public class ScheduleDialog extends Dialog {
         date_week=this.findViewById(R.id.date_week);
         Calendar calendar=Calendar.getInstance();
         calendar.setTimeInMillis(dateStartTime);
-        date_num.setText(String.valueOf(calendar.get(Calendar.DAY_OF_WEEK)));
+        date_num.setText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
         date_week.setText(makeWeekText(calendar.get(Calendar.DAY_OF_WEEK)));
 
         scheduleArrayList = new ArrayList<>();
-        scheduleRVAdapter = new schedule_main_RVAdapter(scheduleArrayList);
-        scheduleRVAdapter.setOnItemClickListener(position -> {
-//            DB.delete(scheduleArrayList.get(position));
-//            scheduleArrayList.remove(position);
-//            scheduleRVAdapter.notifyItemRemoved(position);
-        });
+        scheduleRVAdapter = new schedule_main_RVAdapter(scheduleArrayList, mContext);
         layoutManager = new LinearLayoutManager(mContext);
         scheduleRV.setAdapter(scheduleRVAdapter);
         scheduleRV.setLayoutManager(layoutManager);

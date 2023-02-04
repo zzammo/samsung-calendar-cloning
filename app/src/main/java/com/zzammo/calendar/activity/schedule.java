@@ -884,12 +884,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     else{
                         newschedule = new Schedule(title.getText() + "", false, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end),alarm,memo.getText()+"");
                     }
-                    db.insert(Database.LOCAL, newschedule, new AfterTask() {
-                        @Override
-                        public void ifSuccess(Object result) {}
-                        @Override
-                        public void ifFail(Object result) {}
-                    });
+                    db.insert(newschedule);
 
                     begin = getPlusTime(begin); end = getPlusTime(end);
                 }
