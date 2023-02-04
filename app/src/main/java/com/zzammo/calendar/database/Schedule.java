@@ -26,6 +26,8 @@ public class Schedule implements Comparable {
     public Long begin_ms;
     public Long end_ms;
 
+    public String alarm;
+
     public String memo;
 
     public Schedule() {
