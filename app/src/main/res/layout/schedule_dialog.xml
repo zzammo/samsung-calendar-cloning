@@ -8,7 +8,7 @@
         android:id="@+id/dialog_layout"
         android:layout_width="300dp"
         android:layout_height="500dp"
-        android:src="@drawable/white_box"
+        android:background="@drawable/white_box"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -26,16 +26,16 @@
                 android:id="@+id/date_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="40sp"
                 android:text="17"
                 android:textColor="@color/black"/>
             <TextView
                 android:id="@+id/date_week"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="7sp"
+                android:layout_marginLeft="20sp"
                 android:text="금요일"
-                android:textSize="10sp"
+                android:textSize="30sp"
                 android:textColor="@color/black"/>
         </LinearLayout>
 
