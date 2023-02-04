@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:id="@+id/drawer_layout">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:background="@color/bg_white"
@@ -114,6 +116,7 @@
                 android:id="@+id/edit_"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:imeOptions="actionDone"
                 app:layout_constraintWidth_percent="0.72"
                 android:autoSizeMaxTextSize="50sp"
                 android:autoSizeMinTextSize="25sp"
@@ -128,15 +131,13 @@
 
             <ImageView
                 android:id="@+id/add_schedule"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginHorizontal="0dp"
+                android:layout_width="65sp"
+                android:layout_height="65sp"
+                android:layout_marginEnd="12sp"
                 android:layout_marginBottom="20sp"
-                android:src="@drawable/add_circle_svgrepo_com"
+                android:src="@drawable/ic_baseline_add_circle_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHeight_percent="0.3"
-                app:layout_constraintWidth_percent="0.3"/>
+                app:layout_constraintEnd_toEndOf="parent" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
