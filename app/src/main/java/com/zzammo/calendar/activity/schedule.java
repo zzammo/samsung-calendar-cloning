@@ -115,6 +115,8 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     TextView time_requiered_textview;
     TextView time_requiered_click;
 
+    TextView pre_src_time_textview;
+
 
     CheckBox checkbox_ontime;
     CheckBox checkbox_10_min_ago;
@@ -155,7 +157,20 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     private int end_year;
     private int end_week;
 
+    private int need_hour;
+    private int need_minute;
+    private int need_second;
+
+
+    // 출발 예정 시각 : 년 월 일 시간 분
+    private int pre_start_year;
+    private int pre_start_hour;
+    private int pre_start_minute;
+    private int pre_start_month;
+    private int pre_start_day;
+
     private boolean[] clicked={false,false,false,false}; // 0 start_date 1 start_time 2 end_date 3 end_time
+
 
 
 
@@ -283,6 +298,8 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         cancel_btn=findViewById(R.id.cancel_btn);
 
         mLayout = findViewById(R.id.layout_schedule);
+
+        pre_src_time_textview=findViewById(R.id.pre_src_time_textview);
 
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -1568,6 +1585,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             return result;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         protected void onPostExecute(String s){
             super.onPostExecute(s);
@@ -1623,6 +1641,20 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 text+=String.valueOf(second)+"초 ";
             }
             time_requiered_textview.setText(text.substring(0,text.length()-1));
+            need_hour=hour;
+            need_minute=minute;
+            need_second=second;
+            LocalDateTime localDateTime=LocalDateTime.of(start_year,start_month,start_day,start_hour,start_minute);
+            localDateTime=localDateTime.minusHours(hour);
+            localDateTime=localDateTime.minusMinutes(minute);
+            pre_start_year=localDateTime.getYear();
+            pre_start_month=localDateTime.getMonthValue();
+            pre_start_day=localDateTime.getDayOfMonth();
+            pre_start_hour=localDateTime.getHour();
+            pre_start_minute=localDateTime.getMinute();
+            text=getDateText(pre_start_month,pre_start_day,localDateTime.getDayOfWeek().getValue())+" "+
+            getTimeText(pre_start_hour,pre_start_minute);
+            pre_src_time_textview.setText(text);
         }
     }
 }
