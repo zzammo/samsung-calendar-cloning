@@ -9,11 +9,17 @@ import java.util.Map;
 @Entity
 public class Schedule implements Comparable {
     @PrimaryKey(autoGenerate = true)
+    public static final int PUBLIC = 0;
+    public static final int WALK = 1;
+    public static final int CAR = 2;
+
     public int key;
 
     public String serverId;
 
     public String title;
+    public boolean isAllDay;
+    public boolean departAlarm;
 
     public String begin_loc;
     public Double begin_lat;
@@ -21,6 +27,13 @@ public class Schedule implements Comparable {
 
     public String end_loc;
     public Double end_lat;
+
+    public int need_hour;
+    public int need_minute;
+    public int need_second;
+
+    public int means;
+
     public Double end_lng;
 
     public Long begin_ms;
@@ -76,6 +89,36 @@ public class Schedule implements Comparable {
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
         this.memo = memo;
+    }
+
+    public Schedule(String title, boolean isAllDay, boolean departAlarm, Long begin_ms, Long end_ms, String alarm, String memo) {
+        this.title = title;
+        this.isAllDay = isAllDay;
+        this.departAlarm = departAlarm;
+        this.begin_ms = begin_ms;
+        this.end_ms = end_ms;
+        this.alarm = alarm;
+        this.memo = memo;
+    }
+
+    public Schedule(String title, boolean isAllDay, boolean departAlarm, String begin_loc, Double begin_lat, Double begin_lng, String end_loc, Double end_lat, Double end_lng, int need_hour, int need_minute, int need_second, int means, Long begin_ms, Long end_ms, String alarm, String memo) {
+        this.title = title;
+        this.isAllDay = isAllDay;
+        this.departAlarm = departAlarm;
+        this.begin_loc = begin_loc;
+        this.begin_lat = begin_lat;
+        this.begin_lng = begin_lng;
+        this.end_loc = end_loc;
+        this.end_lat = end_lat;
+        this.end_lng = end_lng;
+        this.begin_ms = begin_ms;
+        this.end_ms = end_ms;
+        this.alarm = alarm;
+        this.memo = memo;
+        this.need_hour = need_hour;
+        this.need_minute = need_minute;
+        this.need_second = need_second;
+        this.means = means;
     }
 
     public Schedule(Map<String, Object> map) {
@@ -134,6 +177,34 @@ public class Schedule implements Comparable {
 
     public String getMemo() {
         return memo;
+    }
+
+    public boolean isAllDay() {
+        return isAllDay;
+    }
+
+    public boolean isDepartAlarm() {
+        return departAlarm;
+    }
+
+    public int getNeed_hour() {
+        return need_hour;
+    }
+
+    public int getNeed_minute() {
+        return need_minute;
+    }
+
+    public int getNeed_second() {
+        return need_second;
+    }
+
+    public String getAlarm() {
+        return alarm;
+    }
+
+    public int getMeans() {
+        return means;
     }
 
     @Override

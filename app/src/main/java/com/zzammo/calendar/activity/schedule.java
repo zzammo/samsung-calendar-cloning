@@ -68,6 +68,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Schedule;
+import com.zzammo.calendar.util.AfterTask;
+import com.zzammo.calendar.util.Time;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -168,6 +172,8 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     private int pre_start_minute;
     private int pre_start_month;
     private int pre_start_day;
+
+    private String alarm;
 
     private boolean[] clicked={false,false,false,false}; // 0 start_date 1 start_time 2 end_date 3 end_time
 
@@ -569,7 +575,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     alarm_time_checkbox_layout.setVisibility(View.GONE);
                     alarm_time_textview.setBackgroundColor(ContextCompat.getColor(schedule.this,R.color.bg_white));
                     String text="";
-                    String[] temp={"일정 시작시간","10분 전","1시간 전","1일 전"};
+                    String[] temp={"일정 시작시간","10분","1시간","1일"};
                     for(int i=0;i<4;i++){
                         if(ago_checkboxes[i]){
                             text+=temp[i];
@@ -583,9 +589,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     if(text==""){
                         alarm_time_textview.setText("알람 설정 없음");
                     }else {
-                        text=text.substring(0,text.length()-2);
+                        text=text.substring(0,text.length()-2) + " 전";
                         alarm_time_textview.setText(text);
                     }
+                    alarm = text;
                 }
                 alarm_time=!alarm_time;
             }
@@ -839,6 +846,53 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Database db = new Database(schedule.this);
+                LocalDateTime begin = LocalDateTime.of(start_year,start_month, start_day,start_hour,start_minute,0,0);
+                LocalDateTime end = LocalDateTime.of(end_year,end_month,end_day,end_hour,end_minute,0,0);
+                int last;
+                switch (operator_flag){
+                    case 0:
+                        last=1;
+                        break;
+                    case 1:
+                        last=61;
+                        break;
+                    case 2:
+                        last=27;
+                        break;
+                    case 3:
+                        last = 13;
+                        break;
+                    default:
+                        last = 11;
+                        break;
+                }
+                for(int i = 0; i < last; i++){
+                    Schedule newschedule;
+                    if(allday_switch.isChecked() && alarm_switch.isChecked()) {
+                        newschedule = new Schedule(title.getText() + "", true, true, address_data_src, srcPosition.latitude, srcPosition.longitude,
+                                address_data_dst, dstPosition.latitude, dstPosition.longitude, need_hour, need_minute, need_second, means_flag, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end), alarm, memo.getText() + "");
+                    }
+                    else if(allday_switch.isChecked()){
+                        begin.withHour(0).withMinute(0).withSecond(0).withNano(0); end.withHour(23).withMinute(59).withSecond(59).withNano(0);
+                        newschedule = new Schedule(title.getText() + "", true, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end),alarm,memo.getText()+"");
+                    }
+                    else if(alarm_switch.isChecked()){
+                        newschedule = new Schedule(title.getText() + "", false, true, address_data_src, srcPosition.latitude, srcPosition.longitude,
+                                address_data_dst, dstPosition.latitude, dstPosition.longitude, need_hour, need_minute, need_second, means_flag, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end), alarm, memo.getText() + "");
+                    }
+                    else{
+                        newschedule = new Schedule(title.getText() + "", false, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end),alarm,memo.getText()+"");
+                    }
+                    db.insert(Database.LOCAL, newschedule, new AfterTask() {
+                        @Override
+                        public void ifSuccess(Object result) {}
+                        @Override
+                        public void ifFail(Object result) {}
+                    });
+
+                    begin = getPlusTime(begin); end = getPlusTime(end);
+                }
 
                 setResult(RESULT_OK);
                 finish();
@@ -898,21 +952,35 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         ret+=String.valueOf(val);
         switch (index){
             case 0:
-                ret+="분 전";
+                ret+="분";
                 break;
             case 1:
-                ret+="시간 전";
+                ret+="시간";
                 break;
             case 2:
-                ret+="일 전";
+                ret+="일";
                 break;
             case 3:
-                ret+="주 전";
+                ret+="주";
                 break;
         }
         return ret;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public LocalDateTime getPlusTime(LocalDateTime pre){
+        switch(operator_flag){
+            case 0:
+            case 1:
+                return pre.plusDays(1);
+            case 2:
+                return pre.plusWeeks(1);
+            case 3:
+                return pre.plusMonths(1);
+            default:
+                return pre.plusYears(1);
+        }
+    }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
