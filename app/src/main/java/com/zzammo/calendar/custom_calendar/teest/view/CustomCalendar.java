@@ -203,8 +203,6 @@ public class CustomCalendar extends LinearLayout {
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
-
-
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -236,6 +234,7 @@ public class CustomCalendar extends LinearLayout {
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + i, 1, 0, 0, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
                 page.setMonth(calendar);
 
                 int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1; //해당 월에 시작하는 요일 -1 을 하면 빈칸을 구할 수 있겠죠 ?
@@ -247,6 +246,7 @@ public class CustomCalendar extends LinearLayout {
                 for (int j = 1; j <= max; j++) {
                     Calendar day = Calendar.getInstance();
                     day.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + i, j, 0, 0, 0);
+                    day.set(Calendar.MILLISECOND, 0);
                     days.add(new CalendarDate(day));
                 }
 

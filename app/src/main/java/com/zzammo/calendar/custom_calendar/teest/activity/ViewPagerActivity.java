@@ -130,6 +130,7 @@ public class ViewPagerActivity extends AppCompatActivity {
         //calendar.getViewPager().invalidate();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                calendar.setClickable(false);
                 Log.d("minseok", "mode" + mode + " " + max_h[mode] + " " + min_h[mode]);
                 y1 = event.getY();
                 init_view1_h = calendar.getHeight();
@@ -175,6 +176,7 @@ public class ViewPagerActivity extends AppCompatActivity {
                 animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
+                        calendar.setClickable(false);
                         float value = (float) animation.getAnimatedValue();
                         params1.height = (int) (value + 0.5f);
                         params2.height = (int) (total_h - params1.height);
@@ -189,6 +191,7 @@ public class ViewPagerActivity extends AppCompatActivity {
 
                         rc.requestLayout();
                         calendar.requestLayout();
+                        calendar.setClickable(true);
                     }
                 });
                 Log.d("minseok","animation start");
@@ -197,6 +200,8 @@ public class ViewPagerActivity extends AppCompatActivity {
                 mode += changemode;
                 if (mode > 2) mode = 2;
                 else if (mode < 0) mode = 0;
+                calendar.setClickable(true);
+
                 break;
         }
 
