@@ -20,6 +20,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zzammo.calendar.R;
@@ -96,7 +98,7 @@ public class ViewPagerActivity extends AppCompatActivity {
             }
         });
 
-        calendar.setOnDateClickListener((view,date) -> {
+        calendar.setOnDateClickListener((view, date) -> {
             Calendar cal = date.getCalendar();
 
             if (cal == null) return;
@@ -115,6 +117,7 @@ public class ViewPagerActivity extends AppCompatActivity {
                 oDialog.show();
             }
         });
+        calendar.setPageCount(3);
         calendar.setActivity(this);
 
         findViewById(R.id.activity_view_pager_add_btn).setOnClickListener(v -> {
@@ -124,6 +127,7 @@ public class ViewPagerActivity extends AppCompatActivity {
     }
 
     void moveview(MotionEvent event) {
+        //calendar.getViewPager().invalidate();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 Log.d("minseok", "mode" + mode + " " + max_h[mode] + " " + min_h[mode]);
@@ -177,6 +181,14 @@ public class ViewPagerActivity extends AppCompatActivity {
                         calendar.setLayoutParams(params1);
                         recyclerViewlist.setLayoutParams(params2);
                         make_view();
+
+                        RecyclerView rc = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+
+                        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+                        rc.getAdapter().notifyDataSetChanged();
+
+                        rc.requestLayout();
+                        calendar.requestLayout();
                     }
                 });
                 Log.d("minseok","animation start");
@@ -187,6 +199,14 @@ public class ViewPagerActivity extends AppCompatActivity {
                 else if (mode < 0) mode = 0;
                 break;
         }
+
+        RecyclerView rc = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+
+        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+        rc.getAdapter().notifyDataSetChanged();
+
+        rc.requestLayout();
+        calendar.requestLayout();
     }
 
     void make_view(){

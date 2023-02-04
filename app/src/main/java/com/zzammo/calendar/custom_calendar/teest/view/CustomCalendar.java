@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -40,6 +41,10 @@ public class CustomCalendar extends LinearLayout {
     public interface OnInterceptTouchEvent{
         void interceptTouchEvent(MotionEvent ev);
     }
+    public interface OnDateChangedListener{
+        void dateChangedListener(CalendarDate date);
+    }
+
 
     final static int MONTH_SCHEDULE = 1;
     final static int MONTH = 2;
@@ -52,6 +57,7 @@ public class CustomCalendar extends LinearLayout {
 
     FragmentActivity activity;
     ArrayList<PageData> data;
+    Long selectedDate;
 
     int viewMode;
     int sundayColor;
@@ -63,6 +69,7 @@ public class CustomCalendar extends LinearLayout {
     int pageCount;
 
     OnDateClickListener dateClickListener;
+    OnDateChangedListener dateChangedListener;
     private OnTouchListener mOnTouchListener;
 
     public CustomCalendar(Context context) {
@@ -105,9 +112,29 @@ public class CustomCalendar extends LinearLayout {
         typedArray.recycle();
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int mode = MeasureSpec.getMode(heightMeasureSpec);
+        if (mode == MeasureSpec.UNSPECIFIED || mode == MeasureSpec.AT_MOST) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            int height = 0;
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                child.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                int h = child.getMeasuredHeight();
+                if (h > height) height = h;
+            }
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
 
     public void setOnDateClickListener(OnDateClickListener listener) {
         this.dateClickListener = listener;
+    }
+
+    public void setOnDateChangedListener(OnDateChangedListener dateChangedListener) {
+        this.dateChangedListener = dateChangedListener;
     }
 
     public ViewPager2 getViewPager() {
