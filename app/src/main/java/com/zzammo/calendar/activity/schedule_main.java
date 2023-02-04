@@ -19,9 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
@@ -58,6 +61,8 @@ public class schedule_main extends AppCompatActivity {
     private int day;
     private int month;
     private int year;
+    DrawerLayout drawerLayout;
+    NavigationView navigationView;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -68,7 +73,8 @@ public class schedule_main extends AppCompatActivity {
         weather = new HashMap<>();
 
         calendarView = findViewById(R.id.calendarView);
-
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.navigation_view);
 
         getSupportActionBar().setElevation(0); // appbar shadow remove
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 툴바 홈버튼 활성화
@@ -148,6 +154,9 @@ public class schedule_main extends AppCompatActivity {
 
         switch(item.getItemId())
         {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
             case R.id.today_move:
                 toast.setText("Select today_move");
                 calendarView.setSelectedDate(CalendarDay.today());
