@@ -31,9 +31,13 @@ import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
+import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
+import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
+import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.lunar.LunarCalendar;
+import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.util.Time;
 import com.zzammo.calendar.weather.WeatherApiExplorer;
 
@@ -42,6 +46,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -52,7 +57,8 @@ public class schedule_main extends AppCompatActivity {
     HashMap<LocalDate, HashMap<String, Integer>> weather;
     TextView temperature, lunardate, or;
     ImageView weatherView;
-    MaterialCalendarView calendarView;
+//    MaterialCalendarView calendarView;
+    CustomCalendar calendarView;
     ScheduleDatabase DB;
     RecyclerView scheduleRV;
     ArrayList<Schedule> scheduleArrayList;
@@ -63,6 +69,11 @@ public class schedule_main extends AppCompatActivity {
     private int year;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+
+    View preSelectedView;
+    Long preSelectedDate;
+
+    DateChanged dateChanged;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -75,6 +86,36 @@ public class schedule_main extends AppCompatActivity {
         calendarView = findViewById(R.id.calendarView);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
+        dateChanged = new DateChanged();
+        calendarView.setOnDateClickListener((view, date) -> {
+            Calendar cal = date.getCalendar();
+            Long mill = cal.getTimeInMillis();
+
+            if (preSelectedDate == null || !preSelectedDate.equals(mill)) {
+                if (preSelectedView != null){
+                    preSelectedView.setBackgroundColor(getColor(R.color.white));
+                }
+                preSelectedView = view;
+                preSelectedDate = mill;
+                view.setBackgroundColor(getColor(R.color.text_white));
+            } else if (date.getSchedules().size() == 0) {
+                preSelectedView.setBackgroundColor(getColor(R.color.white));
+                Intent it = new Intent(this, MakeSchedule.class);
+                it.putExtra("date", mill);
+                it.putExtra("month", cal.get(Calendar.MONTH)+1);
+                it.putExtra("day", cal.get(Calendar.DATE));
+                startActivity(it);
+            } else {
+                preSelectedView.setBackgroundColor(getColor(R.color.white));
+                ScheduleDialog oDialog = new ScheduleDialog(this,
+                        Time.CalendarToMill(cal));
+                oDialog.show();
+            }
+
+            dateChanged.dateChangedListener(date);
+        });
+        calendarView.setOnDateChangedListener(dateChanged);
+        calendarView.setActivity(this);
 
         getSupportActionBar().setElevation(0); // appbar shadow remove
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 툴바 홈버튼 활성화
@@ -102,24 +143,24 @@ public class schedule_main extends AppCompatActivity {
         scheduleRV = findViewById(R.id.schedule_recyclerView);
         scheduleArrayList = new ArrayList<>();
 
-        calendarView.setOnDateChangedListener((widget, date, selected) ->{
-            year= date.getYear();
-            month=date.getMonth();
-            day=date.getDay();
-            String str_date = date.toString().substring(12,date.toString().length() - 1);
-            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
-            Log.d("WeGlonD", str_date);
-            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
-            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
-            ShowWeatherInfo(localDate);
-            scheduleArrayList.clear();
+//        calendarView.setOnDateChangedListener((widget, date, selected) ->{
+//            year= date.getYear();
+//            month=date.getMonth();
+//            day=date.getDay();
+//            String str_date = date.toString().substring(12,date.toString().length() - 1);
+//            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
+//            Log.d("WeGlonD", str_date);
+//            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
+//            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
+//            ShowWeatherInfo(localDate);
+//            scheduleArrayList.clear();
 
-            Long dateMills = Time.CalendarDayToMill(date);
-            scheduleArrayList.clear();
-            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
-            Collections.sort(scheduleArrayList);
-            RVAdapter.notifyDataSetChanged();
-        });
+//            Long dateMills = Time.CalendarDayToMill(date);
+//            scheduleArrayList.clear();
+//            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
+//            Collections.sort(scheduleArrayList);
+//            RVAdapter.notifyDataSetChanged();
+//        });
 
         RVAdapter = new schedule_main_RVAdapter(scheduleArrayList);
         layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
@@ -159,7 +200,8 @@ public class schedule_main extends AppCompatActivity {
                 return true;
             case R.id.today_move:
                 toast.setText("Select today_move");
-                calendarView.setSelectedDate(CalendarDay.today());
+//                calendarView.setSelectedDate(CalendarDay.today());
+//                calendarView.setSelectedDate(Time.LocalDateToMill(LocalDate.now()));
                 break;
             case R.id.name_search:
                 toast.setText("Select name_search");
@@ -229,6 +271,31 @@ public class schedule_main extends AppCompatActivity {
             or.setVisibility(View.GONE);
             temperature.setVisibility(View.GONE);
             weatherView.setVisibility(View.GONE);
+        }
+    }
+
+    class DateChanged implements CustomCalendar.OnDateChangedListener{
+
+        @Override
+        public void dateChangedListener(CalendarDate date) {
+            //            String str_date = date.toString().substring(12,date.toString().length() - 1);
+//            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
+            Calendar cal = date.getCalendar();
+            Long mill = cal.getTimeInMillis();
+            String str = Time.MillToDate(mill);
+//            Log.d("WeGlonD", str_date);
+            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(str), DateTimeFormatter.ofPattern("yyyyMMdd"));
+//            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
+            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
+            LocalDate localDate = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DATE));
+            ShowWeatherInfo(localDate);
+            scheduleArrayList.clear();
+
+//            Long dateMills = Time.CalendarDayToMill(date);
+            scheduleArrayList.clear();
+            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(mill, mill + Time.ONE_DAY)));
+            Collections.sort(scheduleArrayList);
+            RVAdapter.notifyDataSetChanged();
         }
     }
 }

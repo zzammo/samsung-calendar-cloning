@@ -323,13 +323,13 @@ public class MainActivity extends AppCompatActivity {
                     CalendarDay endday = CalendarDay.from(lo.getYear(), lo.getMonthValue(),lo.getDayOfMonth());
                     Long begin = Time.CalendarDayToMill(date),  end = Time.CalendarDayToMill(endday);
                     Log.d("Dirtfy", "begin : " + begin + " end : " + end);
-                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
+//                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
                     List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(begin, end);
                     Log.d("Dirtfy", "Holidays size : "+Holidays.size()+"");
                     for (Holiday holi : Holidays) {
                         HolidayDates.add(holi.date);
                         HolidayNames.add(holi.name);
-                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
+//                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
                         calendarView.invalidateDecorators();
                     }
                 }

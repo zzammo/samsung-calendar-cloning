@@ -5,6 +5,8 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,7 +22,7 @@ public class Time {
     }
 
     public static String MillToDate(long mills) {
-        String pattern = "yyyy-MM-dd";
+        String pattern = "yyyyMMdd";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         String date = formatter.format(new Timestamp(mills));
 
@@ -100,6 +102,16 @@ public class Time {
         int date = int_ymd%100;
         Calendar cal = Calendar.getInstance();
         cal.set(year, month - 1, date, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
+    public static Long LocalDateToMill(LocalDate localDate){
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        int day = localDate.getDayOfMonth();
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTimeInMillis();
     }

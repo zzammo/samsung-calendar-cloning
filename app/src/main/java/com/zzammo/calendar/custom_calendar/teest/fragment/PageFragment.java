@@ -80,4 +80,7 @@ public class PageFragment extends Fragment {
         return view;
     }
 
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
+    }
 }
