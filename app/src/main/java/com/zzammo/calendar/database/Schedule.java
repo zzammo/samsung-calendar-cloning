@@ -9,11 +9,11 @@ import java.util.Map;
 @Entity
 public class Schedule implements Comparable {
     @PrimaryKey(autoGenerate = true)
+    public int key;
+
     public static final int PUBLIC = 0;
     public static final int WALK = 1;
     public static final int CAR = 2;
-
-    public int key;
 
     public String serverId;
 

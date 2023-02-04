@@ -167,7 +167,7 @@ public class schedule_main extends AppCompatActivity {
         scheduleRV.setLayoutManager(layoutManager);
         scheduleRV.setAdapter(RVAdapter);
         RVAdapter.setOnItemClickListener(position -> {
-//            바꿔야함
+//            //바꿔야함
 //            DB.scheduleDao().delete(scheduleArrayList.get(position));
 //            scheduleArrayList.remove(position);
 //            RVAdapter.notifyItemRemoved(position);
@@ -273,7 +273,7 @@ public class schedule_main extends AppCompatActivity {
             weatherView.setVisibility(View.GONE);
         }
     }
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
     class DateChanged implements CustomCalendar.OnDateChangedListener{
 
         @Override
