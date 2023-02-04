@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -170,16 +171,10 @@ public class schedule_main extends AppCompatActivity {
 //            RVAdapter.notifyDataSetChanged();
 //        });
 
-        RVAdapter = new schedule_main_RVAdapter(scheduleArrayList);
+        RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
         layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         scheduleRV.setLayoutManager(layoutManager);
         scheduleRV.setAdapter(RVAdapter);
-        RVAdapter.setOnItemClickListener(position -> {
-//            //바꿔야함
-//            DB.scheduleDao().delete(scheduleArrayList.get(position));
-//            scheduleArrayList.remove(position);
-//            RVAdapter.notifyItemRemoved(position);
-        });
 
         LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
         lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
