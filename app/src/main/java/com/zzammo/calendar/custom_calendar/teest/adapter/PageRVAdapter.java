@@ -8,6 +8,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,22 +20,28 @@ import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
+import com.zzammo.calendar.databinding.PageDateItemBinding;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
 public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
+    LifecycleOwner lifecycleOwner;
     Context context;
     Database DB;
+
+    public MutableLiveData<Integer> viewHolderHeight;
+    ArrayList<PageDateItemBinding> viewHolderBindings;
 
     ArrayList<CalendarDate> data;
     CustomCalendar.OnDateClickListener listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
 
-    public PageRVAdapter(Context context, ArrayList<CalendarDate> data,
+    public PageRVAdapter(LifecycleOwner lifecycleOwner, Context context, ArrayList<CalendarDate> data,
                          CustomCalendar.OnDateClickListener listener,
                          int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
+        this.lifecycleOwner = lifecycleOwner;
         this.context = context;
         this.data = data;
         this.listener = listener;
@@ -41,6 +51,17 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         this.todayColor = todayColor;
         this.basicColor = basicColor;
         DB = new Database(context);
+
+        viewHolderHeight = new MutableLiveData<>();
+        viewHolderHeight.observe(lifecycleOwner, integer -> {
+            if (viewHolderBindings == null) return;
+            if (viewHolderHeight == null) return;
+            for (PageDateItemBinding vb : viewHolderBindings){
+                if (vb == null) continue;
+                vb.setHeight(viewHolderHeight.getValue());
+            }
+        });
+        viewHolderBindings = new ArrayList<>();
     }
 
     @NonNull
@@ -51,6 +72,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams) view.getLayoutParams();
         lp.height = parent.getMeasuredHeight() / 6;
         view.setLayoutParams(lp);
+        ((PageDateItemBinding) DataBindingUtil.bind(view)).setHeight(lp.height);
         return new PageRVAdapter.VH(view);
     }
 
@@ -64,6 +86,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         }
 
         holder.day_tv.setText(String.valueOf(day.getCalendar().get(Calendar.DATE)));
+
+        PageDateItemBinding binding = DataBindingUtil.getBinding(holder.itemView);
+        viewHolderBindings.add(binding);
 
         setColor(holder, day);
 

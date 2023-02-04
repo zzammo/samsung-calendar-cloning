@@ -69,8 +69,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
             cd.setHolidays(new ArrayList<>());
             Long begin = Time.CalendarToMill(cd.getCalendar());
-            Log.d("Dirtfy", (cd.getCalendar().get(Calendar.MONTH)+1)+" "+cd.getCalendar().get(Calendar.DATE)+"");
-            Log.d("Dirtfy", begin+" "+(begin+Time.ONE_DAY-1));
             cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
         }
         return new PageFragment(data.get(position), dateClickListener,

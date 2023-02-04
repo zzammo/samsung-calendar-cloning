@@ -186,9 +186,15 @@ public class ViewPagerActivity extends AppCompatActivity {
                         recyclerViewlist.setLayoutParams(params2);
 
                         RecyclerView rc = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+                        TextView tv = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_title_textView);
+                        LinearLayout lo = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_linearLayout);
 
-                        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
-                        rc.getAdapter().notifyDataSetChanged();
+                        ((PageRVAdapter) rc.getAdapter()).viewHolderHeight.setValue(
+                                (calendar.getHeight()-tv.getHeight()-lo.getHeight())/6
+                        );
+
+//                        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+//                        rc.getAdapter().notifyDataSetChanged();
 
                         rc.requestLayout();
                         calendar.requestLayout();
@@ -208,9 +214,15 @@ public class ViewPagerActivity extends AppCompatActivity {
         }
 
         RecyclerView rc = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+        TextView tv = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_title_textView);
+        LinearLayout lo = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_linearLayout);
 
-        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
-        rc.getAdapter().notifyDataSetChanged();
+        ((PageRVAdapter) rc.getAdapter()).viewHolderHeight.setValue(
+                (calendar.getHeight()-tv.getHeight()-lo.getHeight())/6
+        );
+
+//        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+//        rc.getAdapter().notifyDataSetChanged();
 
         rc.requestLayout();
         calendar.requestLayout();

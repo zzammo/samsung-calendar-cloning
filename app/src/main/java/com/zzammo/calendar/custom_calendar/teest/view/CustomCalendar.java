@@ -216,7 +216,7 @@ public class CustomCalendar extends LinearLayout {
             }
         });
 
-        viewPager.setCurrentItem(pageCount);
+        viewPager.setCurrentItem(pageCount, false);
 
         invalidate();
         requestLayout();
