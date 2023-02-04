@@ -1,23 +1,15 @@
 package com.zzammo.calendar.activity;
-import androidx.appcompat.app.AppCompatActivity;
 
-import android.animation.ObjectAnimator;
-import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.zzammo.calendar.R;
-
-import java.lang.reflect.Array;
-import java.util.List;
 
 public class slidingpanetest extends AppCompatActivity {
     View view1;

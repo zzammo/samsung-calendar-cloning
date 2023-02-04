@@ -2,37 +2,22 @@ package com.zzammo.calendar.custom_calendar.teest.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
-import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.custom_calendar.teest.adapter.ViewPagerAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.data.PageData;
-import com.zzammo.calendar.database.Database;
-import com.zzammo.calendar.database.Holiday;
-import com.zzammo.calendar.database.Metadata;
-import com.zzammo.calendar.holiday.HolidayApiExplorer;
-import com.zzammo.calendar.util.AfterTask;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class CustomCalendar extends LinearLayout {
 

@@ -8,9 +8,7 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.zzammo.calendar.util.Time;
 
-import java.time.DayOfWeek;
 import java.util.Calendar;
-import java.util.Date;
 
 public class SundayDecorator implements DayViewDecorator {
 

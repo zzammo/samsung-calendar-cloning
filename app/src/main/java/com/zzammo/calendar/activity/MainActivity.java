@@ -30,18 +30,17 @@ import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.activity.ViewPagerActivity;
 import com.zzammo.calendar.custom_calendar.test;
 import com.zzammo.calendar.database.Database;
-import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Metadata;
-import com.zzammo.calendar.holiday.HolidayApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
+import com.zzammo.calendar.dialog.ScheduleDialog;
+import com.zzammo.calendar.holiday.HolidayApiExplorer;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.test.AuthTestActivity;
 import com.zzammo.calendar.test.DBTestActivity;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
-import com.zzammo.calendar.weather.WeatherApiExplorer;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -50,7 +49,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
