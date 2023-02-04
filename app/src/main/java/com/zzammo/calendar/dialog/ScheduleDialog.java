@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.ScheduleRVAdapter;
+import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
@@ -38,10 +39,13 @@ public class ScheduleDialog extends Dialog {
     Long dateStartTime;
 
     ArrayList<Schedule> scheduleArrayList;
-    ScheduleRVAdapter scheduleRVAdapter;
+    schedule_main_RVAdapter scheduleRVAdapter;
     LinearLayoutManager layoutManager;
     RecyclerView scheduleRV;
     ImageView addSchedule_iv;
+
+    TextView date_num;
+    TextView date_week;
 
     Database DB;
 
@@ -67,13 +71,19 @@ public class ScheduleDialog extends Dialog {
 
         scheduleRV = this.findViewById(R.id.schedule_dialog_recyclerView);
         addSchedule_iv = this.findViewById(R.id.schedule_dialog_addImageView);
+        date_num=this.findViewById(R.id.date_num);
+        date_week=this.findViewById(R.id.date_week);
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTimeInMillis(dateStartTime);
+        date_num.setText(String.valueOf(calendar.get(Calendar.DAY_OF_WEEK)));
+        date_week.setText(makeWeekText(calendar.get(Calendar.DAY_OF_WEEK)));
 
         scheduleArrayList = new ArrayList<>();
-        scheduleRVAdapter = new ScheduleRVAdapter(scheduleArrayList);
+        scheduleRVAdapter = new schedule_main_RVAdapter(scheduleArrayList);
         scheduleRVAdapter.setOnItemClickListener(position -> {
-            DB.delete(scheduleArrayList.get(position));
-            scheduleArrayList.remove(position);
-            scheduleRVAdapter.notifyItemRemoved(position);
+//            DB.delete(scheduleArrayList.get(position));
+//            scheduleArrayList.remove(position);
+//            scheduleRVAdapter.notifyItemRemoved(position);
         });
         layoutManager = new LinearLayoutManager(mContext);
         scheduleRV.setAdapter(scheduleRVAdapter);
@@ -99,6 +109,25 @@ public class ScheduleDialog extends Dialog {
                 , scheduleArrayList
                 , new non());
         scheduleRVAdapter.notifyDataSetChanged();
+    }
+
+    public String makeWeekText(int week){
+        switch (week){
+            case 1:
+                return "일요일";
+            case 2:
+                return "월요일";
+            case 3:
+                return "화요일";
+            case 4:
+                return "수요일";
+            case 5:
+                return "목요일";
+            case 6:
+                return "금요일";
+            default:
+                return "토요일";
+        }
     }
 
     class non implements AfterTask{

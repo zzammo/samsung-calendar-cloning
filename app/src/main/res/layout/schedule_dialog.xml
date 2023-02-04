@@ -8,24 +8,85 @@
         android:id="@+id/dialog_layout"
         android:layout_width="300dp"
         android:layout_height="500dp"
-        android:background="@color/white"
+        android:src="@drawable/white_box"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
+        <LinearLayout
+            android:id="@+id/date_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="7sp"
+            android:layout_marginTop="10sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+            <TextView
+                android:id="@+id/date_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="17"
+                android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/date_week"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="7sp"
+                android:text="금요일"
+                android:textSize="10sp"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/line_1"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/line_white"
+            android:layout_marginVertical="3sp"
+            app:layout_constraintTop_toBottomOf="@id/date_layout"
+            app:layout_constraintStart_toStartOf="parent"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/schedule_dialog_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"
+            android:layout_margin="7sp"
+            android:paddingVertical="7sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/date_layout" />
+
+
+
+        <EditText
+            android:textColor="@color/text_white"
+            android:id="@+id/edit__"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.72"
+            android:autoSizeMaxTextSize="50sp"
+            android:autoSizeMinTextSize="25sp"
+            android:autoSizeStepGranularity="2sp"
+            android:layout_marginVertical="30sp"
+            android:layout_marginHorizontal="15sp"
+            android:padding="10sp"
+            android:background="@drawable/ed_text"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <ImageView
             android:id="@+id/schedule_dialog_addImageView"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/ic_baseline_add_circle_24"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="0dp"
+            android:layout_marginBottom="5sp"
+            android:src="@drawable/add_circle_svgrepo_com"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.2" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

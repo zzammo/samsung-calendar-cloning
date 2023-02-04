@@ -13,8 +13,9 @@ public class Schedule implements Comparable {
 
     public String serverId;
 
-    public String title;
 
+    public String title;
+    
     public String begin_loc;
     public Double begin_lat;
     public Double begin_lng;
