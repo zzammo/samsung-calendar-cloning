@@ -1,5 +1,6 @@
 package com.zzammo.calendar.custom_calendar.teest.activity;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -10,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,6 +55,7 @@ public class ViewPagerActivity extends AppCompatActivity {
     ViewGroup.LayoutParams params1,params2;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +96,7 @@ public class ViewPagerActivity extends AppCompatActivity {
             }
         });
 
-        calendar.setOnDateClickListener(date -> {
+        calendar.setOnDateClickListener((view,date) -> {
             Calendar cal = date.getCalendar();
 
             if (cal == null) return;
