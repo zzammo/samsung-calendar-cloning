@@ -1,6 +1,7 @@
 package com.zzammo.calendar.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.activity.schedule;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.Time;
@@ -82,17 +84,40 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
                             switch(menuItem.getItemId()){
                                 case R.id.edit:
                                     //수정하는 코드 추가 예정
+                                    Intent it = new Intent(context, schedule.class);
+                                    it.putExtra("mode", 1);
+                                    it.putExtra("title", currSchedule.title);
+                                    it.putExtra("isAllday", currSchedule.isAllDay);
+                                    it.putExtra("departAlarm", currSchedule.departAlarm);
+                                    it.putExtra("alarm", currSchedule.alarm);
+                                    it.putExtra("memo", currSchedule.memo);
+                                    it.putExtra("begin_ms", currSchedule.begin_ms);
+                                    it.putExtra("end_ms", currSchedule.end_ms);
+                                    if(currSchedule.departAlarm){
+                                        it.putExtra("begin_loc", currSchedule.begin_loc);
+                                        it.putExtra("begin_lat", currSchedule.begin_lat);
+                                        it.putExtra("begin_lng", currSchedule.begin_lng);
+                                        it.putExtra("end_loc", currSchedule.end_loc);
+                                        it.putExtra("end_lat", currSchedule.end_lat);
+                                        it.putExtra("end_lng", currSchedule.end_lng);
+                                        it.putExtra("need_hour", currSchedule.need_hour);
+                                        it.putExtra("need_minute", currSchedule.need_minute);
+                                        it.putExtra("need_second", currSchedule.need_second);
+                                        it.putExtra("means", currSchedule.means);
+                                    }
+                                    context.startActivity(it);
                                     return true;
                                 case R.id.delete:
                                     Database db = new Database(context);
                                     db.delete(currSchedule);
                                     scheduleArrayList.remove(position);
-                                    notify();
+                                    schedule_main_RVAdapter.this.notifyItemRemoved(position);
                                     return true;
                             }
                             return false;
                         }
                     });
+                    popupMenu.show();
                 }
             });
         }

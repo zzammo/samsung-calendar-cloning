@@ -110,6 +110,7 @@ public class schedule_main extends AppCompatActivity {
             } else if (date.getSchedules().size() == 0) {
 //                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
+                intent.putExtra("mode", 0);
                 intent.putExtra("year",year);
                 intent.putExtra("month",month);
                 intent.putExtra("day",day);
@@ -141,6 +142,7 @@ public class schedule_main extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
+                intent.putExtra("mode", 0);
                 intent.putExtra("year",year);
                 intent.putExtra("month",month);
                 intent.putExtra("day",day);
