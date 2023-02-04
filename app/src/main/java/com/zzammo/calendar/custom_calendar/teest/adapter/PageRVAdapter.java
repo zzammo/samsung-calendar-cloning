@@ -33,6 +33,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
     public MutableLiveData<Integer> viewHolderHeight;
     ArrayList<PageDateItemBinding> viewHolderBindings;
+    ArrayList<View> viewHolders;
 
     ArrayList<CalendarDate> data;
     CustomCalendar.OnDateClickListener listener;
@@ -53,15 +54,21 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();
+        viewHolders = new ArrayList<>();
         viewHolderHeight.observe(lifecycleOwner, integer -> {
-            if (viewHolderBindings == null) return;
-            if (viewHolderHeight == null) return;
-            for (PageDateItemBinding vb : viewHolderBindings){
-                if (vb == null) continue;
-                vb.setHeight(viewHolderHeight.getValue());
+//            if (viewHolderBindings == null) return;
+//            if (viewHolderHeight == null) return;
+//            for (PageDateItemBinding vb : viewHolderBindings){
+//                if (vb == null) continue;
+//                vb.setHeight(viewHolderHeight.getValue());
+//            }
+            for (View vh : viewHolders){
+                ViewGroup.LayoutParams lp = vh.getLayoutParams();
+                lp.height = viewHolderHeight.getValue();
+                vh.setLayoutParams(lp);
             }
         });
-        viewHolderBindings = new ArrayList<>();
+//        viewHolderBindings = new ArrayList<>();
     }
 
     @NonNull
@@ -72,7 +79,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams) view.getLayoutParams();
         lp.height = parent.getMeasuredHeight() / 6;
         view.setLayoutParams(lp);
-        ((PageDateItemBinding) DataBindingUtil.bind(view)).setHeight(lp.height);
+        viewHolders.add(view);
+//        view.setLayoutParams(lp);
+//        ((PageDateItemBinding) DataBindingUtil.bind(view)).setHeight(lp.height);
         return new PageRVAdapter.VH(view);
     }
 
@@ -87,8 +96,8 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
         holder.day_tv.setText(String.valueOf(day.getCalendar().get(Calendar.DATE)));
 
-        PageDateItemBinding binding = DataBindingUtil.getBinding(holder.itemView);
-        viewHolderBindings.add(binding);
+//        PageDateItemBinding binding = DataBindingUtil.getBinding(holder.itemView);
+//        viewHolderBindings.add(binding);
 
         setColor(holder, day);
 

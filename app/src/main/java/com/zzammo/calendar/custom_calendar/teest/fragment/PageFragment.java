@@ -74,6 +74,7 @@ public class PageFragment extends Fragment {
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setNestedScrollingEnabled(false);
 
         title_tv.setText(Time.CalendarToYM(pageData.getMonth()));
 
