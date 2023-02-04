@@ -1,10 +1,16 @@
 package com.zzammo.calendar.util;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,7 +26,7 @@ public class Time {
     }
 
     public static String MillToDate(long mills) {
-        String pattern = "yyyy-MM-dd";
+        String pattern = "yyyyMMdd";
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         String date = formatter.format(new Timestamp(mills));
 
@@ -102,6 +108,34 @@ public class Time {
         cal.set(year, month - 1, date, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTimeInMillis();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static Long LocalDateToMill(LocalDate localDate){
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        int day = localDate.getDayOfMonth();
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static Long LocalDateTimeToMills(LocalDateTime localDateTime){
+        Calendar cal = Calendar.getInstance();
+        cal.set(localDateTime.getYear(), localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth(),localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond());
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static LocalDateTime MillsToLocalDateTime(Long mills){
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(mills);
+        LocalDateTime localDateTime = LocalDateTime.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), 0);
+        return localDateTime;
     }
 
 }

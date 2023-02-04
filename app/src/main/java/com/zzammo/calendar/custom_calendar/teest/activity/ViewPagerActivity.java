@@ -1,5 +1,6 @@
 package com.zzammo.calendar.custom_calendar.teest.activity;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -10,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +20,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zzammo.calendar.R;
@@ -53,6 +57,7 @@ public class ViewPagerActivity extends AppCompatActivity {
     ViewGroup.LayoutParams params1,params2;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +98,7 @@ public class ViewPagerActivity extends AppCompatActivity {
             }
         });
 
-        calendar.setOnDateClickListener(date -> {
+        calendar.setOnDateClickListener((view, date) -> {
             Calendar cal = date.getCalendar();
 
             if (cal == null) return;
@@ -112,6 +117,7 @@ public class ViewPagerActivity extends AppCompatActivity {
                 oDialog.show();
             }
         });
+        calendar.setPageCount(3);
         calendar.setActivity(this);
 
         findViewById(R.id.activity_view_pager_add_btn).setOnClickListener(v -> {
@@ -121,6 +127,7 @@ public class ViewPagerActivity extends AppCompatActivity {
     }
 
     void moveview(MotionEvent event) {
+        //calendar.getViewPager().invalidate();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 Log.d("minseok", "mode" + mode + " " + max_h[mode] + " " + min_h[mode]);
@@ -174,6 +181,14 @@ public class ViewPagerActivity extends AppCompatActivity {
                         calendar.setLayoutParams(params1);
                         recyclerViewlist.setLayoutParams(params2);
                         make_view();
+
+                        RecyclerView rc = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+
+                        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+                        rc.getAdapter().notifyDataSetChanged();
+
+                        rc.requestLayout();
+                        calendar.requestLayout();
                     }
                 });
                 Log.d("minseok","animation start");
@@ -184,6 +199,14 @@ public class ViewPagerActivity extends AppCompatActivity {
                 else if (mode < 0) mode = 0;
                 break;
         }
+
+        RecyclerView rc = (calendar.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+
+        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+        rc.getAdapter().notifyDataSetChanged();
+
+        rc.requestLayout();
+        calendar.requestLayout();
     }
 
     void make_view(){

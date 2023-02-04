@@ -1,5 +1,7 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -10,9 +12,12 @@ import com.zzammo.calendar.custom_calendar.teest.data.PageData;
 import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
@@ -58,6 +63,14 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 Long begin = Time.CalendarToMill(cd.getCalendar());
                 DB.loadAllScheduleDuring(begin, begin+ Time.ONE_DAY, cd.getSchedules());
             }
+        }
+        for (CalendarDate cd : data.get(position).getDays()){
+            if (cd.getCalendar() == null) continue;
+            if (cd.getHolidays() != null) break;
+
+            cd.setHolidays(new ArrayList<>());
+            Long begin = Time.CalendarToMill(cd.getCalendar());
+            cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY));
         }
         return new PageFragment(data.get(position), dateClickListener,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor);

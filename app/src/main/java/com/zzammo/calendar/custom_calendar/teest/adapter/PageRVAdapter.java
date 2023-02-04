@@ -82,6 +82,8 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
             color = sundayColor;
         else if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
             color = saturdayColor;
+        else if (day.getHolidays().size() > 0)
+            color = holidayColor;
         else
             color = basicColor;
 
