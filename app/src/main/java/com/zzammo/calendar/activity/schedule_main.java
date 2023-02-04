@@ -83,6 +83,10 @@ public class schedule_main extends AppCompatActivity {
         context = this;
         weather = new HashMap<>();
 
+        year = Calendar.getInstance().get(Calendar.YEAR);
+        month = Calendar.getInstance().get(Calendar.MONTH)+1;
+        day = Calendar.getInstance().get(Calendar.DATE);
+
         calendarView = findViewById(R.id.calendarView);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -91,22 +95,26 @@ public class schedule_main extends AppCompatActivity {
             Calendar cal = date.getCalendar();
             Long mill = cal.getTimeInMillis();
 
+            year = date.calendar.get(Calendar.YEAR);
+            month = date.calendar.get(Calendar.MONTH)+1;
+            day = date.calendar.get(Calendar.DATE);
+
             if (preSelectedDate == null || !preSelectedDate.equals(mill)) {
                 if (preSelectedView != null){
-                    preSelectedView.setBackgroundColor(getColor(R.color.white));
+                    preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 }
                 preSelectedView = view;
                 preSelectedDate = mill;
                 view.setBackgroundColor(getColor(R.color.text_white));
             } else if (date.getSchedules().size() == 0) {
-                preSelectedView.setBackgroundColor(getColor(R.color.white));
-                Intent it = new Intent(this, MakeSchedule.class);
-                it.putExtra("date", mill);
-                it.putExtra("month", cal.get(Calendar.MONTH)+1);
-                it.putExtra("day", cal.get(Calendar.DATE));
-                startActivity(it);
+                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
+                Intent intent = new Intent(getApplicationContext(), schedule.class);
+                intent.putExtra("year",year);
+                intent.putExtra("month",month);
+                intent.putExtra("day",day);
+                startActivityForResult(intent,78);
             } else {
-                preSelectedView.setBackgroundColor(getColor(R.color.white));
+                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 ScheduleDialog oDialog = new ScheduleDialog(this,
                         Time.CalendarToMill(cal));
                 oDialog.show();
@@ -291,9 +299,9 @@ public class schedule_main extends AppCompatActivity {
             ShowWeatherInfo(localDate);
             scheduleArrayList.clear();
 
-//            Long dateMills = Time.CalendarDayToMill(date);
+            Long dateMills = Time.CalendarToMill(date.getCalendar());
             scheduleArrayList.clear();
-            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(mill, mill + Time.ONE_DAY)));
+            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
             Collections.sort(scheduleArrayList);
             RVAdapter.notifyDataSetChanged();
         }

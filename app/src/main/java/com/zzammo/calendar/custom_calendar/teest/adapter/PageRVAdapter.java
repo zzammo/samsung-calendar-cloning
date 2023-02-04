@@ -132,7 +132,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
             itemView.setOnClickListener(v -> {
                 if (listener == null) return;
-                listener.dateClickListener(v, data.get(getAdapterPosition()));
+                CalendarDate calendarDate = data.get(getAdapterPosition());
+                if (calendarDate.getCalendar() == null) return;
+                listener.dateClickListener(v, calendarDate);
             });
         }
     }
