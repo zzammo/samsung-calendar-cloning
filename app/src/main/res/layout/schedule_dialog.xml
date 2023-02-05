@@ -71,7 +71,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="7.2"
-                android:layout_marginVertical="30sp"
                 android:layout_marginHorizontal="15sp"
                 android:padding="10sp"
                 android:background="@drawable/ed_text" />
@@ -80,9 +79,8 @@
                 android:id="@+id/schedule_dialog_addImageView"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_margin="-30sp"
                 android:layout_weight="2.8"
-                android:layout_marginHorizontal="0dp"
-                android:layout_marginBottom="5sp"
                 android:src="@drawable/add_circle_svgrepo_com" />
 
         </LinearLayout>
