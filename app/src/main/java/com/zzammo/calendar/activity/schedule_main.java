@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -23,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -88,7 +90,6 @@ public class schedule_main extends AppCompatActivity {
 
     View preSelectedView;
     Long preSelectedDate;
-
     DateChanged dateChanged;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -279,24 +280,21 @@ public class schedule_main extends AppCompatActivity {
             }
         });
 
+
         scheduleRV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d("minseok","touch");
                 scheduleRV.performClick();
+                moveview(event);
                 if(mode==0||mode==1) {
 
-                    //df
-                    moveview(event);
                     return true;
                 }
                 else{
-                    if(!scheduleRV.canScrollVertically(-1)){
-                        Log.d("minseok","최상단");
-                        //moveview(event);
-                    }
                     return false;
                 }
+
             }
         });
 
@@ -320,7 +318,8 @@ public class schedule_main extends AppCompatActivity {
 //        });
 
         RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
-        layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        //layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        layoutManager = new LinearLayoutManager(this,RecyclerView.VERTICAL ,false);
         scheduleRV.setLayoutManager(layoutManager);
         scheduleRV.setAdapter(RVAdapter);
 
@@ -562,5 +561,7 @@ public class schedule_main extends AppCompatActivity {
 
         rc.requestLayout();
         calendarView.requestLayout();
+
+
     }
 }
