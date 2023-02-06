@@ -224,6 +224,10 @@ public class CustomCalendar extends LinearLayout {
         mOnTouchListener = onTouchListener;
     }
 
+//    public boolean performClick(){
+//        return super.performClick();
+//    }
+
     public void setActivity(FragmentActivity activity) {
         this.activity = activity;
 
