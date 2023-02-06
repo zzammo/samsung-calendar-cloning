@@ -770,7 +770,6 @@
             android:layout_weight="1"
             app:strokeColor="@color/line_white"
             app:strokeWidth="2dp"/>
-
     </LinearLayout>
 
 </RelativeLayout>

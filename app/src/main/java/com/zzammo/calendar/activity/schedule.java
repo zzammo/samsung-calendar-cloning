@@ -890,6 +890,21 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         });
     }
 
+    private long presstime=0;
+    @Override
+    public void onBackPressed(){
+        long tempTime=System.currentTimeMillis();
+        long interval=tempTime-presstime;
+
+        if(interval>=0&&interval<=1000){
+            setResult(RESULT_CANCELED);
+            finish();
+        }else{
+            presstime=tempTime;
+            Toast.makeText(getApplicationContext(),"한번 더 누르시면 메인화면으로 돌아갑니다",Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     public void setOffClicked(int i){
         clicked[i] = false;

@@ -113,7 +113,7 @@ public class schedule_main extends AppCompatActivity {
                 }
                 preSelectedView = view;
                 preSelectedDate = mill;
-                view.setBackgroundColor(getColor(R.color.text_white));
+                view.setBackgroundResource(R.drawable.today_box);
             } else if (date.getSchedules().size() == 0) {
 //                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
@@ -380,6 +380,20 @@ public class schedule_main extends AppCompatActivity {
 
         public String makeHint(){
             return String.valueOf(month)+"월 "+String.valueOf(day)+"일에 일정 추가";
+        }
+    }
+
+    private long presstime=0;
+    @Override
+    public void onBackPressed(){
+        long tempTime=System.currentTimeMillis();
+        long interval=tempTime-presstime;
+
+        if(interval>=0&&interval<=1000){
+            finish();
+        }else{
+            presstime=tempTime;
+            Toast.makeText(getApplicationContext(),"한번 더 누르시면 앱이 종료됩니다",Toast.LENGTH_SHORT).show();
         }
     }
 }
