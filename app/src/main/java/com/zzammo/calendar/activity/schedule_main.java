@@ -48,6 +48,7 @@ import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Holiday;
+import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Metadata;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
@@ -175,7 +176,7 @@ public class schedule_main extends AppCompatActivity {
                 preSelectedView = view;
                 preSelectedDate = mill;
                 view.setBackgroundColor(getColor(R.color.text_white));
-            } else if (date.getSchedules().size() == 0) {
+            } else if (date.getSchedules().size() == 0 && date.getHolidays().size() == 0) {
 //                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
                 intent.putExtra("mode", 0);
@@ -186,7 +187,7 @@ public class schedule_main extends AppCompatActivity {
             } else {
 //                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 ScheduleDialog oDialog = new ScheduleDialog(this,
-                        Time.CalendarToMill(cal));
+                        Time.CalendarToMill(cal), date.getHolidays());
                 oDialog.show();
             }
 
@@ -459,6 +460,16 @@ public class schedule_main extends AppCompatActivity {
 
             Long dateMills = date.date;
             scheduleArrayList.clear();
+
+            ArrayList<Holiday> holi = date.getHolidays();
+            for(Holiday h : holi){
+                Long start = h.date;
+                Calendar endcalendar = Calendar.getInstance();
+                endcalendar.setTimeInMillis(start);
+                endcalendar.set(Calendar.HOUR_OF_DAY, 23); endcalendar.set(Calendar.MINUTE, 59); endcalendar.set(Calendar.SECOND, 59);
+                Long end = Time.CalendarToMill(endcalendar);
+                scheduleArrayList.add(new Schedule(h.name, true, start, end, true));
+            }
             scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
             Collections.sort(scheduleArrayList);
             RVAdapter.notifyDataSetChanged();

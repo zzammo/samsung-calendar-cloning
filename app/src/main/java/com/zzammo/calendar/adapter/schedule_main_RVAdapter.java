@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -51,6 +52,23 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
         holder.start_time_tv.setText(beginlocalTime.format(DateTimeFormatter.ofPattern("h:mm")));
         holder.time_duration_tv.setText(beginlocalTime.format(DateTimeFormatter.ofPattern("a h:mm")) + " - " + endlocalTime.format(DateTimeFormatter.ofPattern("a h:mm")));
         holder.schedule_name_tv.setText(schedule.title);
+        if(schedule.isHoliday){
+            holder.holiday_color_line_iv.setVisibility(View.VISIBLE);
+            holder.schedule_color_line_iv.setVisibility(View.GONE);
+        }
+        else{
+            holder.holiday_color_line_iv.setVisibility(View.GONE);
+            holder.schedule_color_line_iv.setVisibility(View.VISIBLE);
+        }
+        if(schedule.isAllDay) {
+            holder.start_time_tv.setVisibility(View.GONE);
+            holder.start_time_allday_iv.setVisibility(View.VISIBLE);
+            holder.time_duration_tv.setText("하루 종일");
+        }
+        else{
+            holder.start_time_tv.setVisibility(View.VISIBLE);
+            holder.start_time_allday_iv.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -60,6 +78,9 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
 
     class VH extends RecyclerView.ViewHolder{
         TextView start_time_tv;
+        ImageView start_time_allday_iv;
+        ImageView schedule_color_line_iv;
+        ImageView holiday_color_line_iv;
         TextView time_duration_tv;
         TextView schedule_name_tv;
 
@@ -68,6 +89,10 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
             start_time_tv = itemView.findViewById(R.id.start_time_title);
             time_duration_tv = itemView.findViewById(R.id.schedule_time);
             schedule_name_tv = itemView.findViewById(R.id.schedule_title);
+            start_time_allday_iv = itemView.findViewById(R.id.start_time_allday);
+            schedule_color_line_iv = itemView.findViewById(R.id.schedule_colorline);
+            holiday_color_line_iv = itemView.findViewById(R.id.holiday_colorline);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -116,7 +141,8 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
                             return false;
                         }
                     });
-                    popupMenu.show();
+                    if(!scheduleArrayList.get(getAdapterPosition()).isHoliday)
+                        popupMenu.show();
                 }
             });
         }
