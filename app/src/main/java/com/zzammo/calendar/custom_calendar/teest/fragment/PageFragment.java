@@ -16,6 +16,8 @@ import com.zzammo.calendar.custom_calendar.teest.data.PageData;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.util.Time;
 
+import java.util.Calendar;
+
 public class PageFragment extends Fragment {
 
     TextView title_tv;
@@ -25,19 +27,19 @@ public class PageFragment extends Fragment {
     GridLayoutManager layoutManager;
 
     PageData pageData;
-    CustomCalendar.OnDateClickListener listener;
+    CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
 
     public PageFragment() {
         // Required empty public constructor
     }
 
-    public PageFragment(PageData pageData, CustomCalendar.OnDateClickListener listener) {
+    public PageFragment(PageData pageData, CustomCalendar.OnDateClick listener) {
         this.pageData = pageData;
         this.listener = listener;
     }
 
-    public PageFragment(PageData pageData, CustomCalendar.OnDateClickListener listener,
+    public PageFragment(PageData pageData, CustomCalendar.OnDateClick listener,
                         int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
         this.pageData = pageData;
         this.listener = listener;
@@ -70,7 +72,9 @@ public class PageFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setNestedScrollingEnabled(false);
 
-        title_tv.setText(Time.CalendarToYM(pageData.getMonth()));
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(pageData.getMonth());
+        title_tv.setText(Time.CalendarToYM(cal));
 
         return view;
     }

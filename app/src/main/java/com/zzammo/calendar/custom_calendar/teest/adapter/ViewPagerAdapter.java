@@ -19,7 +19,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     Database DB;
 
     ArrayList<PageData> data;
-    CustomCalendar.OnDateClickListener dateClickListener;
+    CustomCalendar.OnDateClick dateClick;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean showSchedule;
 
@@ -50,23 +50,21 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         if (showSchedule){
             for (CalendarDate cd : data.get(position).getDays()){
-                if (cd.getCalendar() == null) continue;
                 if (cd.getSchedules() != null) break;
 
                 cd.setSchedules(new ArrayList<>());
-                Long begin = Time.CalendarToMill(cd.getCalendar());
+                Long begin = cd.date;
                 DB.loadAllScheduleDuring(begin, begin+Time.ONE_DAY-1, cd.getSchedules());
             }
         }
         for (CalendarDate cd : data.get(position).getDays()){
-            if (cd.getCalendar() == null) continue;
             if (cd.getHolidays() != null) break;
 
             cd.setHolidays(new ArrayList<>());
-            Long begin = Time.CalendarToMill(cd.getCalendar());
+            Long begin = cd.date;
             cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
         }
-        return new PageFragment(data.get(position), dateClickListener,
+        return new PageFragment(data.get(position), dateClick,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor);
     }
 
@@ -75,8 +73,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         return data.size();
     }
 
-    public void setDateClickListener(CustomCalendar.OnDateClickListener dateClickListener) {
-        this.dateClickListener = dateClickListener;
+    public void setDateClickListener(CustomCalendar.OnDateClick dateClick) {
+        this.dateClick = dateClick;
     }
 
     public void setSundayColor(int sundayColor) {
@@ -101,5 +99,9 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public void setShowSchedule(boolean showSchedule) {
         this.showSchedule = showSchedule;
+    }
+
+    public ArrayList<PageData> getData() {
+        return data;
     }
 }

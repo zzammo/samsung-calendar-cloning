@@ -45,13 +45,13 @@ public class TextBindingAdapter {
     public static void setDayText(TextView view, Calendar calendar) {
         try {
             if (calendar != null) {
-                GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-                view.setText(DateFormat.getDate(gregorianCalendar.getTimeInMillis(), DateFormat.DAY_FORMAT));
-                CalendarDay day = Time.CalendarToCalendarDay(calendar);
-                if(DecorateSunday(day)||IsHoliday(day))view.setTextColor(Color.RED);
-                //if(DecorateSunday(day))view.setTextColor(Color.RED);
-                else if(DecorateSaturday(day))view.setTextColor(Color.BLUE);
-                if(DecorateDay(day))view.setTextColor(Color.LTGRAY);
+//                GregorianCalendar gregorianCalendar = new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+//                view.setText(DateFormat.getDate(gregorianCalendar.getTimeInMillis(), DateFormat.DAY_FORMAT));
+//                CalendarDay day = Time.CalendarToCalendarDay(calendar);
+//                if(DecorateSunday(day)||IsHoliday(day))view.setTextColor(Color.RED);
+//                //if(DecorateSunday(day))view.setTextColor(Color.RED);
+//                else if(DecorateSaturday(day))view.setTextColor(Color.BLUE);
+//                if(DecorateDay(day))view.setTextColor(Color.LTGRAY);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,27 +66,27 @@ public class TextBindingAdapter {
     }
 
 
-    public static boolean DecorateSaturday(CalendarDay day) {
-        Long mill = Time.CalendarDayToMill(day);
-        calendar.setTimeInMillis(mill);
-        int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
-        return weekDay == Calendar.SATURDAY;
-    }
-
-    public static boolean DecorateSunday(CalendarDay day) {
-        Long mill = Time.CalendarDayToMill(day);
-        calendar.setTimeInMillis(mill);
-        int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
-        return weekDay == Calendar.SATURDAY;
-    }
-
-    public static boolean DecorateDay(CalendarDay day) {
-        return day.equals(CalendarDay.today());
-    }
-
-    public static boolean IsHoliday(CalendarDay day) {
-        return MainActivity.HolidayDates.contains(day);//해당 달꺼만 보이게 해놨음
-    }
+//    public static boolean DecorateSaturday(CalendarDay day) {
+//        Long mill = Time.CalendarDayToMill(day);
+//        calendar.setTimeInMillis(mill);
+//        int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
+//        return weekDay == Calendar.SATURDAY;
+//    }
+//
+//    public static boolean DecorateSunday(CalendarDay day) {
+//        Long mill = Time.CalendarDayToMill(day);
+//        calendar.setTimeInMillis(mill);
+//        int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
+//        return weekDay == Calendar.SATURDAY;
+//    }
+//
+//    public static boolean DecorateDay(CalendarDay day) {
+//        return day.equals(CalendarDay.today());
+//    }
+//
+//    public static boolean IsHoliday(CalendarDay day) {
+//        return MainActivity.HolidayDates.contains(day);//해당 달꺼만 보이게 해놨음
+//    }
     /*public MySelectorDecorator(Activity context) {
         drawable=context.getResources().getDrawable(R.drawable.my_selector);
     }

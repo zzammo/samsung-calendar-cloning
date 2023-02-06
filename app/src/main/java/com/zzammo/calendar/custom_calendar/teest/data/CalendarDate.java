@@ -4,27 +4,19 @@ import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Schedule;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class CalendarDate {
-    public Calendar calendar;
+    public Long date;
     public ArrayList<Schedule> schedules;
     public ArrayList<Holiday> holidays;
+    public boolean thisMonth;
 
     public CalendarDate() {
     }
 
-    public CalendarDate(Calendar calendar) {
-        this.calendar = calendar;
-    }
-
-    public CalendarDate(Calendar calendar, ArrayList<Schedule> schedules) {
-        this.calendar = calendar;
-        this.schedules = schedules;
-    }
-
-    public Calendar getCalendar() {
-        return calendar;
+    public CalendarDate(Long date, boolean thisMonth) {
+        this.date = date;
+        this.thisMonth = thisMonth;
     }
 
     public ArrayList<Schedule> getSchedules() {
@@ -33,10 +25,6 @@ public class CalendarDate {
 
     public ArrayList<Holiday> getHolidays() {
         return holidays;
-    }
-
-    public void setCalendar(Calendar calendar) {
-        this.calendar = calendar;
     }
 
     public void setSchedules(ArrayList<Schedule> schedules) {
