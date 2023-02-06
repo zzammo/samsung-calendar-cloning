@@ -138,6 +138,7 @@ public class schedule_main extends AppCompatActivity {
 
 
 
+
         edit_=findViewById(R.id.edit_);
 
         dateChanged = new DateChanged();
@@ -232,7 +233,7 @@ public class schedule_main extends AppCompatActivity {
                         public void ifFail(Object result) {}
                     });
                     edit_.setText("");
-                    add_schedule.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                    add_schedule.setImageResource(R.drawable.add_circle_svgrepo_com);
                     flag=0;
                     edit_.clearFocus();
                     drawerLayout.requestFocus();
@@ -253,7 +254,7 @@ public class schedule_main extends AppCompatActivity {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 edit_.setText("");
-                add_schedule.setImageResource(R.drawable.ic_baseline_add_circle_24);
+                add_schedule.setImageResource(R.drawable.add_circle_svgrepo_com);
                 flag=0;
                 edit_.clearFocus();
                 drawerLayout.requestFocus();
