@@ -3,23 +3,32 @@ package com.zzammo.calendar.custom_calendar.teest.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.adapter.ViewPagerAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.data.PageData;
+import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
+import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
 public class CustomCalendar extends LinearLayout {
+
+    public static int DAY_SIZE = 42;
 
     public interface OnDateClickListener{
         void dateClickListener(View view, CalendarDate date);
@@ -29,6 +38,30 @@ public class CustomCalendar extends LinearLayout {
     }
     public interface OnDateChangedListener{
         void dateChangedListener(CalendarDate date);
+    }
+    public interface OnMonthChangedListener{
+        void monthChangedListener(Long firstDate);
+    }
+
+    public class OnDateClick{
+        OnDateClickListener dateClickListener;
+        OnDateChangedListener dateChangedListener;
+
+        public void dateClick(View view, CalendarDate date){
+            if (dateChangedListener != null)
+                dateChangedListener.dateChangedListener(date);
+            selectedDate = date.date;
+            if (dateClickListener != null)
+                dateClickListener.dateClickListener(view, date);
+        }
+
+        public void setDateClickListener(OnDateClickListener dateClickListener) {
+            this.dateClickListener = dateClickListener;
+        }
+
+        public void setDateChangedListener(OnDateChangedListener dateChangedListener) {
+            this.dateChangedListener = dateChangedListener;
+        }
     }
 
 
@@ -53,8 +86,9 @@ public class CustomCalendar extends LinearLayout {
     boolean showSchedule;
     int pageCount;
 
-    OnDateClickListener dateClickListener;
-    OnDateChangedListener dateChangedListener;
+    OnDateClick dateClick;
+    OnMonthChangedListener monthChangedListener;
+
     private OnTouchListener mOnTouchListener;
 
     public CustomCalendar(Context context) {
@@ -77,6 +111,7 @@ public class CustomCalendar extends LinearLayout {
 
         background = findViewById(R.id.custom_calendar_background);
         viewPager = findViewById(R.id.custom_calendar_viewpager);
+        dateClick = new OnDateClick();
     }
 
     private void setTypeArray(TypedArray typedArray) {
@@ -97,29 +132,33 @@ public class CustomCalendar extends LinearLayout {
         typedArray.recycle();
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int mode = MeasureSpec.getMode(heightMeasureSpec);
-        if (mode == MeasureSpec.UNSPECIFIED || mode == MeasureSpec.AT_MOST) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            int height = 0;
-            for (int i = 0; i < getChildCount(); i++) {
-                View child = getChildAt(i);
-                child.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-                int h = child.getMeasuredHeight();
-                if (h > height) height = h;
-            }
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-        }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
+//    @Override
+//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//        int mode = MeasureSpec.getMode(heightMeasureSpec);
+//        if (mode == MeasureSpec.UNSPECIFIED || mode == MeasureSpec.AT_MOST) {
+//            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//            int height = 0;
+//            for (int i = 0; i < getChildCount(); i++) {
+//                View child = getChildAt(i);
+//                child.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+//                int h = child.getMeasuredHeight();
+//                if (h > height) height = h;
+//            }
+//            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+//        }
+//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//    }
 
     public void setOnDateClickListener(OnDateClickListener listener) {
-        this.dateClickListener = listener;
+        dateClick.setDateClickListener(listener);
     }
 
     public void setOnDateChangedListener(OnDateChangedListener dateChangedListener) {
-        this.dateChangedListener = dateChangedListener;
+        dateClick.setDateChangedListener(dateChangedListener);
+    }
+
+    public void setMonthChangedListener(OnMonthChangedListener monthChangedListener) {
+        this.monthChangedListener = monthChangedListener;
     }
 
     public ViewPager2 getViewPager() {
@@ -158,6 +197,19 @@ public class CustomCalendar extends LinearLayout {
         this.pageCount = pageCount;
     }
 
+    public Long getSelectedDate() {
+        return selectedDate;
+    }
+
+    public Long getCurrentDate(){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (mOnTouchListener != null) {
@@ -185,10 +237,9 @@ public class CustomCalendar extends LinearLayout {
         viewPagerAdapter = new ViewPagerAdapter(activity, data,
                 showSchedule,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor);
-        viewPagerAdapter.setDateClickListener(dateClickListener);
+        viewPagerAdapter.setDateClickListener(dateClick);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
-
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -196,6 +247,12 @@ public class CustomCalendar extends LinearLayout {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
                 if (positionOffsetPixels == 0) {
                     viewPager.setCurrentItem(position);
+                    //invalidatePage(activity.getSupportFragmentManager());
+                    if (monthChangedListener != null) {
+                        monthChangedListener.monthChangedListener(
+                                ((ViewPagerAdapter) viewPager.getAdapter()).getData().
+                                        get(position).getMonth());
+                    }
                 }
             }
 
@@ -211,30 +268,57 @@ public class CustomCalendar extends LinearLayout {
         requestLayout();
     }
 
+    public void invalidatePage(FragmentManager fm){
+        PageFragment pf = (PageFragment) fm.
+                findFragmentByTag("f"+viewPager.getCurrentItem());
+        Log.d("??", "f"+viewPager.getCurrentItem()+" "+((PageRVAdapter) pf.getRecyclerView().getAdapter()).getItemCount());
+        if (pf == null) {
+            Log.d("??", "pf is null");
+            return;
+        }
+        RecyclerView rv = pf.getRecyclerView();
+        PageRVAdapter rva = (PageRVAdapter) rv.getAdapter();
+        GridLayoutManager lm = (GridLayoutManager) rv.getLayoutManager();
+        rv.setAdapter(null);
+        rv.setLayoutManager(null);
+        rv.setAdapter(rva);
+        rv.setLayoutManager(lm);
+        rva.notifyDataSetChanged();
+    }
+
     void setData(){
         Calendar cal = Calendar.getInstance();
+        Time.setZero(cal);
+
+        int nowYear = cal.get(Calendar.YEAR);
+        int nowMonth = cal.get(Calendar.MONTH);
 
         for (int i = -pageCount; i < pageCount; i++) {
             try {
                 PageData page = new PageData();
                 ArrayList<CalendarDate> days = new ArrayList<>();
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + i, 1, 0, 0, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-                page.setMonth(calendar);
+                cal.set(nowYear, nowMonth + i, 1);
+                page.setMonth(cal.getTimeInMillis());
 
-                int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1; //해당 월에 시작하는 요일 -1 을 하면 빈칸을 구할 수 있겠죠 ?
-                int max = calendar.getActualMaximum(Calendar.DAY_OF_MONTH); // 해당 월에 마지막 요일
+                int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1; //해당 월에 시작하는 요일 -1 을 하면 빈칸을 구할 수 있겠죠 ?
+                int max = cal.getActualMaximum(Calendar.DAY_OF_MONTH); // 해당 월에 마지막 요일
 
+                cal.add(Calendar.DATE, -dayOfWeek);
                 for (int j = 0; j < dayOfWeek; j++) {
-                    days.add(new CalendarDate());
+                    Long time = cal.getTimeInMillis();
+                    days.add(new CalendarDate(time, false));
+                    cal.add(Calendar.DATE, 1);
                 }
                 for (int j = 1; j <= max; j++) {
-                    Calendar day = Calendar.getInstance();
-                    day.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + i, j, 0, 0, 0);
-                    day.set(Calendar.MILLISECOND, 0);
-                    days.add(new CalendarDate(day));
+                    Long time = cal.getTimeInMillis();
+                    days.add(new CalendarDate(time, true));
+                    cal.add(Calendar.DATE, 1);
+                }
+                while(days.size() < DAY_SIZE){
+                    Long time = cal.getTimeInMillis();
+                    days.add(new CalendarDate(time, false));
+                    cal.add(Calendar.DATE, 1);
                 }
 
                 page.setDays(days);

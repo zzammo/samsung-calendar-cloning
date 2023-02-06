@@ -2,6 +2,7 @@ package com.zzammo.calendar.activity;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,7 +27,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -34,19 +37,29 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
+import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Holiday;
+import com.zzammo.calendar.database.Holiday;
+import com.zzammo.calendar.database.Metadata;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.dialog.ScheduleDialog;
+import com.zzammo.calendar.holiday.HolidayApiExplorer;
 import com.zzammo.calendar.lunar.LunarCalendar;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 import com.zzammo.calendar.weather.WeatherApiExplorer;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -57,8 +70,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class schedule_main extends AppCompatActivity {
+
+    public static ArrayList<Long> HolidayDates;
+    public static ArrayList<String> HolidayNames;
 
     ImageView add_schedule;
     Context context;
@@ -99,6 +116,8 @@ public class schedule_main extends AppCompatActivity {
         setContentView(R.layout.schedule_main);
         context = this;
         weather = new HashMap<>();
+        HolidayNames = new ArrayList<>();
+        HolidayDates = new ArrayList<>();
 
         year = Calendar.getInstance().get(Calendar.YEAR);
         month = Calendar.getInstance().get(Calendar.MONTH)+1;
@@ -138,17 +157,17 @@ public class schedule_main extends AppCompatActivity {
 
 
 
-
         edit_=findViewById(R.id.edit_);
 
         dateChanged = new DateChanged();
         calendarView.setOnDateClickListener((view, date) -> {
-            Calendar cal = date.getCalendar();
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(date.date);
             Long mill = cal.getTimeInMillis();
 
-            year = date.calendar.get(Calendar.YEAR);
-            month = date.calendar.get(Calendar.MONTH)+1;
-            day = date.calendar.get(Calendar.DATE);
+            year = cal.get(Calendar.YEAR);
+            month = cal.get(Calendar.MONTH)+1;
+            day = cal.get(Calendar.DATE);
 
             if (preSelectedDate == null || !preSelectedDate.equals(mill)) {
                 if (preSelectedView != null){
@@ -157,7 +176,7 @@ public class schedule_main extends AppCompatActivity {
                 preSelectedView = view;
                 preSelectedDate = mill;
                 view.setBackgroundResource(R.drawable.today_box);
-            } else if (date.getSchedules().size() == 0) {
+            } else if (date.getSchedules().size() == 0 && date.getHolidays().size() == 0) {
 //                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 Intent intent = new Intent(getApplicationContext(), schedule.class);
                 intent.putExtra("mode", 0);
@@ -168,13 +187,14 @@ public class schedule_main extends AppCompatActivity {
             } else {
 //                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
                 ScheduleDialog oDialog = new ScheduleDialog(this,
-                        Time.CalendarToMill(cal));
+                        Time.CalendarToMill(cal), date.getHolidays());
                 oDialog.show();
             }
 
             dateChanged.dateChangedListener(date);
         });
         calendarView.setOnDateChangedListener(dateChanged);
+        calendarView.setMonthChangedListener(onMonthChangedListener);
         calendarView.setActivity(this);
 
         getSupportActionBar().setElevation(0); // appbar shadow remove
@@ -564,19 +584,5 @@ public class schedule_main extends AppCompatActivity {
         calendarView.requestLayout();
 
 
-    }
-
-    private long presstime=0;
-    @Override
-    public void onBackPressed(){
-        long tempTime=System.currentTimeMillis();
-        long interval=tempTime-presstime;
-
-        if(interval>=0&&interval<=1000){
-            finish();
-        }else{
-            presstime=tempTime;
-            Toast.makeText(getApplicationContext(),"한번 더 누르시면 앱이 종료됩니다",Toast.LENGTH_SHORT).show();
-        }
     }
 }

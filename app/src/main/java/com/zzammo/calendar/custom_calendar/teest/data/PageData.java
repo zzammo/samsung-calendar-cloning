@@ -1,21 +1,20 @@
 package com.zzammo.calendar.custom_calendar.teest.data;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class PageData {
-    Calendar month;
+    Long month;
     ArrayList<CalendarDate> days;
 
     public PageData() {
     }
 
-    public PageData(Calendar month, ArrayList<CalendarDate> days) {
+    public PageData(Long month, ArrayList<CalendarDate> days) {
         this.month = month;
         this.days = days;
     }
 
-    public Calendar getMonth() {
+    public Long getMonth() {
         return month;
     }
 
@@ -23,7 +22,7 @@ public class PageData {
         return days;
     }
 
-    public void setMonth(Calendar month) {
+    public void setMonth(Long month) {
         this.month = month;
     }
 

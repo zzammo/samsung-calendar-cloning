@@ -34,11 +34,11 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     ArrayList<View> viewHolders;
 
     ArrayList<CalendarDate> data;
-    CustomCalendar.OnDateClickListener listener;
+    CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
 
     public PageRVAdapter(LifecycleOwner lifecycleOwner, Context context, ArrayList<CalendarDate> data,
-                         CustomCalendar.OnDateClickListener listener,
+                         CustomCalendar.OnDateClick listener,
                          int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
         this.lifecycleOwner = lifecycleOwner;
         this.context = context;
@@ -86,16 +86,13 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         CalendarDate day = data.get(position);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(day.date);
 
-        if (day.getCalendar() == null){
-            holder.day_tv.setVisibility(View.INVISIBLE);
-            return;
-        }
+        if (!day.thisMonth)
+            holder.day_tv.setAlpha(0.3f);
 
-        holder.day_tv.setText(String.valueOf(day.getCalendar().get(Calendar.DATE)));
-
-//        PageDateItemBinding binding = DataBindingUtil.getBinding(holder.itemView);
-//        viewHolderBindings.add(binding);
+        holder.day_tv.setText(String.valueOf(cal.get(Calendar.DATE)));
 
         setColor(holder, day);
 
@@ -103,19 +100,21 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     }
 
     void setColor(VH holder, CalendarDate day){
-        Calendar dayCal = day.getCalendar();
+        Calendar dayCal = Calendar.getInstance();
+        dayCal.setTimeInMillis(day.date);
         int color;
 
         Calendar today = Calendar.getInstance();
         today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE), 0, 0, 0);
+        today.set(Calendar.MILLISECOND, 0);
         if (dayCal.compareTo(today) == 0)
             color = todayColor;
+        else if (day.getHolidays().size() > 0)
+            color = holidayColor;
         else if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
             color = sundayColor;
         else if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
             color = saturdayColor;
-        else if (day.getHolidays().size() > 0)
-            color = holidayColor;
         else
             color = basicColor;
 
@@ -164,9 +163,10 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
             itemView.setOnClickListener(v -> {
                 if (listener == null) return;
-                CalendarDate calendarDate = data.get(getAdapterPosition());
-                if (calendarDate.getCalendar() == null) return;
-                listener.dateClickListener(v, calendarDate);
+                int p = getAdapterPosition();
+                if (p == RecyclerView.NO_POSITION) return;
+                CalendarDate calendarDate = data.get(p);
+                listener.dateClick(v, calendarDate);
             });
         }
     }

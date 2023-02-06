@@ -94,7 +94,8 @@ public class ViewPagerActivity extends AppCompatActivity {
         });
 
         calendar.setOnDateClickListener((view, date) -> {
-            Calendar cal = date.getCalendar();
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(date.date);
 
             if (cal == null) return;
 
