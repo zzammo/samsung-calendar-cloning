@@ -207,6 +207,14 @@ public class Schedule implements Comparable {
         return means;
     }
 
+    public void setKey(int key) {
+        this.key = key;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
+
     @Override
     public int compareTo(Object o) {
         return this.begin_ms.compareTo(((Schedule)o).begin_ms);

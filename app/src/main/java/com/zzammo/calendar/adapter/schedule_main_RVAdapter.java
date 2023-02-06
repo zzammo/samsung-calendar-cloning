@@ -83,6 +83,8 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
                                     //수정하는 코드 추가 예정
                                     Intent it = new Intent(context, schedule.class);
                                     it.putExtra("mode", 1);
+                                    it.putExtra("scheduleKey", currSchedule.key);
+                                    it.putExtra("scheduleServerId", currSchedule.serverId);
                                     it.putExtra("title", currSchedule.title);
                                     it.putExtra("isAllday", currSchedule.isAllDay);
                                     it.putExtra("departAlarm", currSchedule.departAlarm);
