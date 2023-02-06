@@ -4,18 +4,17 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Xml;
 
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.util.Time;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class HolidayApiExplorer {

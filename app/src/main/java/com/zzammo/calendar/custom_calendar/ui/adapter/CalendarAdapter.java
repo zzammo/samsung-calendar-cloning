@@ -5,6 +5,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import com.google.gson.Gson;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.custom_calendar.ui.viewmodel.CalendarHeaderViewModel;
@@ -19,12 +27,6 @@ import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 
 public class CalendarAdapter extends ListAdapter<Object, RecyclerView.ViewHolder> {

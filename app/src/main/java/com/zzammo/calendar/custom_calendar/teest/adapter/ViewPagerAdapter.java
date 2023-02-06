@@ -1,7 +1,5 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -12,12 +10,9 @@ import com.zzammo.calendar.custom_calendar.teest.data.PageData;
 import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
-import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 

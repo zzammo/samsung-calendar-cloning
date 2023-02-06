@@ -31,7 +31,6 @@
             android:id="@+id/activity_view_pager_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/black"
             app:layout_constraintTop_toBottomOf="@id/activity_view_pager_customCalendar"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>

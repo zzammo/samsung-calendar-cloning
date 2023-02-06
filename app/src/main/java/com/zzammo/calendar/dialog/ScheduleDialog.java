@@ -3,26 +3,18 @@ package com.zzammo.calendar.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.R;
-import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
-import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;

@@ -1,26 +1,20 @@
 package com.zzammo.calendar.custom_calendar.teest.fragment;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ibm.icu.util.Calendar;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
-import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.data.PageData;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.util.Time;
-
-import java.util.ArrayList;
 
 public class PageFragment extends Fragment {
 
@@ -74,6 +68,7 @@ public class PageFragment extends Fragment {
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setNestedScrollingEnabled(false);
 
         title_tv.setText(Time.CalendarToYM(pageData.getMonth()));
 

@@ -9,8 +9,6 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 
-import java.util.Date;
-
 public class TodayDecorator implements DayViewDecorator{
     private CalendarDay date;
 

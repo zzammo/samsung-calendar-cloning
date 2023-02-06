@@ -7,7 +7,6 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.zzammo.calendar.database.Holiday;
-import com.zzammo.calendar.database.Schedule;
 
 @Database(entities = {Holiday.class}, version = 1)
 public abstract class HolidayDatabase extends RoomDatabase {
