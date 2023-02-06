@@ -71,6 +71,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class schedule_main extends AppCompatActivity {
 
@@ -105,9 +106,7 @@ public class schedule_main extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
 
-    View preSelectedView;
-    Long preSelectedDate;
-    DateChanged dateChanged;
+    CustomCalendar.OnMonthChangedListener monthChangedListener;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -159,43 +158,21 @@ public class schedule_main extends AppCompatActivity {
 
         edit_=findViewById(R.id.edit_);
 
-        dateChanged = new DateChanged();
-        calendarView.setOnDateClickListener((view, date) -> {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(date.date);
-            Long mill = cal.getTimeInMillis();
-
-            year = cal.get(Calendar.YEAR);
-            month = cal.get(Calendar.MONTH)+1;
-            day = cal.get(Calendar.DATE);
-
-            if (preSelectedDate == null || !preSelectedDate.equals(mill)) {
-                if (preSelectedView != null){
-                    preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
-                }
-                preSelectedView = view;
-                preSelectedDate = mill;
-                view.setBackgroundResource(R.drawable.today_box);
-            } else if (date.getSchedules().size() == 0 && date.getHolidays().size() == 0) {
-//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
-                Intent intent = new Intent(getApplicationContext(), schedule.class);
-                intent.putExtra("mode", 0);
-                intent.putExtra("year",year);
-                intent.putExtra("month",month);
-                intent.putExtra("day",day);
-                startActivityForResult(intent,78);
-            } else {
-//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
-                ScheduleDialog oDialog = new ScheduleDialog(this,
-                        Time.CalendarToMill(cal), date.getHolidays());
-                oDialog.show();
-            }
-
-            dateChanged.dateChangedListener(date);
-        });
-        calendarView.setOnDateChangedListener(dateChanged);
-        calendarView.setMonthChangedListener(onMonthChangedListener);
+        monthChangedListener = new MonthChanged();
+        calendarView.setOnDateClickListener(new DateClicked());
+        calendarView.setOnDateChangedListener(new DateChanged());
+        calendarView.setMonthChangedListener(monthChangedListener);
         calendarView.setActivity(this);
+
+//        PageFragment pf = (PageFragment) getSupportFragmentManager().
+//                findFragmentByTag("f"+calendarView.getViewPager().getCurrentItem());
+//        RecyclerView rv = pf.getRecyclerView();
+//        rv.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                return true;
+//            }
+//        });
 
         getSupportActionBar().setElevation(0); // appbar shadow remove
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 툴바 홈버튼 활성화
@@ -440,8 +417,42 @@ public class schedule_main extends AppCompatActivity {
 
         @Override
         public void dateChangedListener(CalendarDate date) {
+            calendarView.getSelectedView().setBackgroundResource(0);
+            Log.d("Dirtfy", "date changed");
+
+            if (!Objects.equals(calendarView.getSelectedDate(), date.date)) return;
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(date.date);
+
+            year = cal.get(Calendar.YEAR);
+            month = cal.get(Calendar.MONTH)+1;
+            day = cal.get(Calendar.DATE);
+
+            if (date.getSchedules().size() == 0 && date.getHolidays().size() == 0) {
+//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
+                Intent intent = new Intent(getApplicationContext(), schedule.class);
+                intent.putExtra("mode", 0);
+                intent.putExtra("year",year);
+                intent.putExtra("month",month);
+                intent.putExtra("day",day);
+                startActivityForResult(intent,78);
+            } else {
+//                preSelectedView.setBackgroundColor(getColor(R.color.bg_white));
+                ScheduleDialog oDialog = new ScheduleDialog(context,
+                        Time.CalendarToMill(cal), date.getHolidays());
+                oDialog.show();
+            }
+        }
+    }
+    class DateClicked implements CustomCalendar.OnDateClickListener{
+        @Override
+        public void dateClickListener(View view, CalendarDate date) {
             //            String str_date = date.toString().substring(12,date.toString().length() - 1);
 //            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
+            view.setBackgroundResource(R.drawable.today_box);
+            Log.d("Dirtfy", "date clicked");
+
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(date.date);
             Long mill = cal.getTimeInMillis();
@@ -588,7 +599,7 @@ public class schedule_main extends AppCompatActivity {
 
     }
 
-    public CustomCalendar.OnMonthChangedListener onMonthChangedListener = new CustomCalendar.OnMonthChangedListener() {
+    class MonthChanged implements CustomCalendar.OnMonthChangedListener{
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void monthChangedListener(Long firstDate) {
@@ -679,7 +690,7 @@ public class schedule_main extends AppCompatActivity {
 //            Log.d("Dirtfy", "HolidayDates : " + HolidayDates.toString());
 //            Log.d("Dirtfy", "HolidayNames : "  + HolidayNames.toString());
         }
-    };
+    }
 
     void GetHoliday(int year, AfterTask afterTask) {
         new Thread(new Runnable() {
@@ -696,7 +707,7 @@ public class schedule_main extends AppCompatActivity {
                         @Override
                         public void run() {
                             Log.d("??", "??");
-                            calendarView.invalidatePage(getSupportFragmentManager());
+                            //calendarView.invalidatePage(getSupportFragmentManager());
                         }
                     });
                     //2023년 1월의 국경일, 공휴일 정보 불러옴. Month로 0이하의 값을 주면 2023년 전체를 불러옴.
@@ -801,11 +812,12 @@ public class schedule_main extends AppCompatActivity {
         Log.d("minseok", "resume_");
         super.onResume();
         Long date = calendarView.getSelectedDate();
-        onMonthChangedListener.monthChangedListener(calendarView.getCurrentDate());
+        monthChangedListener.monthChangedListener(calendarView.getCurrentDate());
         if (date == null) return;
         scheduleArrayList.clear();
         scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(date, date + Time.ONE_DAY-1)));
         Collections.sort(scheduleArrayList);
         RVAdapter.notifyDataSetChanged();
+
     }
 }

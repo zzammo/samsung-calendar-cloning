@@ -1,6 +1,7 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,9 @@ import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.databinding.PageDateItemBinding;
+import com.zzammo.calendar.util.Time;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -31,15 +34,17 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
     public MutableLiveData<Integer> viewHolderHeight;
     ArrayList<PageDateItemBinding> viewHolderBindings;
-    ArrayList<View> viewHolders;
+    View[] viewHolders;
 
     ArrayList<CalendarDate> data;
     CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
+    boolean setBackGroundToday;
 
     public PageRVAdapter(LifecycleOwner lifecycleOwner, Context context, ArrayList<CalendarDate> data,
                          CustomCalendar.OnDateClick listener,
-                         int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
+                         int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
+                         boolean setBackGroundToday) {
         this.lifecycleOwner = lifecycleOwner;
         this.context = context;
         this.data = data;
@@ -49,10 +54,11 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         this.holidayColor = holidayColor;
         this.todayColor = todayColor;
         this.basicColor = basicColor;
+        this.setBackGroundToday = setBackGroundToday;
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();
-        viewHolders = new ArrayList<>();
+        viewHolders = new View[CustomCalendar.DAY_SIZE];
         viewHolderHeight.observe(lifecycleOwner, integer -> {
 //            if (viewHolderBindings == null) return;
 //            if (viewHolderHeight == null) return;
@@ -77,7 +83,6 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams) view.getLayoutParams();
         lp.height = parent.getMeasuredHeight() / 6;
         view.setLayoutParams(lp);
-        viewHolders.add(view);
 //        view.setLayoutParams(lp);
 //        ((PageDateItemBinding) DataBindingUtil.bind(view)).setHeight(lp.height);
         return new PageRVAdapter.VH(view);
@@ -88,6 +93,8 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         CalendarDate day = data.get(position);
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(day.date);
+
+        viewHolders[position] = holder.itemView;
 
         if (!day.thisMonth)
             holder.day_tv.setAlpha(0.3f);
@@ -105,10 +112,15 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         int color;
 
         Calendar today = Calendar.getInstance();
-        today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE), 0, 0, 0);
-        today.set(Calendar.MILLISECOND, 0);
+        today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE));
+        Time.setZero(today);
         if (dayCal.compareTo(today) == 0) {
             color = todayColor;
+            if (setBackGroundToday) {
+                holder.itemView.setBackgroundResource(R.drawable.today_box);
+                setBackGroundToday = false;
+                Log.d("Dirtfy", "RVA");
+            }
         }
         else if (day.getHolidays().size() > 0)
             color = holidayColor;
@@ -145,6 +157,10 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         return data.size();
     }
 
+    public View getViewHolder(int index) {
+        return viewHolders[index];
+    }
+
     class VH extends RecyclerView.ViewHolder{
 
         TextView day_tv;
@@ -168,6 +184,13 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
                 if (p == RecyclerView.NO_POSITION) return;
                 CalendarDate calendarDate = data.get(p);
                 listener.dateClick(v, calendarDate);
+            });
+            day_tv.setOnClickListener(v -> {
+                if (listener == null) return;
+                int p = getAdapterPosition();
+                if (p == RecyclerView.NO_POSITION) return;
+                CalendarDate calendarDate = data.get(p);
+                listener.dateClick(itemView, calendarDate);
             });
         }
     }

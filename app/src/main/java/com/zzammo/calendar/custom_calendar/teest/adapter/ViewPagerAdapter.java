@@ -1,5 +1,7 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -22,6 +24,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     CustomCalendar.OnDateClick dateClick;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean showSchedule;
+    boolean setBackgroundToday;
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data) {
         super(fragmentActivity);
@@ -32,7 +35,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data,
                             boolean showSchedule,
-                            int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
+                            int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
+                            boolean setBackgroundToday) {
         super(fragmentActivity);
         this.data = data;
         this.showSchedule = showSchedule;
@@ -41,6 +45,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         this.holidayColor = holidayColor;
         this.todayColor = todayColor;
         this.basicColor = basicColor;
+        this.setBackgroundToday = setBackgroundToday;
 
         DB = new Database(fragmentActivity.getApplicationContext());
     }
@@ -64,8 +69,15 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
             Long begin = cd.date;
             cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
         }
+
+        boolean bf = setBackgroundToday && (position == data.size()/2);
+        if (bf) {
+            setBackgroundToday = false;
+            Log.d("Dirtfy", position+" : bf");
+        }
+
         return new PageFragment(data.get(position), dateClick,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, bf);
     }
 
     @Override

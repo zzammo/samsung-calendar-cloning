@@ -28,7 +28,13 @@ import java.util.Calendar;
 
 public class CustomCalendar extends LinearLayout {
 
-    public static int DAY_SIZE = 42;
+    final static int MONTH_SCHEDULE = 1;
+    final static int MONTH = 2;
+    final static int WEEK = 3;
+
+    public final static int DAY_SIZE = 42;
+
+    public static boolean IS_FIRST;
 
     public interface OnDateClickListener{
         void dateClickListener(View view, CalendarDate date);
@@ -50,7 +56,10 @@ public class CustomCalendar extends LinearLayout {
         public void dateClick(View view, CalendarDate date){
             if (dateChangedListener != null)
                 dateChangedListener.dateChangedListener(date);
+
             selectedDate = date.date;
+            selectedView = getSelectedView();
+
             if (dateClickListener != null)
                 dateClickListener.dateClickListener(view, date);
         }
@@ -64,11 +73,6 @@ public class CustomCalendar extends LinearLayout {
         }
     }
 
-
-    final static int MONTH_SCHEDULE = 1;
-    final static int MONTH = 2;
-    final static int WEEK = 3;
-
     LinearLayout background;
     ViewPager2 viewPager;
     ViewPagerAdapter viewPagerAdapter;
@@ -76,6 +80,7 @@ public class CustomCalendar extends LinearLayout {
     FragmentActivity activity;
     ArrayList<PageData> data;
     Long selectedDate;
+    View selectedView;
 
     int viewMode;
     int sundayColor;
@@ -112,6 +117,7 @@ public class CustomCalendar extends LinearLayout {
         background = findViewById(R.id.custom_calendar_background);
         viewPager = findViewById(R.id.custom_calendar_viewpager);
         dateClick = new OnDateClick();
+        IS_FIRST = true;
     }
 
     private void setTypeArray(TypedArray typedArray) {
@@ -210,6 +216,30 @@ public class CustomCalendar extends LinearLayout {
         return cal.getTimeInMillis();
     }
 
+    public View getSelectedView(){
+        if (selectedDate == null) return null;
+        Calendar cal = Calendar.getInstance();
+        Time.setZero(cal);
+
+        cal.set(Calendar.DATE, 1);
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
+
+        cal.setTimeInMillis(selectedDate);
+        int realIndex = dayOfWeek + cal.get(Calendar.DATE) - 1;
+
+        Log.d("Dirtfy", realIndex+"getSelectedView");
+
+        PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
+                findFragmentByTag("f"+viewPager.getCurrentItem());
+        if (pf == null) return null;
+
+        RecyclerView rv = pf.getRecyclerView();
+        PageRVAdapter rva = (PageRVAdapter) rv.getAdapter();
+        if (rva == null) return null;
+
+        return rva.getViewHolder(realIndex);
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (mOnTouchListener != null) {
@@ -236,7 +266,8 @@ public class CustomCalendar extends LinearLayout {
 
         viewPagerAdapter = new ViewPagerAdapter(activity, data,
                 showSchedule,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor,
+                true);
         viewPagerAdapter.setDateClickListener(dateClick);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
@@ -263,6 +294,10 @@ public class CustomCalendar extends LinearLayout {
         });
 
         viewPager.setCurrentItem(pageCount, false);
+
+        Calendar cal = Calendar.getInstance();
+        Time.setZero(cal);
+        selectedDate = cal.getTimeInMillis();
 
         invalidate();
         requestLayout();

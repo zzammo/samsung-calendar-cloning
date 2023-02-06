@@ -1,7 +1,9 @@
 package com.zzammo.calendar.custom_calendar.teest.fragment;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ public class PageFragment extends Fragment {
     PageData pageData;
     CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
+    boolean setBackgroundToday;
 
     public PageFragment() {
         // Required empty public constructor
@@ -40,7 +43,8 @@ public class PageFragment extends Fragment {
     }
 
     public PageFragment(PageData pageData, CustomCalendar.OnDateClick listener,
-                        int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor) {
+                        int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
+                        boolean setBackgroundToday) {
         this.pageData = pageData;
         this.listener = listener;
         this.sundayColor = sundayColor;
@@ -48,6 +52,7 @@ public class PageFragment extends Fragment {
         this.holidayColor = holidayColor;
         this.todayColor = todayColor;
         this.basicColor = basicColor;
+        this.setBackgroundToday = setBackgroundToday;
     }
 
     @Override
@@ -65,12 +70,23 @@ public class PageFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.fragment_page_recyclerView);
         adapter = new PageRVAdapter(getActivity(), getContext(), pageData.getDays(), listener,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, setBackgroundToday);
         layoutManager = new GridLayoutManager(getContext(), 7);
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 7){
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+
+            @Override
+            public boolean canScrollHorizontally() {
+                return false;
+            }
+        });
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(pageData.getMonth());
