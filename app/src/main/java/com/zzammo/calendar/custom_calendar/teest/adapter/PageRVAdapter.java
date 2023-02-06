@@ -107,8 +107,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         Calendar today = Calendar.getInstance();
         today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE), 0, 0, 0);
         today.set(Calendar.MILLISECOND, 0);
-        if (dayCal.compareTo(today) == 0)
+        if (dayCal.compareTo(today) == 0) {
             color = todayColor;
+        }
         else if (day.getHolidays().size() > 0)
             color = holidayColor;
         else if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
