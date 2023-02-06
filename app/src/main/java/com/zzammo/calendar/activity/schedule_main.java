@@ -286,6 +286,7 @@ public class schedule_main extends AppCompatActivity {
                 scheduleRV.performClick();
                 if(mode==0||mode==1) {
 
+                    //df
                     moveview(event);
                     return true;
                 }
