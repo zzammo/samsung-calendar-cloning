@@ -152,6 +152,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     private int need_minute;
     private int need_second;
 
+    // 모드 : 0 - 일정 추가, 1 - 일정 편집
+    private int mode;
+    private int scheduleKey;
+    private String scheduleServerId;
 
     // 출발 예정 시각 : 년 월 일 시간 분
     private int pre_start_year;
@@ -237,6 +241,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         getSupportActionBar().hide();
 
         Intent intent=getIntent();
+        mode = intent.getIntExtra("mode", 0);
         start_year=intent.getIntExtra("year",2000);
         start_month=intent.getIntExtra("month",1);
         start_day=intent.getIntExtra("day",1);
@@ -350,8 +355,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         end_date_textview.setText(getDateText(end_month,end_day,start_week));
         start_time_textview.setText(getTimeText(start_hour,start_minute));
         end_time_textview.setText(getTimeText(end_hour,end_minute));
-
-
 
         /// 일정 시간 설정 start
         start_time_textview.setOnClickListener(new View.OnClickListener() {
@@ -642,6 +645,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 checkbox_custom.setText(getCustomText(customVal,customIndex));
                 numpicker_layout.setVisibility(View.VISIBLE);
                 custom_alram_btn.setClickable(false);
+                customChecked=true;
             }
         });
 
@@ -749,44 +753,6 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             }
         });
 
-        // 메모
-
-        memo.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                memo.setFocusable(false);
-            }
-        });
-
-        // 제목
-
-        title.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                title.setFocusable(false);
-            }
-        });
-
-
         // webview 불러오기
         src_address =  findViewById(R.id.src_address);
         dst_address =  findViewById(R.id.dst_address);
@@ -871,7 +837,12 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     else{
                         newschedule = new Schedule(title.getText() + "", false, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end),alarm,memo.getText()+"");
                     }
-                    db.insert(newschedule);
+                    if(mode == 0)
+                        db.insert(newschedule);
+                    else{
+                        newschedule.setKey(scheduleKey); newschedule.setServerId(scheduleServerId);
+                        db.update(newschedule);
+                    }
 
                     begin = getPlusTime(begin); end = getPlusTime(end);
                 }
@@ -888,6 +859,129 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 finish();
             }
         });
+
+        if(mode > 0){
+            //편집상태일 때 뷰들 이전 설정 값 설정해주기
+            scheduleKey = intent.getIntExtra("scheduleKey", 0);
+            scheduleServerId = intent.getStringExtra("scheduleServerId");
+            Long begin_ms = intent.getLongExtra("begin_ms", Time.YMDToMills("20000101"));
+            Long end_ms = intent.getLongExtra("end_ms", Time.YMDToMills("20000101"));
+            LocalDateTime begin = Time.MillsToLocalDateTime(begin_ms); LocalDateTime end = Time.MillsToLocalDateTime(end_ms);
+            start_year = begin.getYear(); start_month = begin.getMonthValue(); start_day = begin.getDayOfMonth(); start_hour = begin.getHour(); start_minute = begin.getMinute(); start_week = begin.getDayOfWeek().getValue();
+            end_year = end.getYear(); end_month = end.getMonthValue(); end_day = end.getDayOfMonth(); end_hour = end.getHour(); end_minute = end.getMinute(); end_week = end.getDayOfWeek().getValue();
+            start_date_textview.setText(getDateText(start_month,start_day,start_week));
+            end_date_textview.setText(getDateText(end_month,end_day,end_week));
+            start_time_textview.setText(getTimeText(start_hour,start_minute));
+            end_time_textview.setText(getTimeText(end_hour,end_minute));
+
+            title.setText(intent.getStringExtra("title"));
+            allday_switch.setChecked(intent.getBooleanExtra("isAllday", false));
+            alarm_switch.setChecked(intent.getBooleanExtra("departAlarm", false));
+            alarm = intent.getStringExtra("alarm");
+            if(alarm.equals("")) alarm_time_textview.setText("알람 설정 없음");
+            else alarm_time_textview.setText(alarm);
+            memo.setText(intent.getStringExtra("memo"));
+
+            String[] alarm_time_substr = alarm.substring(0, alarm.length() - 2).split(", ");
+            for(String s : alarm_time_substr){
+                if(s.equals("일정 시작시간")){
+                    checkbox_ontime.setChecked(true);
+                }
+                else if(s.equals("10분")){
+                    checkbox_10_min_ago.setChecked(true);
+                }
+                else if(s.equals("1시간")){
+                    checkbox_hourago.setChecked(true);
+                }
+                else if(s.equals("1일")){
+                    checkbox_dayago.setChecked(true);
+                }
+                else{
+                    //직접 사용자가 설정한 시간
+                    checkbox_custom.setChecked(true);
+                    custom_alram_layout.setVisibility(View.VISIBLE);
+                    String unit = s.substring(s.length() - 1);
+                    String num = s.substring(0, s.length() - 1);
+                    if(unit.equals("분")){
+                        customIndex = 0;
+                    }
+                    else if(unit.equals("간")){
+                        customIndex = 1;
+                        num = num.substring(0,num.length() - 1);
+                    }
+                    else if(unit.equals("일")){
+                        customIndex = 2;
+                    }
+                    else if(unit.equals("주")){
+                        customIndex = 3;
+                    }
+                    customVal = Integer.parseInt(num);
+                    setNumpicker(customIndex);
+                    numpicker.setValue(customVal);
+                    charpicker.setValue(customIndex);
+                    checkbox_custom.setText(getCustomText(customVal,customIndex));
+                    numpicker_layout.setVisibility(View.VISIBLE);
+                    custom_alram_btn.setClickable(false);
+                }
+            }
+
+            if(alarm_switch.isChecked()){
+                address_data_src = intent.getStringExtra("begin_loc");
+                src_address.setText(address_data_src);
+                if(mMap != null) mMap.clear();
+                srcLocation = new Location("db"); dstLocation = new Location("db");
+                srcPosition = new LatLng(intent.getDoubleExtra("begin_lat",35.887390), intent.getDoubleExtra("begin_lng",128.611629));
+                srcLocation.setLatitude(srcPosition.latitude);
+                srcLocation.setLongitude(srcPosition.longitude);
+                address_data_dst = intent.getStringExtra("end_loc");
+                dst_address.setText(address_data_dst);
+                dstPosition = new LatLng(intent.getDoubleExtra("end_lat",35.887390), intent.getDoubleExtra("end_lng",128.611629));
+                dstLocation.setLatitude(dstPosition.latitude);
+                dstLocation.setLongitude(dstPosition.longitude);
+                //setSrcLocation(srcLocation, address_data_src, "위도 : "+srcLocation.getLatitude()+" 경도 : "+srcLocation.getLongitude());
+                //setDstLocation(dstLocation, address_data_dst, "위도 : "+dstLocation.getLatitude()+" 경도 : "+dstLocation.getLongitude());
+                need_hour = intent.getIntExtra("need_hour", need_hour);
+                need_minute = intent.getIntExtra("need_minute", need_minute);
+                need_second = intent.getIntExtra("need_second", need_second);
+
+                String text="";
+                if(need_hour>0){
+                    text+=String.valueOf(need_hour)+"시간 ";
+                }
+                if(need_minute>0){
+                    text+=String.valueOf(need_minute)+"분 ";
+                }
+                if(need_second>0){
+                    text+=String.valueOf(need_second)+"초 ";
+                }
+                time_requiered_textview.setText(text.substring(0,text.length()-1));
+                LocalDateTime localDateTime=LocalDateTime.of(start_year,start_month,start_day,start_hour,start_minute);
+                localDateTime=localDateTime.minusHours(need_hour);
+                localDateTime=localDateTime.minusMinutes(need_minute);
+                pre_start_year=localDateTime.getYear();
+                pre_start_month=localDateTime.getMonthValue();
+                pre_start_day=localDateTime.getDayOfMonth();
+                pre_start_hour=localDateTime.getHour();
+                pre_start_minute=localDateTime.getMinute();
+                text=getDateText(pre_start_month,pre_start_day,localDateTime.getDayOfWeek().getValue())+" "+
+                        getTimeText(pre_start_hour,pre_start_minute);
+                pre_src_time_textview.setText(text);
+
+                means_flag = intent.getIntExtra("means", means_flag);
+                if(means_flag == 1){
+                    means_radiogroup.check(R.id.radiobutton_walk);
+                }
+                else if(means_flag == 0){
+                    means_radiogroup.check(R.id.radiobutton_public);
+                }
+                else if(means_flag == 2){
+                    means_radiogroup.check(R.id.radiobutton_car);
+                }
+            }
+            //편집 모드에서는 반복을 선택할 수 없도록 구현
+            iterator_layout.setVisibility(View.GONE);
+            operator_flag = 0;
+        }
     }
 
     private long presstime=0;
@@ -1083,12 +1177,13 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 location = locationList.get(locationList.size() - 1);
                 //location = locationList.get(0);
 
-                srcPosition
-                        = new LatLng(location.getLatitude(), location.getLongitude());
+                if(srcPosition == null)
+                    srcPosition = new LatLng(location.getLatitude(), location.getLongitude());
 
 
                 String markerTitle = getCurrentAddress(srcPosition);
-                address_data_src=markerTitle;
+                if(address_data_src == null)
+                    address_data_src=markerTitle;
                 String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                         + " 경도:" + String.valueOf(location.getLongitude());
 
@@ -1096,9 +1191,14 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
 
 
                 //현재 위치에 마커 생성하고 이동
-                setSrcLocation(location, markerTitle, markerSnippet);
-
-                srcLocation = location;
+                if(srcLocation == null) {
+                    srcLocation = location;
+                }
+                setSrcLocation(srcLocation, address_data_src, "위도:" + String.valueOf(srcLocation.getLatitude())
+                        + " 경도:" + String.valueOf(srcLocation.getLongitude()));
+                if(dstLocation != null)
+                    setDstLocation(dstLocation, address_data_dst, "위도:" + String.valueOf(dstLocation.getLatitude())
+                            + " 경도:" + String.valueOf(dstLocation.getLongitude()));
             }
 
 
