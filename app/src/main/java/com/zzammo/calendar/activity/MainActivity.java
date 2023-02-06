@@ -30,18 +30,17 @@ import com.zzammo.calendar.adapter.ScheduleRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.activity.ViewPagerActivity;
 import com.zzammo.calendar.custom_calendar.test;
 import com.zzammo.calendar.database.Database;
-import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Metadata;
-import com.zzammo.calendar.holiday.HolidayApiExplorer;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
+import com.zzammo.calendar.dialog.ScheduleDialog;
+import com.zzammo.calendar.holiday.HolidayApiExplorer;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.test.AuthTestActivity;
 import com.zzammo.calendar.test.DBTestActivity;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
-import com.zzammo.calendar.weather.WeatherApiExplorer;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -50,7 +49,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -323,13 +321,13 @@ public class MainActivity extends AppCompatActivity {
                     CalendarDay endday = CalendarDay.from(lo.getYear(), lo.getMonthValue(),lo.getDayOfMonth());
                     Long begin = Time.CalendarDayToMill(date),  end = Time.CalendarDayToMill(endday);
                     Log.d("Dirtfy", "begin : " + begin + " end : " + end);
-                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
+//                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
                     List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(begin, end);
                     Log.d("Dirtfy", "Holidays size : "+Holidays.size()+"");
                     for (Holiday holi : Holidays) {
                         HolidayDates.add(holi.date);
                         HolidayNames.add(holi.name);
-                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
+//                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
                         calendarView.invalidateDecorators();
                     }
                 }

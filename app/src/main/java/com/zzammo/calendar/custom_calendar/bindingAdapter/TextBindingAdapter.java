@@ -1,23 +1,18 @@
 package com.zzammo.calendar.custom_calendar.bindingAdapter;
-import android.app.ActionBar;
+
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
-import android.app.Activity;
-import android.graphics.Color;
-import android.text.style.ForegroundColorSpan;
 import android.widget.TextView;
+
 import androidx.databinding.BindingAdapter;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
-import com.prolificinteractive.materialcalendarview.DayViewFacade;
-import com.zzammo.calendar.R;
-import com.zzammo.calendar.activity.HolidayDecorator;
 import com.zzammo.calendar.activity.MainActivity;
 import com.zzammo.calendar.custom_calendar.utils.DateFormat;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.Time;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -61,6 +56,13 @@ public class TextBindingAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @BindingAdapter("setHeight")
+    public static void setLayoutHeight(View view, int height) {
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        layoutParams.height = height;
+        view.setLayoutParams(layoutParams);
     }
 
 

@@ -6,9 +6,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Metadata;
-import com.zzammo.calendar.database.Schedule;
 
 @Database(entities = {Metadata.class}, version = 1)
 public abstract class MetadataDatabase extends RoomDatabase {

@@ -55,8 +55,16 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
                 cd.setSchedules(new ArrayList<>());
                 Long begin = Time.CalendarToMill(cd.getCalendar());
-                DB.loadAllScheduleDuring(begin, begin+ Time.ONE_DAY, cd.getSchedules());
+                DB.loadAllScheduleDuring(begin, begin+Time.ONE_DAY-1, cd.getSchedules());
             }
+        }
+        for (CalendarDate cd : data.get(position).getDays()){
+            if (cd.getCalendar() == null) continue;
+            if (cd.getHolidays() != null) break;
+
+            cd.setHolidays(new ArrayList<>());
+            Long begin = Time.CalendarToMill(cd.getCalendar());
+            cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
         }
         return new PageFragment(data.get(position), dateClickListener,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor);

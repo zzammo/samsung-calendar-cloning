@@ -6,10 +6,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Metadata;
-
-import java.util.List;
 
 @Dao
 public interface MetadataDao {

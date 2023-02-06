@@ -1,5 +1,7 @@
 package com.zzammo.calendar.custom_calendar.ui.viewmodel;
 
+import androidx.lifecycle.ViewModel;
+
 import com.zzammo.calendar.custom_calendar.data.TSLiveData;
 import com.zzammo.calendar.custom_calendar.utils.DateFormat;
 import com.zzammo.calendar.custom_calendar.utils.Keys;
@@ -7,8 +9,6 @@ import com.zzammo.calendar.custom_calendar.utils.Keys;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-
-import androidx.lifecycle.ViewModel;
 
 public class CalendarListViewModel extends ViewModel {
     private long mCurrentTime;

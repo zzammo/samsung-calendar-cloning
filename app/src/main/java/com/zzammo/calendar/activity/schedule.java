@@ -1,28 +1,21 @@
 package com.zzammo.calendar.activity;
 
-import static java.lang.Math.log;
-
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -46,8 +39,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.databinding.adapters.NumberPickerBindingAdapter;
-import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -65,9 +56,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Schedule;
+import com.zzammo.calendar.util.Time;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -81,8 +74,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -114,6 +105,8 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     TextView alarm_time_textview;
     TextView time_requiered_textview;
     TextView time_requiered_click;
+
+    TextView pre_src_time_textview;
 
 
     CheckBox checkbox_ontime;
@@ -155,7 +148,22 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
     private int end_year;
     private int end_week;
 
+    private int need_hour;
+    private int need_minute;
+    private int need_second;
+
+
+    // 출발 예정 시각 : 년 월 일 시간 분
+    private int pre_start_year;
+    private int pre_start_hour;
+    private int pre_start_minute;
+    private int pre_start_month;
+    private int pre_start_day;
+
+    private String alarm;
+
     private boolean[] clicked={false,false,false,false}; // 0 start_date 1 start_time 2 end_date 3 end_time
+
 
 
 
@@ -283,6 +291,8 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         cancel_btn=findViewById(R.id.cancel_btn);
 
         mLayout = findViewById(R.id.layout_schedule);
+
+        pre_src_time_textview=findViewById(R.id.pre_src_time_textview);
 
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -552,7 +562,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     alarm_time_checkbox_layout.setVisibility(View.GONE);
                     alarm_time_textview.setBackgroundColor(ContextCompat.getColor(schedule.this,R.color.bg_white));
                     String text="";
-                    String[] temp={"일정 시작시간","10분 전","1시간 전","1일 전"};
+                    String[] temp={"일정 시작시간","10분","1시간","1일"};
                     for(int i=0;i<4;i++){
                         if(ago_checkboxes[i]){
                             text+=temp[i];
@@ -566,9 +576,10 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                     if(text==""){
                         alarm_time_textview.setText("알람 설정 없음");
                     }else {
-                        text=text.substring(0,text.length()-2);
+                        text=text.substring(0,text.length()-2) + " 전";
                         alarm_time_textview.setText(text);
                     }
+                    alarm = text;
                 }
                 alarm_time=!alarm_time;
             }
@@ -822,6 +833,49 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         save_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Database db = new Database(schedule.this);
+                LocalDateTime begin = LocalDateTime.of(start_year,start_month, start_day,start_hour,start_minute,0,0);
+                LocalDateTime end = LocalDateTime.of(end_year,end_month,end_day,end_hour,end_minute,0,0);
+                int last;
+                switch (operator_flag){
+                    case 0:
+                        last=1;
+                        break;
+                    case 1:
+                        last=61;
+                        break;
+                    case 2:
+                        last=27;
+                        break;
+                    case 3:
+                        last = 13;
+                        break;
+                    default:
+                        last = 11;
+                        break;
+                }
+                for(int i = 0; i < last; i++){
+                    Schedule newschedule;
+                    if(allday_switch.isChecked() && alarm_switch.isChecked()) {
+                        newschedule = new Schedule(title.getText() + "", true, true, address_data_src, srcPosition.latitude, srcPosition.longitude,
+                                address_data_dst, dstPosition.latitude, dstPosition.longitude, need_hour, need_minute, need_second, means_flag, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end), alarm, memo.getText() + "");
+                    }
+                    else if(allday_switch.isChecked()){
+                        begin.withHour(0).withMinute(0).withSecond(0).withNano(0); end.withHour(23).withMinute(59).withSecond(59).withNano(0);
+                        newschedule = new Schedule(title.getText() + "", true, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end),alarm,memo.getText()+"");
+                    }
+                    else if(alarm_switch.isChecked()){
+                        newschedule = new Schedule(title.getText() + "", false, true, address_data_src, srcPosition.latitude, srcPosition.longitude,
+                                address_data_dst, dstPosition.latitude, dstPosition.longitude, need_hour, need_minute, need_second, means_flag, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end), alarm, memo.getText() + "");
+                    }
+                    else{
+                        newschedule = new Schedule(title.getText() + "", false, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end),alarm,memo.getText()+"");
+                    }
+                    db.insert(newschedule);
+
+                    begin = getPlusTime(begin); end = getPlusTime(end);
+                }
+
                 setResult(RESULT_OK);
                 finish();
             }
@@ -880,21 +934,35 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
         ret+=String.valueOf(val);
         switch (index){
             case 0:
-                ret+="분 전";
+                ret+="분";
                 break;
             case 1:
-                ret+="시간 전";
+                ret+="시간";
                 break;
             case 2:
-                ret+="일 전";
+                ret+="일";
                 break;
             case 3:
-                ret+="주 전";
+                ret+="주";
                 break;
         }
         return ret;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public LocalDateTime getPlusTime(LocalDateTime pre){
+        switch(operator_flag){
+            case 0:
+            case 1:
+                return pre.plusDays(1);
+            case 2:
+                return pre.plusWeeks(1);
+            case 3:
+                return pre.plusMonths(1);
+            default:
+                return pre.plusYears(1);
+        }
+    }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
@@ -1568,6 +1636,7 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             return result;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         protected void onPostExecute(String s){
             super.onPostExecute(s);
@@ -1623,6 +1692,20 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 text+=String.valueOf(second)+"초 ";
             }
             time_requiered_textview.setText(text.substring(0,text.length()-1));
+            need_hour=hour;
+            need_minute=minute;
+            need_second=second;
+            LocalDateTime localDateTime=LocalDateTime.of(start_year,start_month,start_day,start_hour,start_minute);
+            localDateTime=localDateTime.minusHours(hour);
+            localDateTime=localDateTime.minusMinutes(minute);
+            pre_start_year=localDateTime.getYear();
+            pre_start_month=localDateTime.getMonthValue();
+            pre_start_day=localDateTime.getDayOfMonth();
+            pre_start_hour=localDateTime.getHour();
+            pre_start_minute=localDateTime.getMinute();
+            text=getDateText(pre_start_month,pre_start_day,localDateTime.getDayOfWeek().getValue())+" "+
+            getTimeText(pre_start_hour,pre_start_minute);
+            pre_src_time_textview.setText(text);
         }
     }
 }

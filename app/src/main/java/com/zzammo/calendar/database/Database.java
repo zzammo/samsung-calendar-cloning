@@ -3,7 +3,6 @@ package com.zzammo.calendar.database;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.zzammo.calendar.database.firestore.FireStore;
 import com.zzammo.calendar.database.room.HolidayDatabase;

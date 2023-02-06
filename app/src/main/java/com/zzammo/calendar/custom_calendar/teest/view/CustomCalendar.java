@@ -3,7 +3,6 @@ package com.zzammo.calendar.custom_calendar.teest.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,23 +11,13 @@ import android.widget.LinearLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.custom_calendar.teest.adapter.ViewPagerAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.data.PageData;
-import com.zzammo.calendar.database.Database;
-import com.zzammo.calendar.database.Holiday;
-import com.zzammo.calendar.database.Metadata;
-import com.zzammo.calendar.holiday.HolidayApiExplorer;
-import com.zzammo.calendar.util.AfterTask;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class CustomCalendar extends LinearLayout {
 
@@ -38,6 +27,10 @@ public class CustomCalendar extends LinearLayout {
     public interface OnInterceptTouchEvent{
         void interceptTouchEvent(MotionEvent ev);
     }
+    public interface OnDateChangedListener{
+        void dateChangedListener(CalendarDate date);
+    }
+
 
     final static int MONTH_SCHEDULE = 1;
     final static int MONTH = 2;
@@ -49,6 +42,7 @@ public class CustomCalendar extends LinearLayout {
 
     FragmentActivity activity;
     ArrayList<PageData> data;
+    Long selectedDate;
 
     int viewMode;
     int sundayColor;
@@ -60,7 +54,8 @@ public class CustomCalendar extends LinearLayout {
     int pageCount;
 
     OnDateClickListener dateClickListener;
-    OnInterceptTouchEvent interceptTouchEvent;
+    OnDateChangedListener dateChangedListener;
+    private OnTouchListener mOnTouchListener;
 
     public CustomCalendar(Context context) {
         super(context);
@@ -102,12 +97,33 @@ public class CustomCalendar extends LinearLayout {
         typedArray.recycle();
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int mode = MeasureSpec.getMode(heightMeasureSpec);
+        if (mode == MeasureSpec.UNSPECIFIED || mode == MeasureSpec.AT_MOST) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            int height = 0;
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                child.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                int h = child.getMeasuredHeight();
+                if (h > height) height = h;
+            }
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
     public void setOnDateClickListener(OnDateClickListener listener) {
         this.dateClickListener = listener;
     }
 
-    public void setInterceptTouchEvent(OnInterceptTouchEvent interceptTouchEvent) {
-        this.interceptTouchEvent = interceptTouchEvent;
+    public void setOnDateChangedListener(OnDateChangedListener dateChangedListener) {
+        this.dateChangedListener = dateChangedListener;
+    }
+
+    public ViewPager2 getViewPager() {
+        return viewPager;
     }
 
     public void setViewMode(int viewMode) {
@@ -142,6 +158,24 @@ public class CustomCalendar extends LinearLayout {
         this.pageCount = pageCount;
     }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (mOnTouchListener != null) {
+            mOnTouchListener.onTouch(this, ev);
+        }
+        return super.onInterceptTouchEvent(ev);
+        //true : 상위 뷰페이저 이벤트 전달
+        //false : 하위 뷰페이저 이벤트 전달
+    }
+
+    public void setOnTouchListener(OnTouchListener onTouchListener) {
+        mOnTouchListener = onTouchListener;
+    }
+
+//    public boolean performClick(){
+//        return super.performClick();
+//    }
+
     public void setActivity(FragmentActivity activity) {
         this.activity = activity;
 
@@ -154,6 +188,7 @@ public class CustomCalendar extends LinearLayout {
         viewPagerAdapter.setDateClickListener(dateClickListener);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -170,23 +205,10 @@ public class CustomCalendar extends LinearLayout {
             }
         });
 
-        viewPager.setCurrentItem(pageCount);
+        viewPager.setCurrentItem(pageCount, false);
 
         invalidate();
         requestLayout();
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (interceptTouchEvent != null){
-            interceptTouchEvent.interceptTouchEvent(ev);
-        }
-        return super.onInterceptTouchEvent(ev);
     }
 
     void setData(){
@@ -199,6 +221,7 @@ public class CustomCalendar extends LinearLayout {
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + i, 1, 0, 0, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
                 page.setMonth(calendar);
 
                 int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1; //해당 월에 시작하는 요일 -1 을 하면 빈칸을 구할 수 있겠죠 ?
@@ -210,6 +233,7 @@ public class CustomCalendar extends LinearLayout {
                 for (int j = 1; j <= max; j++) {
                     Calendar day = Calendar.getInstance();
                     day.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + i, j, 0, 0, 0);
+                    day.set(Calendar.MILLISECOND, 0);
                     days.add(new CalendarDate(day));
                 }
 
@@ -222,118 +246,4 @@ public class CustomCalendar extends LinearLayout {
             }
         }
     }
-
-//    void GetHoliday(int year, AfterTask afterTask) {
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    HolidayApiExplorer apiExplorer = new HolidayApiExplorer(activity);
-//                    apiExplorer.getHolidays(year, -1, HolidayNames, HolidayDates);
-////                    for (int i = 0; i < HolidayNames.size(); i++) {
-////                        Log.d("WeGlonD", HolidayDates.get(i).toString() + ' ' + HolidayNames.get(i));
-////                    }
-//                    afterTask.ifSuccess(0);
-//                    this.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            calendarView.invalidateDecorators();
-//                        }
-//                    });
-//                    //2023년 1월의 국경일, 공휴일 정보 불러옴. Month로 0이하의 값을 주면 2023년 전체를 불러옴.
-//                } catch (IOException | XmlPullParserException e) {
-//                    Log.e("WeGlonD", "ApiExplorer failed - " + e);
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//    }
-//
-//    static void getHoliday(android.icu.util.Calendar date, Context context){
-//        HolidayDates.clear();
-//        HolidayNames.clear();
-//        int year = date.get(java.util.Calendar.YEAR);
-//        int month = date.get(java.util.Calendar.MONTH+1);
-//        Database database = new Database(context);
-//        Metadata low_bound_holiday = database.getMetadata("Holi_Min_Year");
-//        Metadata high_bound_holiday = database.getMetadata("Holi_Max_Year");
-//        int minY, maxY;
-//        if (low_bound_holiday == null && high_bound_holiday == null) {
-//            minY = maxY = year;
-//            database.insert(new Metadata("Holi_Min_Year", Integer.toString(minY)));
-//            database.insert(new Metadata("Holi_Max_Year", Integer.toString(maxY)));
-//            //공휴일 API에서 가져오기
-//            GetHoliday(year, new AfterTask() {
-//                @Override
-//                public void ifSuccess(Object result) {
-//                    //calendarView.invalidateDecorators();
-//                    //공휴일 DB에 쓰기
-//                    for (int i = 0; i < HolidayNames.size(); i++) {
-//                        CalendarDay day = HolidayDates.get(i);
-//                        String datestr = Integer.toString(day.getYear());
-//                        if (day.getMonth() < 10) datestr = datestr + "0";
-//                        datestr = datestr + day.getMonth();
-//                        if (day.getDay() < 10) datestr = datestr + "0";
-//                        datestr = datestr + day.getDay();
-//                        database.insert(new Holiday(datestr, HolidayNames.get(i)));
-//                    }
-//                }
-//
-//                @Override
-//                public void ifFail(Object result) {
-//                }
-//            });
-//
-//        } else {
-//            minY = Integer.parseInt(low_bound_holiday.data);
-//            maxY = Integer.parseInt(high_bound_holiday.data);
-//            if (year < minY || year > maxY) {
-//                //공휴일 API에서 가져오기
-//                GetHoliday(year, new AfterTask() {
-//                    @Override
-//                    public void ifSuccess(Object result) {
-//                        //calendarView.invalidateDecorators();
-//                        //공휴일 DB에 쓰기
-//                        for (int i = 0; i < HolidayNames.size(); i++) {
-//                            CalendarDay day = HolidayDates.get(i);
-//                            String datestr = Integer.toString(day.getYear());
-//                            if (day.getMonth() < 10) datestr = datestr + "0";
-//                            datestr = datestr + day.getMonth();
-//                            if (day.getDay() < 10) datestr = datestr + "0";
-//                            datestr = datestr + day.getDay();
-//                            database.insert(new Holiday(datestr, HolidayNames.get(i)));
-//                        }
-//                        if(!HolidayNames.isEmpty()) {
-//                            if (year < minY) {
-//                                low_bound_holiday.data = Integer.toString(year);
-//                                database.update(low_bound_holiday);
-//                            } else {
-//                                high_bound_holiday.data = Integer.toString(year);
-//                                database.update(high_bound_holiday);
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void ifFail(Object result) {
-//                    }
-//                });
-//
-//            } else {
-//                //공휴일 DB에서 가져오기
-//                String keyword = "%" + year;
-//                if (month < 10) keyword = keyword + "0";
-//                keyword = keyword + month + "%";
-//                List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(keyword);
-//                for (Holiday holi : Holidays) {
-//                    int rawdata = Integer.parseInt(holi.date);
-//                    CalendarDay calendarDay = CalendarDay.from(rawdata / 10000, (rawdata % 10000) / 100, rawdata % 100);
-//                    HolidayDates.add(calendarDay);
-//                    HolidayNames.add(holi.name);
-//                    Log.d("WeGlonD", "Holiday DB Read - " + calendarDay + " " + holi.name);
-//                    calendarView.invalidateDecorators();
-//                }
-//            }
-//        }
-//    }
 }

@@ -6,7 +6,6 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.google.firebase.firestore.auth.User;
 import com.zzammo.calendar.database.Schedule;
 
 import java.util.List;
