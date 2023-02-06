@@ -43,6 +43,8 @@ public class Schedule implements Comparable {
 
     public String memo;
 
+    public boolean isHoliday;
+
     public Schedule() {
     }
 
@@ -50,6 +52,7 @@ public class Schedule implements Comparable {
         this.title = title;
         this.begin_loc = begin_loc;
         this.begin_ms = begin_ms;
+        isHoliday = false;
     }
 
     public Schedule(String title, String begin_loc, Long begin_ms, Long end_ms) {
@@ -57,6 +60,7 @@ public class Schedule implements Comparable {
         this.begin_loc = begin_loc;
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
+        isHoliday = false;
     }
     public Schedule(String title, String begin_loc, String end_loc, Long begin_ms, Long end_ms) {
         this.title = title;
@@ -64,6 +68,7 @@ public class Schedule implements Comparable {
         this.end_loc = end_loc;
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
+        isHoliday = false;
     }
     public Schedule(String title, String begin_loc, String end_loc, Long begin_ms, Long end_ms, String memo) {
         this.title = title;
@@ -72,6 +77,7 @@ public class Schedule implements Comparable {
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
         this.memo = memo;
+        isHoliday = false;
     }
 
     public Schedule(String title,
@@ -89,6 +95,7 @@ public class Schedule implements Comparable {
         this.begin_ms = begin_ms;
         this.end_ms = end_ms;
         this.memo = memo;
+        isHoliday = false;
     }
 
     public Schedule(String title, boolean isAllDay, boolean departAlarm, Long begin_ms, Long end_ms, String alarm, String memo) {
@@ -99,6 +106,7 @@ public class Schedule implements Comparable {
         this.end_ms = end_ms;
         this.alarm = alarm;
         this.memo = memo;
+        isHoliday = false;
     }
 
     public Schedule(String title, boolean isAllDay, boolean departAlarm, String begin_loc, Double begin_lat, Double begin_lng, String end_loc, Double end_lat, Double end_lng, int need_hour, int need_minute, int need_second, int means, Long begin_ms, Long end_ms, String alarm, String memo) {
@@ -119,6 +127,15 @@ public class Schedule implements Comparable {
         this.need_minute = need_minute;
         this.need_second = need_second;
         this.means = means;
+        isHoliday = false;
+    }
+
+    public Schedule(String title, boolean isAllDay, Long begin_ms, Long end_ms, boolean isHoliday) {
+        this.title = title;
+        this.isAllDay = isAllDay;
+        this.begin_ms = begin_ms;
+        this.end_ms = end_ms;
+        this.isHoliday = isHoliday;
     }
 
     public Schedule(Map<String, Object> map) {
@@ -137,6 +154,7 @@ public class Schedule implements Comparable {
         end_ms = (Long) map.get("end_ms");
 
         memo = (String) map.get("memo");
+        isHoliday = false;
     }
 
     public String getTitle() {

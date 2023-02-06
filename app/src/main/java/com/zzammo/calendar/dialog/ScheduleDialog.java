@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.util.AfterTask;
@@ -30,6 +31,7 @@ public class ScheduleDialog extends Dialog {
 
     Long dateStartTime;
 
+    ArrayList<Holiday> holidayArrayList;
     ArrayList<Schedule> scheduleArrayList;
     schedule_main_RVAdapter scheduleRVAdapter;
     LinearLayoutManager layoutManager;
@@ -45,6 +47,12 @@ public class ScheduleDialog extends Dialog {
         super(context, android.R.style.Theme_Translucent_NoTitleBar);
         this.dateStartTime = dateStartTime;
         mContext = context;
+    }
+    public ScheduleDialog(Context context, Long dateStartTime, ArrayList<Holiday> holidayArrayList) {
+        super(context, android.R.style.Theme_Translucent_NoTitleBar);
+        this.dateStartTime = dateStartTime;
+        mContext = context;
+        this.holidayArrayList = holidayArrayList;
     }
 
     @Override
@@ -90,6 +98,16 @@ public class ScheduleDialog extends Dialog {
         });
 
         Database DB = new Database(mContext);
+        if(holidayArrayList != null && !holidayArrayList.isEmpty()){
+            for(Holiday h : holidayArrayList){
+                Long start = h.date;
+                Calendar endcalendar = Calendar.getInstance();
+                endcalendar.setTimeInMillis(start);
+                endcalendar.set(Calendar.HOUR_OF_DAY, 23); endcalendar.set(Calendar.MINUTE, 59); endcalendar.set(Calendar.SECOND, 59);
+                Long end = Time.CalendarToMill(endcalendar);
+                scheduleArrayList.add(new Schedule(h.name, true, start, end, true));
+            }
+        }
         DB.loadAllScheduleDuring(Database.LOCAL
                 , dateStartTime
                 , dateStartTime + Time.ONE_DAY
