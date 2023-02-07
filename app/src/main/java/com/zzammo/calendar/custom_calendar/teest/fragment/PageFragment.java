@@ -79,7 +79,7 @@ public class PageFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 7){
             @Override
             public boolean canScrollVertically() {
-                return false;
+                return false ;
             }
 
             @Override
