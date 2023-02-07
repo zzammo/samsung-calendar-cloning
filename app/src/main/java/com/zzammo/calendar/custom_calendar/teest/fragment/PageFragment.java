@@ -78,9 +78,7 @@ public class PageFragment extends Fragment {
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 7){
             @Override
-            public boolean canScrollVertically() {
-                return false ;
-            }
+            public boolean canScrollVertically() { return false; }
 
             @Override
             public boolean canScrollHorizontally() {
