@@ -25,6 +25,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean showSchedule;
     boolean setBackgroundToday;
+    Long selectedDate;
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data) {
         super(fragmentActivity);
@@ -36,7 +37,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data,
                             boolean showSchedule,
                             int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                            boolean setBackgroundToday) {
+                            boolean setBackgroundToday,
+                            Long selectedDate) {
         super(fragmentActivity);
         this.data = data;
         this.showSchedule = showSchedule;
@@ -46,6 +48,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         this.todayColor = todayColor;
         this.basicColor = basicColor;
         this.setBackgroundToday = setBackgroundToday;
+        this.selectedDate = selectedDate;
 
         DB = new Database(fragmentActivity.getApplicationContext());
     }
@@ -77,7 +80,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         }
 
         return new PageFragment(data.get(position), dateClick,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, bf);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, bf,
+                selectedDate);
     }
 
     @Override

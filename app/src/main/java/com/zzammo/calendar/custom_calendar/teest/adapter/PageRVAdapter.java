@@ -40,11 +40,13 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean setBackGroundToday;
+    Long selectedDate;
 
     public PageRVAdapter(LifecycleOwner lifecycleOwner, Context context, ArrayList<CalendarDate> data,
                          CustomCalendar.OnDateClick listener,
                          int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                         boolean setBackGroundToday) {
+                         boolean setBackGroundToday,
+                         Long selectedDate) {
         this.lifecycleOwner = lifecycleOwner;
         this.context = context;
         this.data = data;
@@ -55,6 +57,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         this.todayColor = todayColor;
         this.basicColor = basicColor;
         this.setBackGroundToday = setBackGroundToday;
+        this.selectedDate = selectedDate;
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();

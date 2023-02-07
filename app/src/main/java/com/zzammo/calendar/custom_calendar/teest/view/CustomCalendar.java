@@ -54,9 +54,12 @@ public class CustomCalendar extends LinearLayout {
         OnDateChangedListener dateChangedListener;
 
         public void dateClick(View view, CalendarDate date){
+            selectedView = getSelectedView();
+
             if (dateChangedListener != null)
                 dateChangedListener.dateChangedListener(date);
 
+            selectedDatePage = viewPager.getCurrentItem();
             selectedDate = date.date;
             selectedView = getSelectedView();
 
@@ -79,6 +82,7 @@ public class CustomCalendar extends LinearLayout {
 
     FragmentActivity activity;
     ArrayList<PageData> data;
+    int selectedDatePage;
     Long selectedDate;
     View selectedView;
 
@@ -219,8 +223,8 @@ public class CustomCalendar extends LinearLayout {
     public View getSelectedView(){
         if (selectedDate == null) return null;
         Calendar cal = Calendar.getInstance();
-        Time.setZero(cal);
 
+        cal.setTimeInMillis(selectedDate);
         cal.set(Calendar.DATE, 1);
         int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
 
@@ -230,7 +234,7 @@ public class CustomCalendar extends LinearLayout {
         Log.d("Dirtfy", realIndex+"getSelectedView");
 
         PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
-                findFragmentByTag("f"+viewPager.getCurrentItem());
+                findFragmentByTag("f"+selectedDatePage);
         if (pf == null) return null;
 
         RecyclerView rv = pf.getRecyclerView();
@@ -264,10 +268,15 @@ public class CustomCalendar extends LinearLayout {
         data = new ArrayList<>();
         setData();
 
+        Calendar cal = Calendar.getInstance();
+        Time.setZero(cal);
+        selectedDate = cal.getTimeInMillis();
+        selectedDatePage = pageCount;
+
         viewPagerAdapter = new ViewPagerAdapter(activity, data,
                 showSchedule,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor,
-                true);
+                true, selectedDate);
         viewPagerAdapter.setDateClickListener(dateClick);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
@@ -295,10 +304,6 @@ public class CustomCalendar extends LinearLayout {
 
         viewPager.setCurrentItem(pageCount, false);
 
-        Calendar cal = Calendar.getInstance();
-        Time.setZero(cal);
-        selectedDate = cal.getTimeInMillis();
-
         invalidate();
         requestLayout();
     }
@@ -306,9 +311,8 @@ public class CustomCalendar extends LinearLayout {
     public void invalidatePage(FragmentManager fm){
         PageFragment pf = (PageFragment) fm.
                 findFragmentByTag("f"+viewPager.getCurrentItem());
-        Log.d("??", "f"+viewPager.getCurrentItem()+" "+((PageRVAdapter) pf.getRecyclerView().getAdapter()).getItemCount());
         if (pf == null) {
-            Log.d("??", "pf is null");
+            Log.d("Dirtfy", "pf is null");
             return;
         }
         RecyclerView rv = pf.getRecyclerView();
@@ -319,6 +323,10 @@ public class CustomCalendar extends LinearLayout {
         rv.setAdapter(rva);
         rv.setLayoutManager(lm);
         rva.notifyDataSetChanged();
+    }
+
+    public void gotoTodayPage(){
+        viewPager.setCurrentItem(pageCount);
     }
 
     void setData(){

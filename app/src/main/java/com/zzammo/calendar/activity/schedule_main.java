@@ -339,6 +339,7 @@ public class schedule_main extends AppCompatActivity {
                 return true;
             case R.id.today_move:
                 toast.setText("Select today_move");
+                calendarView.gotoTodayPage();
 //                calendarView.setSelectedDate(CalendarDay.today());
 //                calendarView.setSelectedDate(Time.LocalDateToMill(LocalDate.now()));
                 break;
@@ -417,7 +418,8 @@ public class schedule_main extends AppCompatActivity {
 
         @Override
         public void dateChangedListener(CalendarDate date) {
-            calendarView.getSelectedView().setBackgroundResource(0);
+            if (calendarView.getSelectedView() != null)
+                calendarView.getSelectedView().setBackgroundResource(0);
             Log.d("Dirtfy", "date changed");
 
             if (!Objects.equals(calendarView.getSelectedDate(), date.date)) return;
@@ -707,7 +709,7 @@ public class schedule_main extends AppCompatActivity {
                         @Override
                         public void run() {
                             Log.d("??", "??");
-                            //calendarView.invalidatePage(getSupportFragmentManager());
+                            calendarView.invalidatePage(getSupportFragmentManager());
                         }
                     });
                     //2023년 1월의 국경일, 공휴일 정보 불러옴. Month로 0이하의 값을 주면 2023년 전체를 불러옴.
