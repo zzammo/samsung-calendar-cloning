@@ -88,9 +88,10 @@
         <activity android:name=".activity.AdressApiActivity" />
         <activity android:name=".schedule_event.MakeSchedule" />
         <activity android:name=".activity.schedule_main" />
-        <activity
-            android:name=".activity.schedule"
-            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".activity.schedule"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".activity.LoginActivity"/>
+        <activity android:name=".activity.SignupActivity"/>
     </application>
 
 </manifest>
