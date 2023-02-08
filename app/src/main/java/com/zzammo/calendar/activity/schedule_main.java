@@ -34,6 +34,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -158,7 +159,7 @@ public class schedule_main extends AppCompatActivity {
                 //true : 그 뒤 리스너까지 이벤트를 전달하지 않고, 터치만 하고 끝낸다.
                 //false : 그 뒤 이벤트까지 액션을 전달한다.
                 //onTouch --> onClick --> onLongClick
-                Log.d("minseok","touch");
+                Log.d("minseok","touch calendar");
                 calendarView.performClick();
                 moveview(event);
                 return true;
@@ -276,6 +277,13 @@ public class schedule_main extends AppCompatActivity {
         scheduleRV = findViewById(R.id.schedule_recyclerView);
         scheduleArrayList = new ArrayList<>();
 
+        underview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("minseok","underviewtouch");
+                return false;
+            }
+        });
         scheduleRV.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -290,19 +298,35 @@ public class schedule_main extends AppCompatActivity {
         });
 
 
+        /*scheduleRV.setLayoutManager( new LinearLayoutManager(this,RecyclerView.VERTICAL ,false){
+            @Override
+            public boolean canScrollVertically() {
+                //Log.d("minseok","scrollvertically");
+                if(mode==1||mode==0)return false;
+                else return true;
+            }
+
+            @Override
+            public boolean canScrollHorizontally() {
+                return false;
+            }
+        });*/
+
+        scheduleRV.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                // Stop only scrolling.
+                Log.d("minseok","hello");
+                if(mode==0||mode==1)return true;
+                else return false;
+                //rv.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING;
+            }
+        });
         scheduleRV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d("minseok","touch");
-                scheduleRV.performClick();
                 moveview(event);
-                if(mode==0||mode==1) {
-
-                    return true;
-                }
-                else{
-                    return false;
-                }
+                return false;
 
             }
         });
@@ -509,7 +533,27 @@ public class schedule_main extends AppCompatActivity {
         }
     }
 
+    /*private void postCallAnotherFunction(MotionEvent event){
+        scheduleRV.post(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("minseok","postcallbefore");
+                moveview(event);
+                Log.d("minseok","postcall");
+            }
+        });
+    }*/
+
     void moveview(MotionEvent event) {
+        if (scheduleRV.canScrollVertically(-1)) {
+            Log.d("minseok","realtop");
+            return;
+        }
+        if(mode==0||mode==1){
+            Log.d("minseok","stopmode01");
+            scheduleRV.stopScroll();
+        }
+
         //calendar.getViewPager().invalidate();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -613,8 +657,7 @@ public class schedule_main extends AppCompatActivity {
 
         rc.requestLayout();
         calendarView.requestLayout();
-
-
+        if(mode==2) scheduleRV.smoothScrollToPosition(1);
     }
 
     class MonthChanged implements CustomCalendar.OnMonthChangedListener{
