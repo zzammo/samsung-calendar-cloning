@@ -22,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,6 +99,12 @@ public class schedule_main extends AppCompatActivity {
     ViewGroup.LayoutParams params1,params2;
 
     EditText edit_;
+
+
+    Switch use_localDB_switch;
+    Switch use_fireDB_switch;
+    LinearLayout login_layout_btn;
+
     private int day;
     private int month;
     private int year;
@@ -126,6 +133,8 @@ public class schedule_main extends AppCompatActivity {
 
         calendarView = findViewById(R.id.calendarView);
         underview = findViewById(R.id.schedule_main_underview);
+
+
         params1 = calendarView.getLayoutParams();
         params2 = underview.getLayoutParams();
 
@@ -326,7 +335,11 @@ public class schedule_main extends AppCompatActivity {
         LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
         lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
         getWeather(weather, 35.887390,128.611629);
+
+
+
     }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override

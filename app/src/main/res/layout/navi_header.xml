@@ -78,6 +78,7 @@
         android:layout_height="200sp"
         android:layout_weight="1"/>
     <LinearLayout
+        android:id="@+id/login_layout_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10sp"
