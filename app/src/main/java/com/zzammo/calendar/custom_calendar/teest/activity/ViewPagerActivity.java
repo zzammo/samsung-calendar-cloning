@@ -1,15 +1,5 @@
 package com.zzammo.calendar.custom_calendar.teest.activity;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.LinearLayoutCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Build;
@@ -26,8 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzammo.calendar.R;
-import com.zzammo.calendar.activity.MainActivity;
-import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.dialog.ScheduleDialog;

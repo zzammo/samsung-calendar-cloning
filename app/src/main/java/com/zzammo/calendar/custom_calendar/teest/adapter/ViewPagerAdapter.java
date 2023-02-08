@@ -1,7 +1,5 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -23,9 +21,9 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     ArrayList<PageData> data;
     CustomCalendar.OnDateClick dateClick;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
-    boolean showSchedule;
-    boolean setBackgroundToday;
-    Long selectedDate;
+    boolean showSchedule, showHoliday;
+    boolean setBackgroundFirst, isFirstTime;
+    Long firstDate, firstDatePage;
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data) {
         super(fragmentActivity);
@@ -35,20 +33,23 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     }
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data,
-                            boolean showSchedule,
+                            boolean showSchedule, boolean showHoliday,
                             int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                            boolean setBackgroundToday,
-                            Long selectedDate) {
+                            boolean setBackgroundFirst, boolean isFirstTime,
+                            Long firstDate, Long firstDatePage) {
         super(fragmentActivity);
         this.data = data;
         this.showSchedule = showSchedule;
+        this.showHoliday = showHoliday;
         this.sundayColor = sundayColor;
         this.saturdayColor = saturdayColor;
         this.holidayColor = holidayColor;
         this.todayColor = todayColor;
         this.basicColor = basicColor;
-        this.setBackgroundToday = setBackgroundToday;
-        this.selectedDate = selectedDate;
+        this.setBackgroundFirst = setBackgroundFirst;
+        this.isFirstTime = isFirstTime;
+        this.firstDate =firstDate;
+        this.firstDatePage = firstDatePage;
 
         DB = new Database(fragmentActivity.getApplicationContext());
     }
@@ -65,23 +66,23 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 DB.loadAllScheduleDuring(begin, begin+Time.ONE_DAY-1, cd.getSchedules());
             }
         }
-        for (CalendarDate cd : data.get(position).getDays()){
-            if (cd.getHolidays() != null) break;
+        if (showHoliday){
+            for (CalendarDate cd : data.get(position).getDays()){
+                if (cd.getHolidays() != null) break;
 
-            cd.setHolidays(new ArrayList<>());
-            Long begin = cd.date;
-            cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
+                cd.setHolidays(new ArrayList<>());
+                Long begin = cd.date;
+                cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
+            }
         }
 
-        boolean bf = setBackgroundToday && (position == data.size()/2);
-        if (bf) {
-            setBackgroundToday = false;
-            Log.d("Dirtfy", position+" : bf");
-        }
+
+        boolean bf = setBackgroundFirst && isFirstTime && position == firstDatePage;
+//        if (bf)
+//            isFirstTime = false;
 
         return new PageFragment(data.get(position), dateClick,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, bf,
-                selectedDate);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, bf, firstDate);
     }
 
     @Override

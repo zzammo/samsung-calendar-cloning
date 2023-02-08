@@ -59,9 +59,29 @@ public class CustomCalendar extends LinearLayout {
             if (dateChangedListener != null)
                 dateChangedListener.dateChangedListener(date);
 
-            selectedDatePage = viewPager.getCurrentItem();
+            int postPage = selectedDatePage.intValue();
+            int nowPage = viewPager.getCurrentItem();
+            Calendar cal = Calendar.getInstance();
+            if (!date.thisMonth){
+                cal.setTimeInMillis(date.date);
+                int day = cal.get(Calendar.DATE);
+                if(day > DAY_SIZE/2 && nowPage > 0)
+                    nowPage--;
+                else if(day < DAY_SIZE/2 && nowPage < 2*pageCount-1)
+                    nowPage++;
+            }
+
+            viewPager.setCurrentItem(nowPage);
+            selectedDatePage = Long.valueOf(nowPage);
             selectedDate = date.date;
             selectedView = getSelectedView();
+
+//            selectedDatePage = viewPager.getCurrentItem();
+//            selectedDate = date.date;
+//            selectedView = getSelectedView();
+
+            if (postPage != nowPage)
+                view = selectedView;
 
             if (dateClickListener != null)
                 dateClickListener.dateClickListener(view, date);
@@ -82,7 +102,7 @@ public class CustomCalendar extends LinearLayout {
 
     FragmentActivity activity;
     ArrayList<PageData> data;
-    int selectedDatePage;
+    Long selectedDatePage;
     Long selectedDate;
     View selectedView;
 
@@ -93,6 +113,7 @@ public class CustomCalendar extends LinearLayout {
     int todayColor;
     int basicColor;
     boolean showSchedule;
+    boolean showHoliday;
     int pageCount;
 
     OnDateClick dateClick;
@@ -137,6 +158,7 @@ public class CustomCalendar extends LinearLayout {
         basicColor = typedArray.getColor(R.styleable.CustomCalendar_holidayColor,
                 getResources().getColor(R.color.text_black));
         showSchedule = typedArray.getBoolean(R.styleable.CustomCalendar_showSchedule, true);
+        showHoliday = typedArray.getBoolean(R.styleable.CustomCalendar_showHoliday, true);
         pageCount = typedArray.getInt(R.styleable.CustomCalendar_pageCount, 300);
 
         typedArray.recycle();
@@ -203,6 +225,10 @@ public class CustomCalendar extends LinearLayout {
         this.showSchedule = showSchedule;
     }
 
+    public void setShowHoliday(boolean showHoliday) {
+        this.showHoliday = showHoliday;
+    }
+
     public void setPageCount(int pageCount) {
         this.pageCount = pageCount;
     }
@@ -235,6 +261,7 @@ public class CustomCalendar extends LinearLayout {
 
         PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
                 findFragmentByTag("f"+selectedDatePage);
+        Log.d("Dirtfy", "f"+selectedDatePage);
         if (pf == null) return null;
 
         RecyclerView rv = pf.getRecyclerView();
@@ -271,15 +298,16 @@ public class CustomCalendar extends LinearLayout {
         Calendar cal = Calendar.getInstance();
         Time.setZero(cal);
         selectedDate = cal.getTimeInMillis();
-        selectedDatePage = pageCount;
+        selectedDatePage = Long.valueOf(pageCount);
 
         viewPagerAdapter = new ViewPagerAdapter(activity, data,
-                showSchedule,
+                showSchedule, showHoliday,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor,
-                true, selectedDate);
+                true, true, selectedDate, selectedDatePage);
         viewPagerAdapter.setDateClickListener(dateClick);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+//        viewPager.setOffscreenPageLimit(1);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override

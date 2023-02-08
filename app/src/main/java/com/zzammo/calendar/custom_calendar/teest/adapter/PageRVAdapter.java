@@ -1,14 +1,15 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -19,13 +20,14 @@ import com.zzammo.calendar.R;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
+import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.databinding.PageDateItemBinding;
 import com.zzammo.calendar.util.Time;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Objects;
 
 public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
@@ -40,14 +42,14 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     ArrayList<CalendarDate> data;
     CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
-    boolean setBackGroundToday;
-    Long selectedDate;
+    boolean setBackGroundFirst;
+    Long firstDate;
 
     public PageRVAdapter(LifecycleOwner lifecycleOwner, Context context, ArrayList<CalendarDate> data,
                          CustomCalendar.OnDateClick listener,
                          int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                         boolean setBackGroundToday,
-                         Long selectedDate) {
+                         boolean setBackGroundFirst,
+                         Long firstDate) {
         this.lifecycleOwner = lifecycleOwner;
         this.context = context;
         this.data = data;
@@ -57,8 +59,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         this.holidayColor = holidayColor;
         this.todayColor = todayColor;
         this.basicColor = basicColor;
-        this.setBackGroundToday = setBackGroundToday;
-        this.selectedDate = selectedDate;
+        this.setBackGroundFirst = setBackGroundFirst;
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();
@@ -101,12 +102,27 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         viewHolders[position] = holder.itemView;
 
         if (!day.thisMonth)
-            holder.day_tv.setAlpha(0.3f);
+            holder.itemView.setAlpha(0.3f);
 
         holder.day_tv.setText(String.valueOf(cal.get(Calendar.DATE)));
 
+        if (setBackGroundFirst && day.date.equals(firstDate)){
+            holder.itemView.setBackgroundResource(R.drawable.today_box);
+            setBackGroundFirst = false;
+        }
+
         setColor(holder, day);
 
+        if(day.getHolidays().size() + day.getSchedules().size() > 3) {
+            TextView tv = new TextView(context);
+            tv.setText("...");
+            holder.schedule_lo.addView(tv,
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+            return;
+        }
+
+        setHolidays(holder, day);
         setSchedules(holder, day);
     }
 
@@ -118,15 +134,8 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         Calendar today = Calendar.getInstance();
         today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE));
         Time.setZero(today);
-        if (dayCal.compareTo(today) == 0) {
-            holder.itemView.setBackgroundResource(R.drawable.today_box);
+        if (dayCal.compareTo(today) == 0)
             color = todayColor;
-            if (setBackGroundToday) {
-                holder.itemView.setBackgroundResource(R.drawable.today_box);
-                setBackGroundToday = false;
-                Log.d("Dirtfy", "RVA");
-            }
-        }
         else if (day.getHolidays().size() > 0)
             color = holidayColor;
         else if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
@@ -138,23 +147,42 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
         holder.day_tv.setTextColor(color);
     }
+    TextView makeTv(String s){
+        TextView tv = new TextView(context);
+        tv.setText(s);
+        tv.setMaxLines(1);
+        tv.setTextSize(Dimension.SP, 10);
+        tv.setEllipsize(TextUtils.TruncateAt.END);
+        return tv;
+    }
+    void setHolidays(VH holder, CalendarDate day){
+        ArrayList<Holiday> holidays = day.getHolidays();
 
+        if (holidays == null) return;
+
+        LinearLayout lo = holder.schedule_lo;
+        TextView tv;
+        for (int i = 0;i < holidays.size();i++){
+            tv = makeTv(holidays.get(i).name);
+            tv.setBackgroundColor(context.getColor(R.color.red));
+            lo.addView(tv,
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
+    }
     void setSchedules(VH holder, CalendarDate day){
         ArrayList<Schedule> schedules = day.getSchedules();
 
         if (schedules == null) return;
 
-        if (schedules.size() > 2){
-            holder.schedule_more.setVisibility(View.VISIBLE);
-        }
-        else if (schedules.size() == 2){
-            holder.schedule_lo.setVisibility(View.VISIBLE);
-            holder.schedule_1_tv.setText(schedules.get(0).getTitle());
-            holder.schedule_2_tv.setText(schedules.get(1).getTitle());
-        }
-        else if (schedules.size() == 1){
-            holder.schedule_lo.setVisibility(View.VISIBLE);
-            holder.schedule_1_tv.setText(schedules.get(0).getTitle());
+        LinearLayout lo = holder.schedule_lo;
+        TextView tv;
+        for (int i = 0;i < schedules.size();i++){
+            tv = makeTv(schedules.get(i).title);
+//            tv.setBackgroundColor(context.getColor(R.color.));
+            lo.addView(tv,
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
         }
     }
 
@@ -171,18 +199,12 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
         TextView day_tv;
         LinearLayout schedule_lo;
-        TextView schedule_1_tv;
-        TextView schedule_2_tv;
-        TextView schedule_more;
 
         public VH(@NonNull View itemView) {
             super(itemView);
 
             day_tv = itemView.findViewById(R.id.page_date_item_day_textView);
             schedule_lo = itemView.findViewById(R.id.page_date_item_schedule_layout);
-            schedule_1_tv = itemView.findViewById(R.id.page_date_item_schedule_1);
-            schedule_2_tv = itemView.findViewById(R.id.page_date_item_schedule_2);
-            schedule_more = itemView.findViewById(R.id.page_date_item_schedule_more);
 
             itemView.setOnClickListener(v -> {
                 if (listener == null) return;

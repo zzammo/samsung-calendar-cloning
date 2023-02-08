@@ -6,13 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,7 +24,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,17 +35,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
-import com.prolificinteractive.materialcalendarview.CalendarDay;
-import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
-import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
-import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Metadata;
 import com.zzammo.calendar.database.Schedule;
@@ -71,7 +63,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 
 public class schedule_main extends AppCompatActivity {
@@ -158,7 +149,7 @@ public class schedule_main extends AppCompatActivity {
                 //true : 그 뒤 리스너까지 이벤트를 전달하지 않고, 터치만 하고 끝낸다.
                 //false : 그 뒤 이벤트까지 액션을 전달한다.
                 //onTouch --> onClick --> onLongClick
-                Log.d("minseok","touch");
+                Log.d("minseok","touch calendar");
                 calendarView.performClick();
                 moveview(event);
                 return true;
@@ -276,6 +267,13 @@ public class schedule_main extends AppCompatActivity {
         scheduleRV = findViewById(R.id.schedule_recyclerView);
         scheduleArrayList = new ArrayList<>();
 
+        underview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("minseok","underviewtouch");
+                return false;
+            }
+        });
         scheduleRV.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -290,19 +288,35 @@ public class schedule_main extends AppCompatActivity {
         });
 
 
+        /*scheduleRV.setLayoutManager( new LinearLayoutManager(this,RecyclerView.VERTICAL ,false){
+            @Override
+            public boolean canScrollVertically() {
+                //Log.d("minseok","scrollvertically");
+                if(mode==1||mode==0)return false;
+                else return true;
+            }
+
+            @Override
+            public boolean canScrollHorizontally() {
+                return false;
+            }
+        });*/
+
+        scheduleRV.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                // Stop only scrolling.
+                Log.d("minseok","hello");
+                if(mode==0||mode==1)return true;
+                else return false;
+                //rv.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING;
+            }
+        });
         scheduleRV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d("minseok","touch");
-                scheduleRV.performClick();
                 moveview(event);
-                if(mode==0||mode==1) {
-
-                    return true;
-                }
-                else{
-                    return false;
-                }
+                return false;
 
             }
         });
@@ -466,7 +480,8 @@ public class schedule_main extends AppCompatActivity {
         public void dateClickListener(View view, CalendarDate date) {
             //            String str_date = date.toString().substring(12,date.toString().length() - 1);
 //            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
-            view.setBackgroundResource(R.drawable.today_box);
+            if (view != null)
+                view.setBackgroundResource(R.drawable.today_box);
             Log.d("Dirtfy", "date clicked");
 
             Calendar cal = Calendar.getInstance();
@@ -507,7 +522,27 @@ public class schedule_main extends AppCompatActivity {
         }
     }
 
+    /*private void postCallAnotherFunction(MotionEvent event){
+        scheduleRV.post(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("minseok","postcallbefore");
+                moveview(event);
+                Log.d("minseok","postcall");
+            }
+        });
+    }*/
+
     void moveview(MotionEvent event) {
+        if (scheduleRV.canScrollVertically(-1)) {
+            Log.d("minseok","realtop");
+            return;
+        }
+        if(mode==0||mode==1){
+            Log.d("minseok","stopmode01");
+            scheduleRV.stopScroll();
+        }
+
         //calendar.getViewPager().invalidate();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -611,8 +646,7 @@ public class schedule_main extends AppCompatActivity {
 
         rc.requestLayout();
         calendarView.requestLayout();
-
-
+        if(mode==2) scheduleRV.smoothScrollToPosition(1);
     }
 
     class MonthChanged implements CustomCalendar.OnMonthChangedListener{

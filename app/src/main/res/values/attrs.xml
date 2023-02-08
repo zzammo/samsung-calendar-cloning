@@ -8,6 +8,7 @@
         <attr name="todayColor" format="reference|color"/>
         <attr name="basicColor" format="reference|color"/>
         <attr name="showSchedule" format="reference|boolean"/>
+        <attr name="showHoliday" format="reference|boolean"/>
         <attr name="pageCount" format="reference|integer"/>
     </declare-styleable>
 </resources>
