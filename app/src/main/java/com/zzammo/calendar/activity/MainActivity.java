@@ -46,6 +46,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -148,6 +150,49 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.custom_calendar_test_btn).setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), test.class);
             startActivity(intent);
+        });
+
+        findViewById(R.id.activity_main_alarm_test).setOnClickListener(v -> {
+            Database database = new Database(context);
+            ArrayList<Schedule> AfterSchedules = new ArrayList<>();
+            database.loadAllScheduleStartedAt(Time.LocalDateTimeToMills(LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(23,0,0, 0))), AfterSchedules);
+            for(Schedule s : AfterSchedules){
+                if(s.alarm == null || s.alarm.equals(""))continue;
+                String[] alarm_time_substr = s.alarm.substring(0, s.alarm.length() - 2).split(", ");
+                LocalDateTime begin = Time.MillsToLocalDateTime(s.begin_ms);
+                if(s.departAlarm) {
+                    begin=begin.minusHours(s.need_hour); begin=begin.minusMinutes(s.need_minute); begin=begin.minusSeconds(s.need_second);
+                }
+                begin=begin.withSecond(0).withNano(0);
+                for(String str : alarm_time_substr){
+                    LocalDateTime time = begin;
+                    if(str.equals("일정 시작시간")){
+
+                    }
+                    else if(str.substring(str.length()-1).equals("분")){
+                        int val = Integer.parseInt(str.substring(0,str.length() - 1));
+                        time = time.minusMinutes(val);
+                    }
+                    else if(str.substring(str.length()-1).equals("간")){
+                        int val = Integer.parseInt(str.substring(0,str.length()-2));
+                        time = time.minusHours(val);
+                    }
+                    else if(str.substring(str.length()-1).equals("일")){
+                        int val = Integer.parseInt(str.substring(0,str.length()-1));
+                        time = time.minusDays(val);
+                    }
+                    else if(str.substring(str.length()-1).equals("주")){
+                        int val = Integer.parseInt(str.substring(0,str.length()-1));
+                        time = time.minusWeeks(val);
+                    }
+
+                    //LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
+                    LocalDateTime now = LocalDateTime.of(2023,2,8,7,0,0,0);
+                    if(time.equals(now)){
+                        Log.d("WeGlonD", "Alarm!! - " + s.title);
+                    }
+                }
+            }
         });
     }
 

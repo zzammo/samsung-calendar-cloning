@@ -226,6 +226,9 @@ public class Database {
     public void loadAllScheduleDuring(Long begin, Long end, ArrayList<Schedule> schedules){
         schedules.addAll(Arrays.asList(localDB.scheduleDao().loadAllScheduleDuring(begin, end)));
     }
+    public void loadAllScheduleStartedAt(Long begin, ArrayList<Schedule> schedules){
+        schedules.addAll(Arrays.asList(localDB.scheduleDao().loadAllScheduleStartedAt(begin)));
+    }
 
 
     public Metadata getMetadata(String keyword){

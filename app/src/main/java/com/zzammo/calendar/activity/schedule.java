@@ -338,9 +338,11 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             if(cur_minute==0){
                 start_hour=cur_hour;
                 end_hour=cur_hour+1;
+                end_hour%=24;
             }else{
                 start_hour=cur_hour+1;
                 end_hour=cur_hour+2;
+                end_hour%=24;
             }
         }
         time_start_timepicker.setIs24HourView(true);

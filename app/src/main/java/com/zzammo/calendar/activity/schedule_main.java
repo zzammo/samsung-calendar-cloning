@@ -114,6 +114,7 @@ public class schedule_main extends AppCompatActivity {
     private boolean isLogin=false;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+    View naviHeader;
 
     CustomCalendar.OnMonthChangedListener monthChangedListener;
 
@@ -141,6 +142,11 @@ public class schedule_main extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
+        naviHeader = navigationView.getHeaderView(0);
+        naviHeader.findViewById(R.id.login_layout_btn).setOnClickListener(view -> {
+            Intent it = new Intent(schedule_main.this, LoginActivity.class);
+            startActivity(it);
+        });
 
         calendarView.post(new Runnable() {
             @Override
