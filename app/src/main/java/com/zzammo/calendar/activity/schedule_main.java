@@ -336,8 +336,6 @@ public class schedule_main extends AppCompatActivity {
         lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
         getWeather(weather, 35.887390,128.611629);
 
-
-
     }
 
 
@@ -737,23 +735,19 @@ public class schedule_main extends AppCompatActivity {
         }).start();
     }
 
+    private long presstime=0;
     @Override
-    public void onBackPressed() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(schedule_main.this);
-        builder.setMessage("캘린더 앱을 종료하시겠습니까?");
-        builder.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+    public void onBackPressed(){
+        long tempTime=System.currentTimeMillis();
+        long interval=tempTime-presstime;
 
-            }
-        });
-        builder.setNegativeButton("네", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                finish();
-            }
-        });
-        builder.show();
+        if(interval>=0&&interval<=1000){
+            setResult(RESULT_CANCELED);
+            finish();
+        }else{
+            presstime=tempTime;
+            Toast.makeText(getApplicationContext(),"한번 더 누르시면 메인화면으로 돌아갑니다",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
