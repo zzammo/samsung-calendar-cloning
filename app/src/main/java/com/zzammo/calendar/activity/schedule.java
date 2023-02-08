@@ -878,50 +878,46 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
             allday_switch.setChecked(intent.getBooleanExtra("isAllday", false));
             alarm_switch.setChecked(intent.getBooleanExtra("departAlarm", false));
             alarm = intent.getStringExtra("alarm");
+            if(alarm == null) alarm = "";
             if(alarm.equals("")) alarm_time_textview.setText("알람 설정 없음");
             else alarm_time_textview.setText(alarm);
             memo.setText(intent.getStringExtra("memo"));
 
-            String[] alarm_time_substr = alarm.substring(0, alarm.length() - 2).split(", ");
-            for(String s : alarm_time_substr){
-                if(s.equals("일정 시작시간")){
-                    checkbox_ontime.setChecked(true);
-                }
-                else if(s.equals("10분")){
-                    checkbox_10_min_ago.setChecked(true);
-                }
-                else if(s.equals("1시간")){
-                    checkbox_hourago.setChecked(true);
-                }
-                else if(s.equals("1일")){
-                    checkbox_dayago.setChecked(true);
-                }
-                else{
-                    //직접 사용자가 설정한 시간
-                    checkbox_custom.setChecked(true);
-                    custom_alram_layout.setVisibility(View.VISIBLE);
-                    String unit = s.substring(s.length() - 1);
-                    String num = s.substring(0, s.length() - 1);
-                    if(unit.equals("분")){
-                        customIndex = 0;
+            if(!alarm.equals("")) {
+                String[] alarm_time_substr = alarm.substring(0, alarm.length() - 2).split(", ");
+                for (String s : alarm_time_substr) {
+                    if (s.equals("일정 시작시간")) {
+                        checkbox_ontime.setChecked(true);
+                    } else if (s.equals("10분")) {
+                        checkbox_10_min_ago.setChecked(true);
+                    } else if (s.equals("1시간")) {
+                        checkbox_hourago.setChecked(true);
+                    } else if (s.equals("1일")) {
+                        checkbox_dayago.setChecked(true);
+                    } else {
+                        //직접 사용자가 설정한 시간
+                        checkbox_custom.setChecked(true);
+                        custom_alram_layout.setVisibility(View.VISIBLE);
+                        String unit = s.substring(s.length() - 1);
+                        String num = s.substring(0, s.length() - 1);
+                        if (unit.equals("분")) {
+                            customIndex = 0;
+                        } else if (unit.equals("간")) {
+                            customIndex = 1;
+                            num = num.substring(0, num.length() - 1);
+                        } else if (unit.equals("일")) {
+                            customIndex = 2;
+                        } else if (unit.equals("주")) {
+                            customIndex = 3;
+                        }
+                        customVal = Integer.parseInt(num);
+                        setNumpicker(customIndex);
+                        numpicker.setValue(customVal);
+                        charpicker.setValue(customIndex);
+                        checkbox_custom.setText(getCustomText(customVal, customIndex));
+                        numpicker_layout.setVisibility(View.VISIBLE);
+                        custom_alram_btn.setClickable(false);
                     }
-                    else if(unit.equals("간")){
-                        customIndex = 1;
-                        num = num.substring(0,num.length() - 1);
-                    }
-                    else if(unit.equals("일")){
-                        customIndex = 2;
-                    }
-                    else if(unit.equals("주")){
-                        customIndex = 3;
-                    }
-                    customVal = Integer.parseInt(num);
-                    setNumpicker(customIndex);
-                    numpicker.setValue(customVal);
-                    charpicker.setValue(customIndex);
-                    checkbox_custom.setText(getCustomText(customVal,customIndex));
-                    numpicker_layout.setVisibility(View.VISIBLE);
-                    custom_alram_btn.setClickable(false);
                 }
             }
 
