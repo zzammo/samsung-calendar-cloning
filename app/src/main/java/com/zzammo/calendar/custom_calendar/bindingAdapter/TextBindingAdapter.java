@@ -1,20 +1,15 @@
 package com.zzammo.calendar.custom_calendar.bindingAdapter;
 
-import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.databinding.BindingAdapter;
 
-import com.prolificinteractive.materialcalendarview.CalendarDay;
-import com.zzammo.calendar.activity.MainActivity;
 import com.zzammo.calendar.custom_calendar.utils.DateFormat;
 import com.zzammo.calendar.database.Schedule;
-import com.zzammo.calendar.util.Time;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 public class TextBindingAdapter {
     public static Calendar calendar = Calendar.getInstance();

@@ -27,18 +27,7 @@
             android:id="@+id/page_date_item_schedule_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/page_date_item_schedule_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/page_date_item_schedule_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
+            android:orientation="vertical"/>
 
         <TextView
             android:id="@+id/page_date_item_schedule_more"

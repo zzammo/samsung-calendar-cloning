@@ -9,15 +9,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,10 +33,10 @@ import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.holiday.HolidayApiExplorer;
+import com.zzammo.calendar.notification_service.MyService;
 import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.test.AuthTestActivity;
 import com.zzammo.calendar.test.DBTestActivity;
-import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -83,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
         /*Log.d("minseok",LunarCalendar.Solar2Lunar("20230105")) ; // 양력을 음력으로 바꾸기
         Log.d("minseok", LunarCalendar.Lunar2Solar("20010527")) ; // 음력을 양력으로 바꾸기*/
         Button button = (Button) findViewById(R.id.btn);
+
+        Intent itt=new Intent(MainActivity.this, MyService.class);
+        startService(itt);
+
         button.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -194,6 +195,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private long presstime=0;
+    @Override
+    public void onBackPressed(){
+        long tempTime=System.currentTimeMillis();
+        long interval=tempTime-presstime;
+
+        if(interval>=0&&interval<=1000){
+            setResult(RESULT_CANCELED);
+            finish();
+        }else{
+            presstime=tempTime;
+            Toast.makeText(getApplicationContext(),"한번 더 누르시면 종료됩니다",Toast.LENGTH_SHORT).show();
+        }
     }
 
 //    void GetHoliday(int year, AfterTask afterTask) {
