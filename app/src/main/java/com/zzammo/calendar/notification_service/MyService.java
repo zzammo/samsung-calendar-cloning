@@ -1,14 +1,19 @@
 package com.zzammo.calendar.notification_service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.widget.Toast;
+
+import androidx.core.app.NotificationCompat;
 
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.activity.MainActivity;
@@ -26,6 +31,9 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Notifi_M = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notifi_M.createNotificationChannel(new NotificationChannel("id","name", NotificationManager.IMPORTANCE_HIGH));
+        }
         myServiceHandler handler = new myServiceHandler();
         thread = new ServiceThread(handler);
         thread.start();
@@ -41,9 +49,10 @@ public class MyService extends Service {
 
     class myServiceHandler extends Handler {
         @Override
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(Message msg) {
             Intent intent = new Intent(MyService.this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(MyService.this, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
+
 
             Notifi = new Notification.Builder(getApplicationContext())
                     .setContentTitle("Content Title")
@@ -57,7 +66,7 @@ public class MyService extends Service {
             Notifi.defaults = Notification.DEFAULT_SOUND;
 
             //알림 소리를 한번만 내도록
-            Notifi.flags = Notification.FLAG_ONLY_ALERT_ONCE;
+            //Notifi.flags = Notification.FLAG_ONLY_ALERT_ONCE;
 
             //확인하면 자동으로 알림이 제거 되도록
             Notifi.flags = Notification.FLAG_AUTO_CANCEL;
@@ -67,5 +76,6 @@ public class MyService extends Service {
             //토스트 띄우기
             Toast.makeText(MyService.this, "뜸?", Toast.LENGTH_LONG).show();
         }
+
     };
 }
