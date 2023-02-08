@@ -23,7 +23,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     ArrayList<PageData> data;
     CustomCalendar.OnDateClick dateClick;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
-    boolean showSchedule;
+    boolean showSchedule, showHoliday;
     boolean setBackgroundToday;
     Long selectedDate;
 
@@ -35,13 +35,14 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     }
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data,
-                            boolean showSchedule,
+                            boolean showSchedule, boolean showHoliday,
                             int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
                             boolean setBackgroundToday,
                             Long selectedDate) {
         super(fragmentActivity);
         this.data = data;
         this.showSchedule = showSchedule;
+        this.showHoliday = showHoliday;
         this.sundayColor = sundayColor;
         this.saturdayColor = saturdayColor;
         this.holidayColor = holidayColor;
@@ -65,13 +66,16 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 DB.loadAllScheduleDuring(begin, begin+Time.ONE_DAY-1, cd.getSchedules());
             }
         }
-        for (CalendarDate cd : data.get(position).getDays()){
-            if (cd.getHolidays() != null) break;
+        if (showHoliday){
+            for (CalendarDate cd : data.get(position).getDays()){
+                if (cd.getHolidays() != null) break;
 
-            cd.setHolidays(new ArrayList<>());
-            Long begin = cd.date;
-            cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
+                cd.setHolidays(new ArrayList<>());
+                Long begin = cd.date;
+                cd.getHolidays().addAll(DB.HoliLocalDB.holidayDao().searchHolidayByDate(begin, begin+Time.ONE_DAY-1));
+            }
         }
+
 
         boolean bf = setBackgroundToday && (position == data.size()/2);
         if (bf) {
