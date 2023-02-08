@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -118,6 +119,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE));
         Time.setZero(today);
         if (dayCal.compareTo(today) == 0) {
+            holder.itemView.setBackgroundResource(R.drawable.today_box);
             color = todayColor;
             if (setBackGroundToday) {
                 holder.itemView.setBackgroundResource(R.drawable.today_box);
@@ -136,6 +138,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
         holder.day_tv.setTextColor(color);
     }
+
     void setSchedules(VH holder, CalendarDate day){
         ArrayList<Schedule> schedules = day.getSchedules();
 

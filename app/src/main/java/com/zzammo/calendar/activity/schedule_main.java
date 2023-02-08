@@ -103,6 +103,8 @@ public class schedule_main extends AppCompatActivity {
     private int year;
 
     private int flag=0;
+
+    private boolean isLogin=false;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
 
@@ -448,6 +450,7 @@ public class schedule_main extends AppCompatActivity {
         }
     }
     class DateClicked implements CustomCalendar.OnDateClickListener{
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void dateClickListener(View view, CalendarDate date) {
             //            String str_date = date.toString().substring(12,date.toString().length() - 1);
