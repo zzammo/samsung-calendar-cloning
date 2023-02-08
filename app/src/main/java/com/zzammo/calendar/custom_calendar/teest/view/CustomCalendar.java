@@ -59,7 +59,7 @@ public class CustomCalendar extends LinearLayout {
             if (dateChangedListener != null)
                 dateChangedListener.dateChangedListener(date);
 
-            int postPage = selectedDatePage;
+            int postPage = selectedDatePage.intValue();
             int nowPage = viewPager.getCurrentItem();
             Calendar cal = Calendar.getInstance();
             if (!date.thisMonth){
@@ -72,7 +72,7 @@ public class CustomCalendar extends LinearLayout {
             }
 
             viewPager.setCurrentItem(nowPage);
-            selectedDatePage = nowPage;
+            selectedDatePage = Long.valueOf(nowPage);
             selectedDate = date.date;
             selectedView = getSelectedView();
 
@@ -102,7 +102,7 @@ public class CustomCalendar extends LinearLayout {
 
     FragmentActivity activity;
     ArrayList<PageData> data;
-    int selectedDatePage;
+    Long selectedDatePage;
     Long selectedDate;
     View selectedView;
 
@@ -298,16 +298,16 @@ public class CustomCalendar extends LinearLayout {
         Calendar cal = Calendar.getInstance();
         Time.setZero(cal);
         selectedDate = cal.getTimeInMillis();
-        selectedDatePage = pageCount;
+        selectedDatePage = Long.valueOf(pageCount);
 
         viewPagerAdapter = new ViewPagerAdapter(activity, data,
                 showSchedule, showHoliday,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor,
-                true, selectedDate);
+                true, true, selectedDate, selectedDatePage);
         viewPagerAdapter.setDateClickListener(dateClick);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
-        viewPager.setOffscreenPageLimit(10);
+//        viewPager.setOffscreenPageLimit(1);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override

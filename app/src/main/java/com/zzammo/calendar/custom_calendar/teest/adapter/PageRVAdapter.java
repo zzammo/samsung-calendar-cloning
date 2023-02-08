@@ -27,6 +27,7 @@ import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Objects;
 
 public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
@@ -41,14 +42,14 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     ArrayList<CalendarDate> data;
     CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
-    boolean setBackGroundToday;
-    Long selectedDate;
+    boolean setBackGroundFirst;
+    Long firstDate;
 
     public PageRVAdapter(LifecycleOwner lifecycleOwner, Context context, ArrayList<CalendarDate> data,
                          CustomCalendar.OnDateClick listener,
                          int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                         boolean setBackGroundToday,
-                         Long selectedDate) {
+                         boolean setBackGroundFirst,
+                         Long firstDate) {
         this.lifecycleOwner = lifecycleOwner;
         this.context = context;
         this.data = data;
@@ -58,8 +59,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         this.holidayColor = holidayColor;
         this.todayColor = todayColor;
         this.basicColor = basicColor;
-        this.setBackGroundToday = setBackGroundToday;
-        this.selectedDate = selectedDate;
+        this.setBackGroundFirst = setBackGroundFirst;
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();
@@ -102,9 +102,14 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         viewHolders[position] = holder.itemView;
 
         if (!day.thisMonth)
-            holder.day_tv.setAlpha(0.3f);
+            holder.itemView.setAlpha(0.3f);
 
         holder.day_tv.setText(String.valueOf(cal.get(Calendar.DATE)));
+
+        if (setBackGroundFirst && day.date.equals(firstDate)){
+            holder.itemView.setBackgroundResource(R.drawable.today_box);
+            setBackGroundFirst = false;
+        }
 
         setColor(holder, day);
 
@@ -129,14 +134,8 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         Calendar today = Calendar.getInstance();
         today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE));
         Time.setZero(today);
-        if (dayCal.compareTo(today) == 0) {
+        if (dayCal.compareTo(today) == 0)
             color = todayColor;
-            if (setBackGroundToday) {
-                holder.itemView.setBackgroundResource(R.drawable.today_box);
-                setBackGroundToday = false;
-                Log.d("Dirtfy", "RVA");
-            }
-        }
         else if (day.getHolidays().size() > 0)
             color = holidayColor;
         else if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)

@@ -482,7 +482,8 @@ public class schedule_main extends AppCompatActivity {
         public void dateClickListener(View view, CalendarDate date) {
             //            String str_date = date.toString().substring(12,date.toString().length() - 1);
 //            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
-            view.setBackgroundResource(R.drawable.today_box);
+            if (view != null)
+                view.setBackgroundResource(R.drawable.today_box);
             Log.d("Dirtfy", "date clicked");
 
             Calendar cal = Calendar.getInstance();
