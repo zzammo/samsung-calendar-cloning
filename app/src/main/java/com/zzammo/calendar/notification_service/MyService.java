@@ -52,9 +52,9 @@ public class MyService extends Service {
         public void handleMessage(Message msg) {
             Intent intent = new Intent(MyService.this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(MyService.this, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
+            
 
-
-            Notifi = new Notification.Builder(getApplicationContext())
+            Notifi = new NotificationCompat.Builder(getApplicationContext(),"id")
                     .setContentTitle("Content Title")
                     .setContentText("Content Text")
                     .setSmallIcon(R.drawable.ic_baseline_calendar_today_24)
@@ -71,11 +71,10 @@ public class MyService extends Service {
             //확인하면 자동으로 알림이 제거 되도록
             Notifi.flags = Notification.FLAG_AUTO_CANCEL;
 
-            Notifi_M.notify( 777 , Notifi);
+            Notifi_M.notify(0,Notifi);
 
             //토스트 띄우기
             Toast.makeText(MyService.this, "뜸?", Toast.LENGTH_LONG).show();
         }
-
     };
 }
