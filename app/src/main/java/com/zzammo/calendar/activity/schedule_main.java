@@ -115,6 +115,8 @@ public class schedule_main extends AppCompatActivity {
     CustomCalendar.OnMonthChangedListener monthChangedListener;
     MotionEvent mevent;
 
+    private int how_flag=0;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +155,13 @@ public class schedule_main extends AppCompatActivity {
                 "무음","소리","진동"
         });
         alarm_how_picker.setWrapSelectorWheel(false);
+
+        alarm_how_picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                how_flag=i1;
+            }
+        });
 
         calendarView.post(new Runnable() {
             @Override
