@@ -28,8 +28,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginBottom="20sp"
         android:text="blabal@samsung.com"
         android:textSize="14sp"/>
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_margin="7sp"
+        android:background="@color/line_white"
+        android:layout_marginVertical="3sp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10sp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_margin="10sp"
+            android:text="앱에서 사용할 데이터 베이스"/>
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -73,9 +92,43 @@
             android:layout_height="match_parent"
             android:layout_margin="10sp"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_margin="7sp"
+        android:background="@color/line_white"
+        android:layout_marginVertical="3sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10sp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_margin="10sp"
+            android:text="알림방법"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10sp"
+        android:orientation="horizontal">
+        <NumberPicker
+            android:id="@+id/alarm_how_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:selectionDividerHeight="0dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
     <View
         android:layout_width="match_parent"
-        android:layout_height="200sp"
+        android:layout_height="50sp"
         android:layout_weight="1"/>
     <LinearLayout
         android:id="@+id/login_layout_btn"
