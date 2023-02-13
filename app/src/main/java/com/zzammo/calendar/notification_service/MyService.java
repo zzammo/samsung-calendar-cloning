@@ -34,6 +34,17 @@ public class MyService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notifi_M.createNotificationChannel(new NotificationChannel("id","name", NotificationManager.IMPORTANCE_HIGH));
         }
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+        Notification notification = new NotificationCompat.Builder(this, "id")
+                .setContentTitle("캘린더 실행중")
+                .setContentText("알람 실행 대기")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        startForeground(1, notification);
         myServiceHandler handler = new myServiceHandler();
         thread = new ServiceThread(handler);
         thread.start();
@@ -51,7 +62,7 @@ public class MyService extends Service {
         @Override
         public void handleMessage(Message msg) {
             Intent intent = new Intent(MyService.this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(MyService.this, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getActivity(MyService.this, 0, intent,PendingIntent.FLAG_IMMUTABLE);
             
 
             Notifi = new NotificationCompat.Builder(getApplicationContext(),"id")
