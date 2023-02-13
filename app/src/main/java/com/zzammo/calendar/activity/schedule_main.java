@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +50,7 @@ import com.zzammo.calendar.database.room.ScheduleDatabase;
 import com.zzammo.calendar.dialog.ScheduleDialog;
 import com.zzammo.calendar.holiday.HolidayApiExplorer;
 import com.zzammo.calendar.lunar.LunarCalendar;
+import com.zzammo.calendar.notification_service.MyService;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 import com.zzammo.calendar.weather.WeatherApiExplorer;
@@ -108,9 +110,12 @@ public class schedule_main extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     View naviHeader;
+    NumberPicker alarm_how_picker;
 
     CustomCalendar.OnMonthChangedListener monthChangedListener;
     MotionEvent mevent;
+
+    private int how_flag=0;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -142,6 +147,22 @@ public class schedule_main extends AppCompatActivity {
             startActivity(it);
         });
 
+        alarm_how_picker=naviHeader.findViewById(R.id.alarm_how_picker);
+
+        alarm_how_picker.setMaxValue(2);
+        alarm_how_picker.setMinValue(0);
+        alarm_how_picker.setDisplayedValues(new String[]{
+                "무음","소리","진동"
+        });
+        alarm_how_picker.setWrapSelectorWheel(false);
+
+        alarm_how_picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                how_flag=i1;
+            }
+        });
+
         calendarView.post(new Runnable() {
             @Override
             public void run() {
@@ -164,8 +185,6 @@ public class schedule_main extends AppCompatActivity {
                 return true;
             }
         });
-
-
 
         edit_=findViewById(R.id.edit_);
 
