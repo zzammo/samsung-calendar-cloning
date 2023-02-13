@@ -36,7 +36,6 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     Database DB;
 
     public MutableLiveData<Integer> viewHolderHeight;
-    ArrayList<PageDateItemBinding> viewHolderBindings;
     View[] viewHolders;
 
     ArrayList<CalendarDate> data;
@@ -60,6 +59,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         this.todayColor = todayColor;
         this.basicColor = basicColor;
         this.setBackGroundFirst = setBackGroundFirst;
+        this.firstDate = firstDate;
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();
@@ -106,9 +106,15 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
         holder.day_tv.setText(String.valueOf(cal.get(Calendar.DATE)));
 
+//        Calendar tmp = Calendar.getInstance();
+//        tmp.setTimeInMillis(day.date);
+//        Log.d("Dirtfy", Time.CalendarToYM(tmp));
+//        Log.d("Dirtfy", String.valueOf(day.date.equals(firstDate)));
+//        Log.d("Dirtfy", firstDate+" fd "+day.date);
         if (setBackGroundFirst && day.date.equals(firstDate)){
             holder.itemView.setBackgroundResource(R.drawable.today_box);
             setBackGroundFirst = false;
+            Log.d("Dirtfy", "RVA");
         }
 
         setColor(holder, day);

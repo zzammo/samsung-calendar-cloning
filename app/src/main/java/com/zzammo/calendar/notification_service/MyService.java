@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.zzammo.calendar.R;
@@ -28,6 +29,7 @@ public class MyService extends Service {
         return null;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Notifi_M = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -40,13 +42,13 @@ public class MyService extends Service {
         Notification not = new NotificationCompat.Builder(this, "id")
                 .setContentTitle("캘린더 실행중")
                 .setContentText("알람 실행 대기")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_baseline_calendar_today_24)
                 .setContentIntent(pendingIntent)
                 .build();
 
         startForeground(1, not);
         myServiceHandler handler = new myServiceHandler();
-        thread = new ServiceThread(handler);
+        thread = new ServiceThread(handler, getApplicationContext());
         thread.start();
         return START_STICKY;
     }
@@ -78,7 +80,7 @@ public class MyService extends Service {
             else{
                 notification = new NotificationCompat.Builder(getApplicationContext(), "id")
                         .setContentTitle("캘린더 알람")
-                        .setContentText("출발시간입니다.\n비가 오니 우산을 챙겨주세요.")
+                        .setContentText("출발시간입니다.\n오늘 비/눈이 예보되어있습니다. 우산을 챙겨주세요.")
                         .setSmallIcon(R.drawable.ic_baseline_calendar_today_24)
                         .setContentIntent(pendingIntent)
                         .build();

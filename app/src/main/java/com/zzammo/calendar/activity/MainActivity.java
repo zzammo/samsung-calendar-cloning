@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.activity_main_alarm_test).setOnClickListener(v -> {
             Database database = new Database(context);
             ArrayList<Schedule> AfterSchedules = new ArrayList<>();
-            database.loadAllScheduleStartedAt(Time.LocalDateTimeToMills(LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(23,0,0, 0))), AfterSchedules);
+            database.loadAllScheduleStartedAt(Time.LocalDateTimeToMills(LocalDateTime.of(LocalDate.of(2023,2,7), LocalTime.of(23,0,0, 0))), AfterSchedules);
             for(Schedule s : AfterSchedules){
                 if(s.alarm == null || s.alarm.equals(""))continue;
                 String[] alarm_time_substr = s.alarm.substring(0, s.alarm.length() - 2).split(", ");
