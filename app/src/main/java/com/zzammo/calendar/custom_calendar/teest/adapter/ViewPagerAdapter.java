@@ -1,5 +1,7 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -76,13 +78,16 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
             }
         }
 
-
-        boolean bf = setBackgroundFirst && isFirstTime && position == firstDatePage;
-//        if (bf)
+//        boolean bf = setBackgroundFirst && isFirstTime && position == firstDatePage;
+//        Log.d("Dirtfy", bf +" bf "+isFirstTime+" ft "+(position == firstDatePage)+" ba "+setBackgroundFirst);
+//        Log.d("Dirtfy", position+" p "+firstDatePage);
+//        if (bf) {
 //            isFirstTime = false;
+//            Log.d("Dirtfy", "VPA");
+//        }
 
         return new PageFragment(data.get(position), dateClick,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, bf, firstDate);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, setBackgroundFirst, firstDate);
     }
 
     @Override
@@ -116,6 +121,18 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public void setShowSchedule(boolean showSchedule) {
         this.showSchedule = showSchedule;
+    }
+
+    public void setFirstDate(Long firstDate) {
+        this.firstDate = firstDate;
+    }
+
+    public void setFirstDatePage(Long firstDatePage) {
+        this.firstDatePage = firstDatePage;
+    }
+
+    public void setFirstTime(boolean firstTime) {
+        isFirstTime = firstTime;
     }
 
     public ArrayList<PageData> getData() {

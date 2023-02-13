@@ -55,12 +55,15 @@ public class CustomCalendar extends LinearLayout {
 
         public void dateClick(View view, CalendarDate date){
             selectedView = getSelectedView();
+            Log.d("Dirtfy", String.valueOf(selectedView == null));
 
             if (dateChangedListener != null)
                 dateChangedListener.dateChangedListener(date);
 
             int postPage = selectedDatePage.intValue();
+            Log.d("Dirtfy", postPage+" : postPage");
             int nowPage = viewPager.getCurrentItem();
+            Log.d("Dirtfy", nowPage+" : nowPage1");
             Calendar cal = Calendar.getInstance();
             if (!date.thisMonth){
                 cal.setTimeInMillis(date.date);
@@ -70,10 +73,19 @@ public class CustomCalendar extends LinearLayout {
                 else if(day < DAY_SIZE/2 && nowPage < 2*pageCount-1)
                     nowPage++;
             }
+            Log.d("Dirtfy", nowPage+" : nowPage2");
 
-            viewPager.setCurrentItem(nowPage);
-            selectedDatePage = Long.valueOf(nowPage);
             selectedDate = date.date;
+
+            if(postPage != nowPage){
+                viewPagerAdapter.setFirstDate(selectedDate);
+                viewPagerAdapter.setFirstDatePage((long) nowPage);
+                viewPagerAdapter.setFirstTime(true);
+
+                viewPager.setCurrentItem(nowPage);
+            }
+
+            selectedDatePage = (long) nowPage;
             selectedView = getSelectedView();
 
 //            selectedDatePage = viewPager.getCurrentItem();
@@ -84,7 +96,7 @@ public class CustomCalendar extends LinearLayout {
                 view = selectedView;
 
             if (dateClickListener != null)
-                dateClickListener.dateClickListener(view, date);
+                    dateClickListener.dateClickListener(view, date);
         }
 
         public void setDateClickListener(OnDateClickListener dateClickListener) {
@@ -248,21 +260,33 @@ public class CustomCalendar extends LinearLayout {
 
     public View getSelectedView(){
         if (selectedDate == null) return null;
-        Calendar cal = Calendar.getInstance();
-
-        cal.setTimeInMillis(selectedDate);
-        cal.set(Calendar.DATE, 1);
-        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
-
-        cal.setTimeInMillis(selectedDate);
-        int realIndex = dayOfWeek + cal.get(Calendar.DATE) - 1;
-
-        Log.d("Dirtfy", realIndex+"getSelectedView");
+//        Calendar cal = Calendar.getInstance();
+//
+//        cal.setTimeInMillis(selectedDate);
+//        cal.set(Calendar.DATE, 1);
+//        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
+//
+//        cal.setTimeInMillis(selectedDate);
+//        int realIndex = dayOfWeek + cal.get(Calendar.DATE) - 1;
+//
+//        Log.d("Dirtfy", realIndex+"getSelectedView");
 
         PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
                 findFragmentByTag("f"+selectedDatePage);
         Log.d("Dirtfy", "f"+selectedDatePage);
         if (pf == null) return null;
+
+        Calendar cal = Calendar.getInstance();
+
+        Long s = viewPagerAdapter.getData().get(selectedDatePage.intValue()).getDays().get(0).date;
+        cal.setTimeInMillis(s);
+        Log.d("Dirtfy", s+" : s "+Time.CalendarToYM(cal)+" "+cal.get(Calendar.DATE));
+        Long e = selectedDate;
+        cal.setTimeInMillis(e);
+        Log.d("Dirtfy", e+" : e "+Time.CalendarToYM(cal)+" "+cal.get(Calendar.DATE));
+        int realIndex = (int) ((e-s)/ Time.ONE_DAY);
+
+        Log.d("Dirtfy", realIndex+" getSelectedView");
 
         RecyclerView rv = pf.getRecyclerView();
         PageRVAdapter rva = (PageRVAdapter) rv.getAdapter();
@@ -298,7 +322,7 @@ public class CustomCalendar extends LinearLayout {
         Calendar cal = Calendar.getInstance();
         Time.setZero(cal);
         selectedDate = cal.getTimeInMillis();
-        selectedDatePage = Long.valueOf(pageCount);
+        selectedDatePage = (long) pageCount;
 
         viewPagerAdapter = new ViewPagerAdapter(activity, data,
                 showSchedule, showHoliday,
