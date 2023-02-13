@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi;
 
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
+import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 import com.zzammo.calendar.weather.WeatherApiExplorer;
 
@@ -36,6 +37,7 @@ public class ServiceThread extends Thread{
         database = new Database(context);
         today = LocalDate.of(2022,1,1);
         weather = new HashMap<>();
+        message = 0;
     }
 
     public void stopForever(){
@@ -73,11 +75,21 @@ public class ServiceThread extends Thread{
             today = now.toLocalDate();
             //날씨 가져오기
             weather.clear();
-            getWeather(weather, 35.887390,128.611629); //현위치 불러와서 넣기
-            if(weather.get(LocalDate.now()).get("PTY") > 0){
-                message = 1;
-            }
-            else message = 0;
+            //현위치 불러와서 넣기
+            getWeather(weather, 35.887390, 128.611629, new AfterTask() {
+                @Override
+                public void ifSuccess(Object result) {
+                    if(weather.get(LocalDate.now()).get("PTY") > 0){
+                        message = 1;
+                    }
+                    else message = 0;
+                }
+
+                @Override
+                public void ifFail(Object result) {
+                    message = 0;
+                }
+            });
         }
         //LocalDateTime now = LocalDateTime.of(2023,2,8,7,0,0,0);
         database.loadAllScheduleStartedAt(Time.LocalDateTimeToMills(LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(23,0,0, 0))), AfterSchedules);
@@ -119,7 +131,7 @@ public class ServiceThread extends Thread{
         }
     }
 
-    public void getWeather(HashMap<LocalDate, HashMap<String, Integer>> weather, double latitude, double longitude){
+    public void getWeather(HashMap<LocalDate, HashMap<String, Integer>> weather, double latitude, double longitude, AfterTask task){
         WeatherApiExplorer weatherApiExplorer = new WeatherApiExplorer(context);
         new Thread(new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -128,6 +140,7 @@ public class ServiceThread extends Thread{
                 try {
                     weatherApiExplorer.getWeather(weather, latitude, longitude);
                     Log.d("WeGlonD", weather.toString());
+                    task.ifSuccess(0);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
