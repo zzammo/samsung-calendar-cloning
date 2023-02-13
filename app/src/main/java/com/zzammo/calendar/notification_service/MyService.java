@@ -21,7 +21,7 @@ import com.zzammo.calendar.activity.MainActivity;
 public class MyService extends Service {
     NotificationManager Notifi_M;
     ServiceThread thread;
-    Notification Notifi ;
+    Notification notification ;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,6 +34,17 @@ public class MyService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notifi_M.createNotificationChannel(new NotificationChannel("id","name", NotificationManager.IMPORTANCE_HIGH));
         }
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+        Notification not = new NotificationCompat.Builder(this, "id")
+                .setContentTitle("캘린더 실행중")
+                .setContentText("알람 실행 대기")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        startForeground(1, not);
         myServiceHandler handler = new myServiceHandler();
         thread = new ServiceThread(handler);
         thread.start();
@@ -51,30 +62,42 @@ public class MyService extends Service {
         @Override
         public void handleMessage(Message msg) {
             Intent intent = new Intent(MyService.this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(MyService.this, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
-            
+            PendingIntent pendingIntent = PendingIntent.getActivity(MyService.this, 0, intent,PendingIntent.FLAG_IMMUTABLE);
 
-            Notifi = new NotificationCompat.Builder(getApplicationContext(),"id")
-                    .setContentTitle("Content Title")
-                    .setContentText("Content Text")
-                    .setSmallIcon(R.drawable.ic_baseline_calendar_today_24)
-                    .setTicker("알림!!!")
-                    .setContentIntent(pendingIntent)
-                    .build();
+            if(msg.what==0) {
+                notification = new NotificationCompat.Builder(getApplicationContext(), "id")
+                        .setContentTitle("캘린더 알람")
+                        .setContentText("출발시간입니다.")
+                        .setSmallIcon(R.drawable.ic_baseline_calendar_today_24)
+                        .setContentIntent(pendingIntent)
+                        .build();
+
+                //토스트 띄우기
+                Toast.makeText(MyService.this, "출발시간입니다.", Toast.LENGTH_LONG).show();
+            }
+            else{
+                notification = new NotificationCompat.Builder(getApplicationContext(), "id")
+                        .setContentTitle("캘린더 알람")
+                        .setContentText("출발시간입니다.\n비가 오니 우산을 챙겨주세요.")
+                        .setSmallIcon(R.drawable.ic_baseline_calendar_today_24)
+                        .setContentIntent(pendingIntent)
+                        .build();
+
+                //토스트 띄우기
+                Toast.makeText(MyService.this, "출발시간입니다.\n비가 오니 우산을 챙겨주세요.", Toast.LENGTH_LONG).show();
+            }
 
             //소리추가
-            Notifi.defaults = Notification.DEFAULT_SOUND;
+            notification.defaults = Notification.DEFAULT_SOUND;
 
             //알림 소리를 한번만 내도록
             //Notifi.flags = Notification.FLAG_ONLY_ALERT_ONCE;
 
             //확인하면 자동으로 알림이 제거 되도록
-            Notifi.flags = Notification.FLAG_AUTO_CANCEL;
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
 
-            Notifi_M.notify(0,Notifi);
+            Notifi_M.notify(0,notification);
 
-            //토스트 띄우기
-            Toast.makeText(MyService.this, "뜸?", Toast.LENGTH_LONG).show();
         }
     };
 }

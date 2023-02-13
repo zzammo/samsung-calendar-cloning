@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         Button button = (Button) findViewById(R.id.btn);
 
         Intent itt=new Intent(MainActivity.this, MyService.class);
-        startService(itt);
+        startForegroundService(itt);
 
         button.setOnClickListener(new View.OnClickListener() {
 
