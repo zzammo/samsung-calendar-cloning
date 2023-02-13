@@ -27,6 +27,9 @@ public interface ScheduleDao {
     @Query("SELECT * FROM schedule WHERE begin_ms BETWEEN :begin AND :end")
     Schedule[] loadAllScheduleDuring(Long begin, Long end);
 
+    @Query("SELECT * FROM schedule WHERE begin_ms >= :begin")
+    Schedule[] loadAllScheduleStartedAt(Long begin);
+
     @Query("SELECT * FROM schedule WHERE serverId IS NULL")
     List<Schedule> getNotSynced();
 

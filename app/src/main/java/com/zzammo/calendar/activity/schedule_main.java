@@ -92,6 +92,7 @@ public class schedule_main extends AppCompatActivity {
     EditText edit_;
 
 
+    boolean moving = false;
     Switch use_localDB_switch;
     Switch use_fireDB_switch;
     LinearLayout login_layout_btn;
@@ -105,8 +106,10 @@ public class schedule_main extends AppCompatActivity {
     private boolean isLogin=false;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+    View naviHeader;
 
     CustomCalendar.OnMonthChangedListener monthChangedListener;
+    MotionEvent mevent;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -132,6 +135,11 @@ public class schedule_main extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
+        naviHeader = navigationView.getHeaderView(0);
+        naviHeader.findViewById(R.id.login_layout_btn).setOnClickListener(view -> {
+            Intent it = new Intent(schedule_main.this, LoginActivity.class);
+            startActivity(it);
+        });
 
         calendarView.post(new Runnable() {
             @Override
@@ -302,20 +310,73 @@ public class schedule_main extends AppCompatActivity {
             }
         });*/
 
+        scheduleRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    Log.d("minseok",mode+"scrollup");
+
+                    // Scrolling Up
+                    // Perform your desired action here
+                } else {
+                    Log.d("minseok",mode+"scrolldown");
+                    // Scrolling Down
+                    // Perform your desired action here
+                }
+
+            }
+        });
+
+
+
         scheduleRV.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                //if(moving)return true;
                 // Stop only scrolling.
-                Log.d("minseok","hello");
-                if(mode==0||mode==1)return true;
-                else return false;
+                if(mode == 0 || mode == 1){
+                    Log.d("minseok","hello");
+                    return true;
+                }
+                else {
+                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) scheduleRV.getLayoutManager();
+                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                    if (firstVisibleItemPosition == 0) {
+                        //if(moving)return true;
+                        Log.d("minseok","33");
+                        return false;
+                    }
+                    Log.d("minseok","hello12");
+                    return false;
+                }
+                //true면 touch만 호출
+                //false면 뒤에 touch와 scrollListener호출
                 //rv.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING;
             }
         });
+
+
+
         scheduleRV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                moveview(event);
+                Log.d("minseok","touch111");
+                if(mode!=2){
+                    moveview(event);
+                    return false;
+                }
+
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) scheduleRV.getLayoutManager();
+                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                if (firstVisibleItemPosition == 0) {
+                    // The top of the RecyclerView has been reached
+                    // Perform your desired action here
+                    Log.d("minseok","??");
+                    scheduleRV.stopScroll();
+                    moveview(event);
+                    return true;
+                }
                 return false;
 
             }
@@ -349,8 +410,6 @@ public class schedule_main extends AppCompatActivity {
         LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
         lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
         getWeather(weather, 35.887390,128.611629);
-
-
 
     }
 
@@ -537,10 +596,10 @@ public class schedule_main extends AppCompatActivity {
 
     void moveview(MotionEvent event) {
         if (scheduleRV.canScrollVertically(-1)) {
-            Log.d("minseok","realtop");
+            Log.d("minseok","notrealtop");
             return;
         }
-        if(mode==0||mode==1){
+        if(mode==0 || mode==1){
             Log.d("minseok","stopmode01");
             scheduleRV.stopScroll();
         }
@@ -554,6 +613,7 @@ public class schedule_main extends AppCompatActivity {
                 init_view2_h = underview.getHeight(); changemode = 0;
                 break;
             case MotionEvent.ACTION_MOVE:
+                moving = true;
                 y2 = event.getY();
                 float delta = y2 - y1;
                 float absdelta = delta>0?delta:-delta;
@@ -586,6 +646,7 @@ public class schedule_main extends AppCompatActivity {
 
                 break;
             case MotionEvent.ACTION_UP:
+                moving = false;
                 if(changemode==0)break;
                 float tmp;
                 if (changemode == 1) {
@@ -771,23 +832,19 @@ public class schedule_main extends AppCompatActivity {
         }).start();
     }
 
+    private long presstime=0;
     @Override
-    public void onBackPressed() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(schedule_main.this);
-        builder.setMessage("캘린더 앱을 종료하시겠습니까?");
-        builder.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+    public void onBackPressed(){
+        long tempTime=System.currentTimeMillis();
+        long interval=tempTime-presstime;
 
-            }
-        });
-        builder.setNegativeButton("네", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                finish();
-            }
-        });
-        builder.show();
+        if(interval>=0&&interval<=1000){
+            setResult(RESULT_CANCELED);
+            finish();
+        }else{
+            presstime=tempTime;
+            Toast.makeText(getApplicationContext(),"한번 더 누르시면 메인화면으로 돌아갑니다",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
