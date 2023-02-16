@@ -32,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static CustomCalendar calendarView;
     ConstraintLayout underview;
+    NestedScrollView sv;
     float y1,y2,total_h,init_view1_h,init_view2_h;
     Float[] max_h = new Float[3];
     Float[] min_h = new Float[3];
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView = findViewById(R.id.calendarView);
         underview = findViewById(R.id.schedule_main_underview);
-
+        sv = findViewById(R.id.schedule_sv);
 
         params1 = calendarView.getLayoutParams();
         params2 = underview.getLayoutParams();
@@ -343,27 +345,7 @@ public class MainActivity extends AppCompatActivity {
         scheduleRV.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                //if(moving)return true;
-                // Stop only scrolling.
                 return true;
-                /*if(mode == 0 || mode == 1){
-                    Log.d("minseok","hello");
-                    return true;
-                }
-                else {
-                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) scheduleRV.getLayoutManager();
-                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                    if (firstVisibleItemPosition == 0) {
-                        //if(moving)return true;
-                        Log.d("minseok","33");
-                        return false;
-                    }
-                    Log.d("minseok","hello12");
-                    return false;
-                }*/
-                //true면 touch만 호출
-                //false면 뒤에 touch와 scrollListener호출
-                //rv.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING;
             }
         });
 
@@ -374,31 +356,26 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 moveview(event);
                 return true;
-                /*Log.d("minseok","touch111");
-                if(mode!=2){
-                    moveview(event);
-                    return false;
-                }
-
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) scheduleRV.getLayoutManager();
-                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                if (firstVisibleItemPosition == 0) {
-                    // The top of the RecyclerView has been reached
-                    // Perform your desired action here
-                    Log.d("minseok","??");
-                    scheduleRV.stopScroll();
-                    moveview(event);
-                    return true;
-                }
-                return false;*/
-
             }
         });
 
         RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
         layoutManager = new LinearLayoutManager(this,RecyclerView.VERTICAL ,false);
         scheduleRV.setLayoutManager(layoutManager);
+        scheduleRV.setLayoutManager(new LinearLayoutManager(context){
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+        });
         scheduleRV.setAdapter(RVAdapter);
+        scheduleRV.setNestedScrollingEnabled(false);
+        sv.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                Log.d("minseok", "nested scroll view Scrolled!");
+            }
+        });
 
         LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
         lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
@@ -906,81 +883,3 @@ public class MainActivity extends AppCompatActivity {
 
     }
 }
-
-  /*private void postCallAnotherFunction(MotionEvent event){
-        scheduleRV.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("minseok","postcallbefore");
-                moveview(event);
-                Log.d("minseok","postcall");
-            }
-        });
-    }*/
-
- /*scheduleRV.setLayoutManager( new LinearLayoutManager(this,RecyclerView.VERTICAL ,false){
-            @Override
-            public boolean canScrollVertically() {
-                //Log.d("minseok","scrollvertically");
-                if(mode==1||mode==0)return false;
-                else return true;
-            }
-
-            @Override
-            public boolean canScrollHorizontally() {
-                return false;
-            }
-        });*/
-
-//        calendarView.setOnDateChangedListener((widget, date, selected) ->{
-//            year= date.getYear();
-//            month=date.getMonth();
-//            day=date.getDay();
-//            String str_date = date.toString().substring(12,date.toString().length() - 1);
-//            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
-//            Log.d("WeGlonD", str_date);
-//            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
-//            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
-//            ShowWeatherInfo(localDate);
-//            scheduleArrayList.clear();
-
-//            Long dateMills = Time.CalendarDayToMill(date);
-//            scheduleArrayList.clear();
-//            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
-//            Collections.sort(scheduleArrayList);
-//            RVAdapter.notifyDataSetChanged();
-//        });
-
-
-//                else {
-//                    //공휴일 DB에서 가져오기
-////                    String keyword = "%" + year;
-////                    if (month < 10) keyword = keyword + "0";
-////                    keyword = keyword + month + "%";
-////                    LocalDate lo = LocalDate.parse(firstDate.toString().substring(12, firstDate.toString().length() - 1), DateTimeFormatter.ofPattern("yyyy-M-d"));
-////                    lo = lo.plusMonths(1); lo = lo.minusDays(1);
-////                    CalendarDay endday = CalendarDay.from(lo.getYear(), lo.getMonthValue(),lo.getDayOfMonth());
-//                    Calendar endDay = cal;
-//                    endDay.add(Calendar.MONTH, 1);
-//                    Long begin = firstDate,  end = Time.CalendarToMill(endDay);
-//                    Log.d("Dirtfy", "begin : " + begin + " end : " + end);
-////                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
-//                    List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(begin, end);
-//                    Log.d("Dirtfy", "Holidays size : "+Holidays.size()+"");
-//                    for (Holiday holi : Holidays) {
-//                        HolidayDates.add(holi.date);
-//                        HolidayNames.add(holi.name);
-////                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
-//                        calendarView.invalidateDecorators();
-//                    }
-//                }
-
-//        PageFragment pf = (PageFragment) getSupportFragmentManager().
-//                findFragmentByTag("f"+calendarView.getViewPager().getCurrentItem());
-//        RecyclerView rv = pf.getRecyclerView();
-//        rv.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                return true;
-//            }
-//        });
