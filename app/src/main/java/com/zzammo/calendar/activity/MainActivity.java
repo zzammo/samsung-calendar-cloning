@@ -66,6 +66,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     schedule_main_RVAdapter RVAdapter;
     LinearLayoutManager layoutManager;
 
-    CustomCalendar calendarView;
+    public static CustomCalendar calendarView;
     ConstraintLayout underview;
     float y1,y2,total_h,init_view1_h,init_view2_h;
     Float[] max_h = new Float[3];
@@ -252,6 +253,9 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void ifFail(Object result) {}
                     });
+
+                    calendarView.addScheduleOnSelectedDate(schedule);
+
                     edit_.setText("");
                     add_schedule.setImageResource(R.drawable.add_circle_svgrepo_com);
                     flag=0;
@@ -880,9 +884,25 @@ public class MainActivity extends AppCompatActivity {
         monthChangedListener.monthChangedListener(calendarView.getCurrentDate());
         if (date == null) return;
         scheduleArrayList.clear();
-        scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(date, date + Time.ONE_DAY-1)));
+
+        Schedule[] schedules = DB.scheduleDao().loadAllScheduleDuring(date, date + Time.ONE_DAY-1);
+
+        scheduleArrayList.addAll(Arrays.asList(schedules));
         Collections.sort(scheduleArrayList);
         RVAdapter.notifyDataSetChanged();
+
+//        for (int i = 0;i < CustomCalendar.DAY_SIZE;i++){
+//            Long iDate = calendarView.getDateFromPosition(i);
+//            ArrayList<Schedule> schedules =
+//                    new ArrayList<>(Arrays.asList(
+//                            DB.scheduleDao().loadAllScheduleDuring(iDate, iDate + Time.ONE_DAY - 1)));
+//            calendarView.updateScheduleOnPosition(i, schedules);
+//        }
+
+        calendarView.updateScheduleOnPosition(
+                calendarView.getSelectedDateRealIndex(),
+                new ArrayList<>(Arrays.asList(schedules))
+        );
 
     }
 }

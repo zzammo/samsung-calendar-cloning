@@ -21,6 +21,7 @@ import com.zzammo.calendar.custom_calendar.teest.adapter.ViewPagerAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.data.PageData;
 import com.zzammo.calendar.custom_calendar.teest.fragment.PageFragment;
+import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;
@@ -255,6 +256,23 @@ public class CustomCalendar extends LinearLayout {
         return cal.getTimeInMillis();
     }
 
+    public int getSelectedDateRealIndex(){
+        PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
+                findFragmentByTag("f"+selectedDatePage);
+        Log.d("Dirtfy", "f"+selectedDatePage);
+        if (pf == null) return -1;
+
+        Calendar cal = Calendar.getInstance();
+
+        Long s = viewPagerAdapter.getData().get(selectedDatePage.intValue()).getDays().get(0).date;
+        cal.setTimeInMillis(s);
+        Log.d("Dirtfy", s+" : s "+Time.CalendarToYM(cal)+" "+cal.get(Calendar.DATE));
+        Long e = selectedDate;
+        cal.setTimeInMillis(e);
+        Log.d("Dirtfy", e+" : e "+Time.CalendarToYM(cal)+" "+cal.get(Calendar.DATE));
+        return (int) ((e-s)/ Time.ONE_DAY);
+    }
+
     public View getSelectedView(){
         if (selectedDate == null) return null;
 //        Calendar cal = Calendar.getInstance();
@@ -273,15 +291,7 @@ public class CustomCalendar extends LinearLayout {
         Log.d("Dirtfy", "f"+selectedDatePage);
         if (pf == null) return null;
 
-        Calendar cal = Calendar.getInstance();
-
-        Long s = viewPagerAdapter.getData().get(selectedDatePage.intValue()).getDays().get(0).date;
-        cal.setTimeInMillis(s);
-        Log.d("Dirtfy", s+" : s "+Time.CalendarToYM(cal)+" "+cal.get(Calendar.DATE));
-        Long e = selectedDate;
-        cal.setTimeInMillis(e);
-        Log.d("Dirtfy", e+" : e "+Time.CalendarToYM(cal)+" "+cal.get(Calendar.DATE));
-        int realIndex = (int) ((e-s)/ Time.ONE_DAY);
+        int realIndex = getSelectedDateRealIndex();
 
         Log.d("Dirtfy", realIndex+" getSelectedView");
 
@@ -289,7 +299,96 @@ public class CustomCalendar extends LinearLayout {
         PageRVAdapter rva = (PageRVAdapter) rv.getAdapter();
         if (rva == null) return null;
 
-        return rva.getViewHolder(realIndex);
+        return rva.getViewHolders(realIndex).itemView;
+    }
+
+    public void addScheduleOnPosition(int position, Schedule schedule){
+        PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
+                findFragmentByTag("f"+selectedDatePage);
+
+        if (pf == null) return;
+
+        pf.getPageData().getDays().get(position).getSchedules().add(schedule);
+
+        PageRVAdapter rva = (PageRVAdapter) pf.getRecyclerView().getAdapter();
+
+        if (rva == null) return;
+
+        PageRVAdapter.VH vh = rva.getViewHolders(position);
+
+        rva.onBindViewHolder(vh, position);
+    }
+
+    public void addScheduleOnSelectedDate(Schedule schedule){
+        PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
+                findFragmentByTag("f"+selectedDatePage);
+
+        if (pf == null) return;
+
+        int realIndex = getSelectedDateRealIndex();
+
+        pf.getPageData().getDays().get(realIndex).getSchedules().add(schedule);
+
+        PageRVAdapter rva = (PageRVAdapter) pf.getRecyclerView().getAdapter();
+
+        if (rva == null) return;
+
+        PageRVAdapter.VH vh = rva.getViewHolders(realIndex);
+
+        rva.onBindViewHolder(vh, realIndex);
+    }
+
+    public void updateScheduleOnPosition(int position, ArrayList<Schedule> schedules){
+        PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
+                findFragmentByTag("f"+selectedDatePage);
+
+        if (pf == null) return;
+
+        int realIndex = position;
+
+        pf.getPageData().getDays().get(realIndex).setSchedules(schedules);
+
+        PageRVAdapter rva = (PageRVAdapter) pf.getRecyclerView().getAdapter();
+
+        if (rva == null) return;
+
+        PageRVAdapter.VH vh = rva.getViewHolders(realIndex);
+
+        rva.onBindViewHolder(vh, realIndex);
+    }
+
+    public void updateScheduleOnSelectedDate(ArrayList<Schedule> schedules){
+        PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
+                findFragmentByTag("f"+selectedDatePage);
+
+        if (pf == null) return;
+
+        int realIndex = getSelectedDateRealIndex();
+
+        pf.getPageData().getDays().get(realIndex).setSchedules(schedules);
+
+        PageRVAdapter rva = (PageRVAdapter) pf.getRecyclerView().getAdapter();
+
+        if (rva == null) return;
+
+        PageRVAdapter.VH vh = rva.getViewHolders(realIndex);
+
+        rva.onBindViewHolder(vh, realIndex);
+    }
+
+    public Long getDateFromPosition(int position){
+        PageFragment pf = (PageFragment) activity.getSupportFragmentManager().
+                findFragmentByTag("f"+selectedDatePage);
+        Log.d("Dirtfy", "f"+selectedDatePage);
+        if (pf == null) return -1L;
+
+        Calendar cal = Calendar.getInstance();
+
+        Long s = viewPagerAdapter.getData().get(selectedDatePage.intValue()).getDays().get(0).date;
+        cal.setTimeInMillis(s);
+        cal.add(Calendar.DATE, position);
+
+        return cal.getTimeInMillis();
     }
 
     @Override
@@ -376,6 +475,45 @@ public class CustomCalendar extends LinearLayout {
 
     public void gotoTodayPage(){
         viewPager.setCurrentItem(pageCount);
+//        Calendar cal = Calendar.getInstance();
+//        Time.setZero(cal);
+//        selectedDate = cal.getTimeInMillis();
+    }
+
+    void setPage(Calendar cal, PageData page, int pageIdx, int nowYear, int nowMonth){
+        Time.setZero(cal);
+
+        try {
+            ArrayList<CalendarDate> days = new ArrayList<>();
+
+            cal.set(nowYear, nowMonth + pageIdx, 1);
+            page.setMonth(cal.getTimeInMillis());
+
+            int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1; //해당 월에 시작하는 요일 -1 을 하면 빈칸을 구할 수 있겠죠 ?
+            int max = cal.getActualMaximum(Calendar.DAY_OF_MONTH); // 해당 월에 마지막 요일
+
+            cal.add(Calendar.DATE, -dayOfWeek);
+            for (int j = 0; j < dayOfWeek; j++) {
+                Long time = cal.getTimeInMillis();
+                days.add(new CalendarDate(time, false));
+                cal.add(Calendar.DATE, 1);
+            }
+            for (int j = 1; j <= max; j++) {
+                Long time = cal.getTimeInMillis();
+                days.add(new CalendarDate(time, true));
+                cal.add(Calendar.DATE, 1);
+            }
+            while(days.size() < DAY_SIZE){
+                Long time = cal.getTimeInMillis();
+                days.add(new CalendarDate(time, false));
+                cal.add(Calendar.DATE, 1);
+            }
+
+            page.setDays(days);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     void setData(){
@@ -386,40 +524,42 @@ public class CustomCalendar extends LinearLayout {
         int nowMonth = cal.get(Calendar.MONTH);
 
         for (int i = -pageCount; i < pageCount; i++) {
-            try {
-                PageData page = new PageData();
-                ArrayList<CalendarDate> days = new ArrayList<>();
-
-                cal.set(nowYear, nowMonth + i, 1);
-                page.setMonth(cal.getTimeInMillis());
-
-                int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1; //해당 월에 시작하는 요일 -1 을 하면 빈칸을 구할 수 있겠죠 ?
-                int max = cal.getActualMaximum(Calendar.DAY_OF_MONTH); // 해당 월에 마지막 요일
-
-                cal.add(Calendar.DATE, -dayOfWeek);
-                for (int j = 0; j < dayOfWeek; j++) {
-                    Long time = cal.getTimeInMillis();
-                    days.add(new CalendarDate(time, false));
-                    cal.add(Calendar.DATE, 1);
-                }
-                for (int j = 1; j <= max; j++) {
-                    Long time = cal.getTimeInMillis();
-                    days.add(new CalendarDate(time, true));
-                    cal.add(Calendar.DATE, 1);
-                }
-                while(days.size() < DAY_SIZE){
-                    Long time = cal.getTimeInMillis();
-                    days.add(new CalendarDate(time, false));
-                    cal.add(Calendar.DATE, 1);
-                }
-
-                page.setDays(days);
-
-                data.add(page);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            PageData page = new PageData();
+            setPage(cal, page, i, nowYear, nowMonth);
+            data.add(page);
+//
+//            try {
+//                PageData page = new PageData();
+//                ArrayList<CalendarDate> days = new ArrayList<>();
+//
+//                cal.set(nowYear, nowMonth + i, 1);
+//                page.setMonth(cal.getTimeInMillis());
+//
+//                int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1; //해당 월에 시작하는 요일 -1 을 하면 빈칸을 구할 수 있겠죠 ?
+//                int max = cal.getActualMaximum(Calendar.DAY_OF_MONTH); // 해당 월에 마지막 요일
+//
+//                cal.add(Calendar.DATE, -dayOfWeek);
+//                for (int j = 0; j < dayOfWeek; j++) {
+//                    Long time = cal.getTimeInMillis();
+//                    days.add(new CalendarDate(time, false));
+//                    cal.add(Calendar.DATE, 1);
+//                }
+//                for (int j = 1; j <= max; j++) {
+//                    Long time = cal.getTimeInMillis();
+//                    days.add(new CalendarDate(time, true));
+//                    cal.add(Calendar.DATE, 1);
+//                }
+//                while(days.size() < DAY_SIZE){
+//                    Long time = cal.getTimeInMillis();
+//                    days.add(new CalendarDate(time, false));
+//                    cal.add(Calendar.DATE, 1);
+//                }
+//
+//                page.setDays(days);
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
     }
 }
