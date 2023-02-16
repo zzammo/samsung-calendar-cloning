@@ -23,6 +23,7 @@ public class MyService extends Service {
     NotificationManager Notifi_M;
     ServiceThread thread;
     Notification notification ;
+    public static MyService instance;
 
     public static int how_flag=0;
 
@@ -34,6 +35,7 @@ public class MyService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        instance = MyService.this;
         Notifi_M = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notifi_M.createNotificationChannel(new NotificationChannel("id","name", NotificationManager.IMPORTANCE_HIGH));

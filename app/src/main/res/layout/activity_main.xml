@@ -9,6 +9,7 @@
     android:focusableInTouchMode="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/Entire_ConstraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/bg_white"

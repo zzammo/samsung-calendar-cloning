@@ -19,40 +19,12 @@
         android:theme="@style/Theme.Calendar"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".test.ScrollTestActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
 
         <service
             android:name=".notification_service.MyService"
+            android:foregroundServiceType="location"
             android:enabled="true"
             android:exported="true" />
-
-        <activity
-            android:name=".custom_calendar.teest.activity.ViewPagerActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".activity.ScheduleMakeActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".test.DBTestActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -72,7 +44,6 @@
                 android:value="" />
         </activity>
         <activity android:name=".activity.AdressApiActivity" />
-        <activity android:name=".schedule_event.MakeSchedule" />
         <activity
             android:name=".activity.schedule"
             android:windowSoftInputMode="adjustPan" />
