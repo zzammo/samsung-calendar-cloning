@@ -66,6 +66,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     schedule_main_RVAdapter RVAdapter;
     LinearLayoutManager layoutManager;
 
-    CustomCalendar calendarView;
+    public static CustomCalendar calendarView;
     ConstraintLayout underview;
     float y1,y2,total_h,init_view1_h,init_view2_h;
     Float[] max_h = new Float[3];
@@ -197,16 +198,6 @@ public class MainActivity extends AppCompatActivity {
         calendarView.setMonthChangedListener(monthChangedListener);
         calendarView.setActivity(this);
 
-//        PageFragment pf = (PageFragment) getSupportFragmentManager().
-//                findFragmentByTag("f"+calendarView.getViewPager().getCurrentItem());
-//        RecyclerView rv = pf.getRecyclerView();
-//        rv.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                return true;
-//            }
-//        });
-
         getSupportActionBar().setElevation(0); // appbar shadow remove
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 툴바 홈버튼 활성화
         // ↓툴바의 홈버튼의 이미지를 변경(기본 이미지는 뒤로가기 화살표)
@@ -262,6 +253,9 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void ifFail(Object result) {}
                     });
+
+                    calendarView.addScheduleOnSelectedDate(schedule);
+
                     edit_.setText("");
                     add_schedule.setImageResource(R.drawable.add_circle_svgrepo_com);
                     flag=0;
@@ -319,19 +313,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        /*scheduleRV.setLayoutManager( new LinearLayoutManager(this,RecyclerView.VERTICAL ,false){
-            @Override
-            public boolean canScrollVertically() {
-                //Log.d("minseok","scrollvertically");
-                if(mode==1||mode==0)return false;
-                else return true;
-            }
 
-            @Override
-            public boolean canScrollHorizontally() {
-                return false;
-            }
-        });*/
 
         scheduleRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -363,7 +345,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
                 //if(moving)return true;
                 // Stop only scrolling.
-                if(mode == 0 || mode == 1){
+                return true;
+                /*if(mode == 0 || mode == 1){
                     Log.d("minseok","hello");
                     return true;
                 }
@@ -377,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     Log.d("minseok","hello12");
                     return false;
-                }
+                }*/
                 //true면 touch만 호출
                 //false면 뒤에 touch와 scrollListener호출
                 //rv.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING;
@@ -389,7 +372,9 @@ public class MainActivity extends AppCompatActivity {
         scheduleRV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d("minseok","touch111");
+                moveview(event);
+                return true;
+                /*Log.d("minseok","touch111");
                 if(mode!=2){
                     moveview(event);
                     return false;
@@ -405,32 +390,12 @@ public class MainActivity extends AppCompatActivity {
                     moveview(event);
                     return true;
                 }
-                return false;
+                return false;*/
 
             }
         });
 
-//        calendarView.setOnDateChangedListener((widget, date, selected) ->{
-//            year= date.getYear();
-//            month=date.getMonth();
-//            day=date.getDay();
-//            String str_date = date.toString().substring(12,date.toString().length() - 1);
-//            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
-//            Log.d("WeGlonD", str_date);
-//            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
-//            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
-//            ShowWeatherInfo(localDate);
-//            scheduleArrayList.clear();
-
-//            Long dateMills = Time.CalendarDayToMill(date);
-//            scheduleArrayList.clear();
-//            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
-//            Collections.sort(scheduleArrayList);
-//            RVAdapter.notifyDataSetChanged();
-//        });
-
         RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
-        //layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         layoutManager = new LinearLayoutManager(this,RecyclerView.VERTICAL ,false);
         scheduleRV.setLayoutManager(layoutManager);
         scheduleRV.setAdapter(RVAdapter);
@@ -610,17 +575,6 @@ public class MainActivity extends AppCompatActivity {
             return String.valueOf(month)+"월 "+String.valueOf(day)+"일에 일정 추가";
         }
     }
-
-    /*private void postCallAnotherFunction(MotionEvent event){
-        scheduleRV.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("minseok","postcallbefore");
-                moveview(event);
-                Log.d("minseok","postcall");
-            }
-        });
-    }*/
 
     void moveview(MotionEvent event) {
         if (scheduleRV.canScrollVertically(-1)) {
@@ -805,28 +759,6 @@ public class MainActivity extends AppCompatActivity {
                     });
 
                 }
-//                else {
-//                    //공휴일 DB에서 가져오기
-////                    String keyword = "%" + year;
-////                    if (month < 10) keyword = keyword + "0";
-////                    keyword = keyword + month + "%";
-////                    LocalDate lo = LocalDate.parse(firstDate.toString().substring(12, firstDate.toString().length() - 1), DateTimeFormatter.ofPattern("yyyy-M-d"));
-////                    lo = lo.plusMonths(1); lo = lo.minusDays(1);
-////                    CalendarDay endday = CalendarDay.from(lo.getYear(), lo.getMonthValue(),lo.getDayOfMonth());
-//                    Calendar endDay = cal;
-//                    endDay.add(Calendar.MONTH, 1);
-//                    Long begin = firstDate,  end = Time.CalendarToMill(endDay);
-//                    Log.d("Dirtfy", "begin : " + begin + " end : " + end);
-////                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
-//                    List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(begin, end);
-//                    Log.d("Dirtfy", "Holidays size : "+Holidays.size()+"");
-//                    for (Holiday holi : Holidays) {
-//                        HolidayDates.add(holi.date);
-//                        HolidayNames.add(holi.name);
-////                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
-//                        calendarView.invalidateDecorators();
-//                    }
-//                }
             }
 //            Log.d("Dirtfy", "HolidayDates : " + HolidayDates.toString());
 //            Log.d("Dirtfy", "HolidayNames : "  + HolidayNames.toString());
@@ -952,9 +884,103 @@ public class MainActivity extends AppCompatActivity {
         monthChangedListener.monthChangedListener(calendarView.getCurrentDate());
         if (date == null) return;
         scheduleArrayList.clear();
-        scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(date, date + Time.ONE_DAY-1)));
+
+        Schedule[] schedules = DB.scheduleDao().loadAllScheduleDuring(date, date + Time.ONE_DAY-1);
+
+        scheduleArrayList.addAll(Arrays.asList(schedules));
         Collections.sort(scheduleArrayList);
         RVAdapter.notifyDataSetChanged();
 
+//        for (int i = 0;i < CustomCalendar.DAY_SIZE;i++){
+//            Long iDate = calendarView.getDateFromPosition(i);
+//            ArrayList<Schedule> schedules =
+//                    new ArrayList<>(Arrays.asList(
+//                            DB.scheduleDao().loadAllScheduleDuring(iDate, iDate + Time.ONE_DAY - 1)));
+//            calendarView.updateScheduleOnPosition(i, schedules);
+//        }
+
+        calendarView.updateScheduleOnPosition(
+                calendarView.getSelectedDateRealIndex(),
+                new ArrayList<>(Arrays.asList(schedules))
+        );
+
     }
 }
+
+  /*private void postCallAnotherFunction(MotionEvent event){
+        scheduleRV.post(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("minseok","postcallbefore");
+                moveview(event);
+                Log.d("minseok","postcall");
+            }
+        });
+    }*/
+
+ /*scheduleRV.setLayoutManager( new LinearLayoutManager(this,RecyclerView.VERTICAL ,false){
+            @Override
+            public boolean canScrollVertically() {
+                //Log.d("minseok","scrollvertically");
+                if(mode==1||mode==0)return false;
+                else return true;
+            }
+
+            @Override
+            public boolean canScrollHorizontally() {
+                return false;
+            }
+        });*/
+
+//        calendarView.setOnDateChangedListener((widget, date, selected) ->{
+//            year= date.getYear();
+//            month=date.getMonth();
+//            day=date.getDay();
+//            String str_date = date.toString().substring(12,date.toString().length() - 1);
+//            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
+//            Log.d("WeGlonD", str_date);
+//            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
+//            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
+//            ShowWeatherInfo(localDate);
+//            scheduleArrayList.clear();
+
+//            Long dateMills = Time.CalendarDayToMill(date);
+//            scheduleArrayList.clear();
+//            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
+//            Collections.sort(scheduleArrayList);
+//            RVAdapter.notifyDataSetChanged();
+//        });
+
+
+//                else {
+//                    //공휴일 DB에서 가져오기
+////                    String keyword = "%" + year;
+////                    if (month < 10) keyword = keyword + "0";
+////                    keyword = keyword + month + "%";
+////                    LocalDate lo = LocalDate.parse(firstDate.toString().substring(12, firstDate.toString().length() - 1), DateTimeFormatter.ofPattern("yyyy-M-d"));
+////                    lo = lo.plusMonths(1); lo = lo.minusDays(1);
+////                    CalendarDay endday = CalendarDay.from(lo.getYear(), lo.getMonthValue(),lo.getDayOfMonth());
+//                    Calendar endDay = cal;
+//                    endDay.add(Calendar.MONTH, 1);
+//                    Long begin = firstDate,  end = Time.CalendarToMill(endDay);
+//                    Log.d("Dirtfy", "begin : " + begin + " end : " + end);
+////                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
+//                    List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(begin, end);
+//                    Log.d("Dirtfy", "Holidays size : "+Holidays.size()+"");
+//                    for (Holiday holi : Holidays) {
+//                        HolidayDates.add(holi.date);
+//                        HolidayNames.add(holi.name);
+////                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
+//                        calendarView.invalidateDecorators();
+//                    }
+//                }
+
+//        PageFragment pf = (PageFragment) getSupportFragmentManager().
+//                findFragmentByTag("f"+calendarView.getViewPager().getCurrentItem());
+//        RecyclerView rv = pf.getRecyclerView();
+//        rv.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                return true;
+//            }
+//        });

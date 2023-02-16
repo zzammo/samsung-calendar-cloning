@@ -1,5 +1,7 @@
 package com.zzammo.calendar.adapter;
 
+import static com.zzammo.calendar.activity.MainActivity.calendarView;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.activity.schedule;
+import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Schedule;
 import com.zzammo.calendar.util.Time;
@@ -24,6 +27,7 @@ import com.zzammo.calendar.util.Time;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_RVAdapter.VH>{
     ArrayList<Schedule> scheduleArrayList;
@@ -132,10 +136,21 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
                                     context.startActivity(it);
                                     return true;
                                 case R.id.delete:
+                                    Calendar cal = Calendar.getInstance();
+                                    Long fst = scheduleArrayList.get(position).begin_ms;
+                                    cal.setTimeInMillis(fst);
+                                    Time.setZero(cal);
+                                    fst = cal.getTimeInMillis();
+
                                     Database db = new Database(context);
                                     db.delete(currSchedule);
                                     scheduleArrayList.remove(position);
                                     schedule_main_RVAdapter.this.notifyItemRemoved(position);
+
+                                    ArrayList<Schedule> schedules = new ArrayList<>();
+                                    db.loadAllScheduleDuring(fst, fst+Time.ONE_DAY-1, schedules);
+                                    calendarView.updateScheduleOnSelectedDate(schedules);
+
                                     return true;
                             }
                             return false;

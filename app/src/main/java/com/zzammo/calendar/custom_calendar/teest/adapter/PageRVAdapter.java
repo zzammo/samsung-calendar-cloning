@@ -37,7 +37,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     Database DB;
 
     public MutableLiveData<Integer> viewHolderHeight;
-    View[] viewHolders;
+    VH[] viewHolders;
 
     ArrayList<CalendarDate> data;
     CustomCalendar.OnDateClick listener;
@@ -61,7 +61,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();
-        viewHolders = new View[CustomCalendar.DAY_SIZE];
+        viewHolders = new VH[CustomCalendar.DAY_SIZE];
         viewHolderHeight.observe(lifecycleOwner, integer -> {
 //            if (viewHolderBindings == null) return;
 //            if (viewHolderHeight == null) return;
@@ -69,10 +69,10 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 //                if (vb == null) continue;
 //                vb.setHeight(viewHolderHeight.getValue());
 //            }
-            for (View vh : viewHolders){
-                ViewGroup.LayoutParams lp = vh.getLayoutParams();
+            for (VH vh : viewHolders){
+                ViewGroup.LayoutParams lp = vh.itemView.getLayoutParams();
                 lp.height = viewHolderHeight.getValue();
-                vh.setLayoutParams(lp);
+                vh.itemView.setLayoutParams(lp);
             }
         });
 //        viewHolderBindings = new ArrayList<>();
@@ -97,7 +97,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(day.date);
 
-        viewHolders[position] = holder.itemView;
+        viewHolders[position] = holder;
 
         if (!day.thisMonth)
             holder.itemView.setAlpha(0.3f);
@@ -111,9 +111,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 //        Log.d("Dirtfy", firstDate+" fd "+day.date);
 
 
-        if (holder.isSet) return;
-
         setColor(holder, day);
+
+        holder.schedule_lo.removeAllViews();
 
         if(day.getHolidays().size() + day.getSchedules().size() > 3) {
             TextView tv = new TextView(context);
@@ -127,7 +127,6 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         setHolidays(holder, day);
         setSchedules(holder, day);
 
-        holder.isSet = true;
     }
 
     void setColor(VH holder, CalendarDate day){
@@ -203,21 +202,17 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         return data.size();
     }
 
-    public View getViewHolder(int index) {
+    public VH getViewHolders(int index) {
         return viewHolders[index];
     }
 
-    class VH extends RecyclerView.ViewHolder{
+    public class VH extends RecyclerView.ViewHolder{
 
         TextView day_tv;
         LinearLayout schedule_lo;
 
-        boolean isSet;
-
         public VH(@NonNull View itemView) {
             super(itemView);
-
-            isSet = false;
 
             day_tv = itemView.findViewById(R.id.page_date_item_day_textView);
             schedule_lo = itemView.findViewById(R.id.page_date_item_schedule_layout);
@@ -237,5 +232,6 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
                 listener.dateClick(itemView, calendarDate);
             });
         }
+
     }
 }
