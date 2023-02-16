@@ -12,11 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzammo.calendar.R;
+import com.zzammo.calendar.activity.schedule;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
 import com.zzammo.calendar.database.Database;
 import com.zzammo.calendar.database.Holiday;
 import com.zzammo.calendar.database.Schedule;
-import com.zzammo.calendar.schedule_event.MakeSchedule;
 import com.zzammo.calendar.util.AfterTask;
 import com.zzammo.calendar.util.Time;
 
@@ -87,7 +87,7 @@ public class ScheduleDialog extends Dialog {
         addSchedule_iv.setOnClickListener(view -> {
             Date date = new Date(dateStartTime);
 
-            Intent it = new Intent(mContext, MakeSchedule.class);
+            Intent it = new Intent(mContext, schedule.class);
             it.putExtra("date", dateStartTime);
             it.putExtra("month",date.getMonth());
             it.putExtra("day",date.getDay());

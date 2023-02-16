@@ -53,27 +53,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity
-            android:name=".test.AuthTestActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".custom_calendar.test"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".activity.slidingpanetest"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -92,10 +71,8 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity android:name=".activity.MainAddressActivity" />
         <activity android:name=".activity.AdressApiActivity" />
         <activity android:name=".schedule_event.MakeSchedule" />
-        <activity android:name=".activity.schedule_main" />
         <activity
             android:name=".activity.schedule"
             android:windowSoftInputMode="adjustPan" />
