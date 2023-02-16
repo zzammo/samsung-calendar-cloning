@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
     CustomCalendar.OnMonthChangedListener monthChangedListener;
     MotionEvent mevent;
 
-    private int how_flag=0;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -159,9 +158,13 @@ public class MainActivity extends AppCompatActivity {
         alarm_how_picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                how_flag=i1;
+
+                MyService.how_flag=i1;
             }
         });
+
+        Intent itt=new Intent(MainActivity.this, MyService.class);
+        startForegroundService(itt);
 
         calendarView.post(new Runnable() {
             @Override

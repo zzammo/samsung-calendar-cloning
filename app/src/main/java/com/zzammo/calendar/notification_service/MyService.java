@@ -24,6 +24,8 @@ public class MyService extends Service {
     ServiceThread thread;
     Notification notification ;
 
+    public static int how_flag=0;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -89,8 +91,14 @@ public class MyService extends Service {
                 Toast.makeText(MyService.this, "출발시간입니다.\n비가 오니 우산을 챙겨주세요.", Toast.LENGTH_LONG).show();
             }
 
-            //소리추가
-            notification.defaults = Notification.DEFAULT_SOUND;
+            //0 > 무음  1 > 소리  2 > 진동
+            if(how_flag==0){
+                notification.defaults=Notification.DEFAULT_ALL;
+            }else if(how_flag==1){
+                notification.defaults = Notification.DEFAULT_SOUND;
+            }else{
+                notification.defaults=Notification.DEFAULT_VIBRATE;
+            }
 
             //알림 소리를 한번만 내도록
             //Notifi.flags = Notification.FLAG_ONLY_ALERT_ONCE;
