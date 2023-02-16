@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -85,12 +86,15 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView scheduleRV;
     ArrayList<Schedule> scheduleArrayList;
     schedule_main_RVAdapter RVAdapter;
+
     LinearLayoutManager layoutManager;
 
     public static CustomCalendar calendarView;
     ConstraintLayout underview;
-    NestedScrollView sv;
+    CustomNestedScrollView sv;
     float y1,y2,total_h,init_view1_h,init_view2_h;
+    boolean FLAG=false;
+    boolean FLAG2 = false;
     Float[] max_h = new Float[3];
     Float[] min_h = new Float[3];
     int mode = 0, changemode;
@@ -304,6 +308,24 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
+        RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
+        layoutManager = new LinearLayoutManager(this,RecyclerView.VERTICAL ,false);
+        scheduleRV.setLayoutManager(layoutManager);
+        scheduleRV.setLayoutManager(new LinearLayoutManager(context){
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+        });
+        scheduleRV.setAdapter(RVAdapter);
+        //scheduleRV.setNestedScrollingEnabled(false);
+
+        LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
+        lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
+        getWeather(weather, 35.887390,128.611629);
+
         scheduleRV.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -318,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        sv.setScrollingEnabled(false);
 
 
         scheduleRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -344,46 +367,171 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         scheduleRV.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                return true;
+                Log.d("minseok","recyclerview Intercept");
+                if(mode==2&&e.getAction()==MotionEvent.ACTION_DOWN&&!scheduleRV.canScrollVertically(-1)){
+                    FLAG=true;
+                }else if(FLAG&&mode==2&&e.getAction()==MotionEvent.ACTION_CANCEL&&!scheduleRV.canScrollVertically(-1)){
+                    FLAG2=true;
+                    sv.setScrollingEnabled(false);
+                }
+                else if(!(mode==2&&e.getAction()==MotionEvent.ACTION_MOVE)){
+                    FLAG=false;
+                    FLAG2=false;
+                    if(mode==2)sv.setScrollingEnabled(true);
+                    else {
+                        sv.fullScroll(ScrollView.FOCUS_UP);
+                        sv.setScrollingEnabled(false);
+                    }
+                }
+                moveview(e);
+                return false;
             }
         });
-
 
 
         scheduleRV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                Log.d("minseok","recyclerview touch");
                 moveview(event);
-                return true;
-            }
-        });
-
-        RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
-        layoutManager = new LinearLayoutManager(this,RecyclerView.VERTICAL ,false);
-        scheduleRV.setLayoutManager(layoutManager);
-        scheduleRV.setLayoutManager(new LinearLayoutManager(context){
-            @Override
-            public boolean canScrollVertically() {
                 return false;
             }
         });
-        scheduleRV.setAdapter(RVAdapter);
-        scheduleRV.setNestedScrollingEnabled(false);
-        sv.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+
+
+        sv.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                Log.d("minseok", "nested scroll view Scrolled!");
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("minseok","sv touch");
+                if(FLAG2){
+                    moveview(motionEvent);
+                }
+                return false;
             }
         });
 
-        LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
-        lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
-        getWeather(weather, 35.887390,128.611629);
+    }
+    void moveview(MotionEvent event) {
+        //calendar.getViewPager().invalidate();
+        ;
+        Log.d("minseok","moveview"+event);
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                Log.d("minseok", "mode" + mode + " " + max_h[mode] + " " + min_h[mode]);
+                y1 = event.getY();
+                init_view1_h = calendarView.getHeight();
+                init_view2_h = underview.getHeight(); changemode = 0;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                moving = true;
+                y2 = event.getY();
+                float delta = y2 - y1;
+                float absdelta = delta>0?delta:-delta;
+                if(absdelta<100){
+                    Log.d("minseok","absdelta<100"+y2+" "+y1);
+                    break;
+                }
 
+                calendarView.setClickable(false);
+                calendarView.getViewPager().setUserInputEnabled(false);
+                if (y1 < y2) {
+                    //아래로 슬라이딩
+                    Log.d("minseok", mode + "move down " + params1.height + " " + params2.height);
+                    params1.height = (int) (init_view1_h + delta);
+                    float tmp = max_h[mode] + (float) 0.5;
+                    if (params1.height > tmp) params1.height = (int) tmp;
+                    params2.height = (int) (total_h - params1.height);
+                    calendarView.setLayoutParams(params1);
+                    underview.setLayoutParams(params2);
+                    changemode = -1;
+                } else if (y1 > y2) {
+                    //위로 슬라이딩
+                    Log.d("minseok", mode + "move up" + params1.height + " " + params2.height);
+                    float tmp = min_h[mode] + (float) 0.5;
+                    params1.height = (int) (init_view1_h + delta);
+                    if (params1.height < tmp) params1.height = (int) tmp;
+                    params2.height = (int) (total_h - params1.height);
+                    calendarView.setLayoutParams(params1);
+                    underview.setLayoutParams(params2);
+                    changemode = 1;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                moving = false;
+                if(changemode==0)break;
+                float tmp;
+                if (changemode == 1) {
+                    tmp = min_h[mode];
+                } else {
+                    tmp = max_h[mode];
+                }
+
+                ValueAnimator animator = ValueAnimator.ofFloat(params1.height, tmp);
+                animator.setDuration(500); // set the duration of the animation to 1 second
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        calendarView.setClickable(false);
+                        calendarView.getViewPager().setUserInputEnabled(false);
+                        float value = (float) animation.getAnimatedValue();
+                        params1.height = (int) (value + 0.5f);
+                        params2.height = (int) (total_h - params1.height);
+                        calendarView.setLayoutParams(params1);
+                        underview.setLayoutParams(params2);
+
+                        RecyclerView rc = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+                        TextView tv = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_title_textView);
+                        LinearLayout lo = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_linearLayout);
+
+                        ((PageRVAdapter) rc.getAdapter()).viewHolderHeight.setValue(
+                                (calendarView.getHeight()-tv.getHeight()-lo.getHeight())/6
+                        );
+
+//                        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+//                        rc.getAdapter().notifyDataSetChanged();
+
+                        rc.requestLayout();
+                        calendarView.requestLayout();
+                        calendarView.setClickable(true);
+                        calendarView.getViewPager().setUserInputEnabled(true);
+                    }
+                });
+                Log.d("minseok","animation start");
+                animator.start();
+                Log.d("minseok","animation end");
+                mode += changemode;
+                if (mode > 2) mode = 2;
+                else if (mode < 0) mode = 0;
+                sv.setMode(mode);
+                if(mode==2){
+                    Log.d("minseok","maketrue");
+                    sv.setScrollingEnabled(true);
+                }
+                else{
+                    Log.d("minseok","makefalse");
+                    sv.setScrollingEnabled(false);
+                }
+                calendarView.setClickable(true);
+                calendarView.getViewPager().setUserInputEnabled(true);
+                break;
+        }
+
+        RecyclerView rc = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
+        TextView tv = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_title_textView);
+        LinearLayout lo = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_linearLayout);
+
+        ((PageRVAdapter) rc.getAdapter()).viewHolderHeight.setValue(
+                (calendarView.getHeight()-tv.getHeight()-lo.getHeight())/6
+        );
+
+//        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
+//        rc.getAdapter().notifyDataSetChanged();
+
+        rc.requestLayout();
+        calendarView.requestLayout();
     }
 
 
@@ -556,123 +704,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void moveview(MotionEvent event) {
-        if (scheduleRV.canScrollVertically(-1)) {
-            Log.d("minseok","notrealtop");
-            return;
-        }
-        if(mode==0 || mode==1){
-            Log.d("minseok","stopmode01");
-            scheduleRV.stopScroll();
-        }
 
-        //calendar.getViewPager().invalidate();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                Log.d("minseok", "mode" + mode + " " + max_h[mode] + " " + min_h[mode]);
-                y1 = event.getY();
-                init_view1_h = calendarView.getHeight();
-                init_view2_h = underview.getHeight(); changemode = 0;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                moving = true;
-                y2 = event.getY();
-                float delta = y2 - y1;
-                float absdelta = delta>0?delta:-delta;
-                if(absdelta<100){
-                    break;
-                }
-                calendarView.setClickable(false);
-                calendarView.getViewPager().setUserInputEnabled(false);
-                if (y1 < y2) {
-                    //아래로 슬라이딩
-                    Log.d("minseok", mode + "move down " + params1.height + " " + params2.height);
-                    params1.height = (int) (init_view1_h + delta);
-                    float tmp = max_h[mode] + (float) 0.5;
-                    if (params1.height > tmp) params1.height = (int) tmp;
-                    params2.height = (int) (total_h - params1.height);
-                    calendarView.setLayoutParams(params1);
-                    underview.setLayoutParams(params2);
-                    changemode = -1;
-                } else if (y1 > y2) {
-                    //위로 슬라이딩
-                    Log.d("minseok", mode + "move up" + params1.height + " " + params2.height);
-                    float tmp = min_h[mode] + (float) 0.5;
-                    params1.height = (int) (init_view1_h + delta);
-                    if (params1.height < tmp) params1.height = (int) tmp;
-                    params2.height = (int) (total_h - params1.height);
-                    calendarView.setLayoutParams(params1);
-                    underview.setLayoutParams(params2);
-                    changemode = 1;
-                }
-
-                break;
-            case MotionEvent.ACTION_UP:
-                moving = false;
-                if(changemode==0)break;
-                float tmp;
-                if (changemode == 1) {
-                    tmp = min_h[mode];
-                } else {
-                    tmp = max_h[mode];
-                }
-
-                ValueAnimator animator = ValueAnimator.ofFloat(params1.height, tmp);
-                animator.setDuration(500); // set the duration of the animation to 1 second
-                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        calendarView.setClickable(false);
-                        calendarView.getViewPager().setUserInputEnabled(false);
-                        float value = (float) animation.getAnimatedValue();
-                        params1.height = (int) (value + 0.5f);
-                        params2.height = (int) (total_h - params1.height);
-                        calendarView.setLayoutParams(params1);
-                        underview.setLayoutParams(params2);
-
-                        RecyclerView rc = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
-                        TextView tv = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_title_textView);
-                        LinearLayout lo = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_linearLayout);
-
-                        ((PageRVAdapter) rc.getAdapter()).viewHolderHeight.setValue(
-                                (calendarView.getHeight()-tv.getHeight()-lo.getHeight())/6
-                        );
-
-//                        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
-//                        rc.getAdapter().notifyDataSetChanged();
-
-                        rc.requestLayout();
-                        calendarView.requestLayout();
-                        calendarView.setClickable(true);
-                        calendarView.getViewPager().setUserInputEnabled(true);
-                    }
-                });
-                Log.d("minseok","animation start");
-                animator.start();
-                Log.d("minseok","animation end");
-                mode += changemode;
-                if (mode > 2) mode = 2;
-                else if (mode < 0) mode = 0;
-                calendarView.setClickable(true);
-                calendarView.getViewPager().setUserInputEnabled(true);
-                break;
-        }
-
-        RecyclerView rc = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_recyclerView);
-        TextView tv = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_title_textView);
-        LinearLayout lo = (calendarView.getViewPager().getChildAt(0)).getRootView().findViewById(R.id.fragment_page_linearLayout);
-
-        ((PageRVAdapter) rc.getAdapter()).viewHolderHeight.setValue(
-                (calendarView.getHeight()-tv.getHeight()-lo.getHeight())/6
-        );
-
-//        rc.getAdapter().notifyItemRangeRemoved(0, rc.getAdapter().getItemCount());
-//        rc.getAdapter().notifyDataSetChanged();
-
-        rc.requestLayout();
-        calendarView.requestLayout();
-        if(mode==2) scheduleRV.smoothScrollToPosition(1);
-    }
 
     class MonthChanged implements CustomCalendar.OnMonthChangedListener{
         @RequiresApi(api = Build.VERSION_CODES.O)

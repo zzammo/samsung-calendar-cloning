@@ -113,10 +113,12 @@
                     app:layout_constraintLeft_toRightOf="@+id/temperature"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.core.widget.NestedScrollView
+                <com.zzammo.calendar.activity.CustomNestedScrollView
+                    android:overScrollMode="never"
                     android:id="@+id/schedule_sv"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:scrollbars="none"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/lunardate">
                     <LinearLayout
@@ -131,8 +133,7 @@
                             android:layout_marginVertical="10sp" />
                     </LinearLayout>
 
-                </androidx.core.widget.NestedScrollView>
-
+                </com.zzammo.calendar.activity.CustomNestedScrollView>
 
                 <!--        android:fontFamily="@font/nanum_brg"-->
             </androidx.constraintlayout.widget.ConstraintLayout>
