@@ -6,6 +6,5 @@
 so we decided to clone Samsung Calendar.</br>
 and when we did that, we got ideas to improve this app.<br>
 
-``` cpp
-printf
-```
+![image](https://user-images.githubusercontent.com/75816070/219354399-d1a9bf9d-16d3-4fa8-bd77-d7a097cb6cd5.png)
+
