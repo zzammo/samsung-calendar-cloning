@@ -1,9 +1,15 @@
 package com.zzammo.calendar.activity;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -21,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,14 +38,19 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
+import com.zzammo.calendar.auth.Auth;
 import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
@@ -87,13 +99,17 @@ public class MainActivity extends AppCompatActivity {
 
     public static CustomCalendar calendarView;
     ConstraintLayout underview;
+    CustomNestedScrollView sv;
     float y1,y2,total_h,init_view1_h,init_view2_h;
+    boolean FLAG=false;
+    boolean FLAG2 = false;
     Float[] max_h = new Float[3];
     Float[] min_h = new Float[3];
     int mode = 0, changemode;
     ViewGroup.LayoutParams params1,params2;
 
     EditText edit_;
+    View mLayout;
 
 
     boolean moving = false;
@@ -105,9 +121,9 @@ public class MainActivity extends AppCompatActivity {
     private int month;
     private int year;
 
-    private int flag=0;
+    private int flag = 0;
 
-    private boolean isLogin=false;
+    private boolean isLogin = false;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     View naviHeader;
@@ -116,28 +132,35 @@ public class MainActivity extends AppCompatActivity {
     CustomCalendar.OnMonthChangedListener monthChangedListener;
     MotionEvent mevent;
 
+    // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
+    private static final int PERMISSIONS_REQUEST_CODE = 100;
+    String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+
+    Auth auth;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         context = this;
         weather = new HashMap<>();
         HolidayNames = new ArrayList<>();
         HolidayDates = new ArrayList<>();
+        auth = new Auth();
 
         year = Calendar.getInstance().get(Calendar.YEAR);
-        month = Calendar.getInstance().get(Calendar.MONTH)+1;
+        month = Calendar.getInstance().get(Calendar.MONTH) + 1;
         day = Calendar.getInstance().get(Calendar.DATE);
 
+        mLayout = findViewById(R.id.Entire_ConstraintLayout);
         calendarView = findViewById(R.id.calendarView);
         underview = findViewById(R.id.schedule_main_underview);
-
+        sv = findViewById(R.id.schedule_sv);
 
         params1 = calendarView.getLayoutParams();
         params2 = underview.getLayoutParams();
-
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -147,12 +170,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(it);
         });
 
-        alarm_how_picker=naviHeader.findViewById(R.id.alarm_how_picker);
+        alarm_how_picker = naviHeader.findViewById(R.id.alarm_how_picker);
 
         alarm_how_picker.setMaxValue(2);
         alarm_how_picker.setMinValue(0);
         alarm_how_picker.setDisplayedValues(new String[]{
-                "무음","소리","진동"
+                "무음", "소리", "진동"
         });
         alarm_how_picker.setWrapSelectorWheel(false);
 
@@ -160,20 +183,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
 
-                MyService.how_flag=i1;
+                MyService.how_flag = i1;
             }
         });
 
-        Intent itt=new Intent(MainActivity.this, MyService.class);
-        startForegroundService(itt);
+        if(MyService.instance == null) {
+            Intent itt = new Intent(MainActivity.this, MyService.class);
+            startForegroundService(itt);
+        }
 
         calendarView.post(new Runnable() {
             @Override
             public void run() {
                 total_h = calendarView.getHeight();
-                max_h[0]=total_h; max_h[1]=(total_h); max_h[2]=(total_h*(float)0.5);
-                min_h[0]=(total_h*(float)0.5); min_h[1]=(total_h*(float)0.25); min_h[2]=(total_h*(float)0.25);
-                Log.d("minseok",calendarView.getHeight() + " run " + underview.getHeight());
+                max_h[0] = total_h;
+                max_h[1] = (total_h);
+                max_h[2] = (total_h * (float) 0.5);
+                min_h[0] = (total_h * (float) 0.5);
+                min_h[1] = (total_h * (float) 0.25);
+                min_h[2] = (total_h * (float) 0.25);
+                Log.d("minseok", calendarView.getHeight() + " run " + underview.getHeight());
             }
         });
 
@@ -183,14 +212,14 @@ public class MainActivity extends AppCompatActivity {
                 //true : 그 뒤 리스너까지 이벤트를 전달하지 않고, 터치만 하고 끝낸다.
                 //false : 그 뒤 이벤트까지 액션을 전달한다.
                 //onTouch --> onClick --> onLongClick
-                Log.d("minseok","touch calendar");
+                Log.d("minseok", "touch calendar");
                 calendarView.performClick();
                 moveview(event);
                 return true;
             }
         });
 
-        edit_=findViewById(R.id.edit_);
+        edit_ = findViewById(R.id.edit_);
 
         monthChangedListener = new MonthChanged();
         calendarView.setOnDateClickListener(new DateClicked());
@@ -207,21 +236,22 @@ public class MainActivity extends AppCompatActivity {
         lunardate = findViewById(R.id.lunardate);
         or = findViewById(R.id.or);
         weatherView = findViewById(R.id.weather);
-        add_schedule=findViewById(R.id.add_schedule);
+        add_schedule = findViewById(R.id.add_schedule);
         edit_.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.toString().length()>0){
+                if (charSequence.toString().length() > 0) {
                     add_schedule.setImageResource(R.drawable.baseline_check_circle_24_blue);
-                    flag=2;
-                }else{
+                    flag = 2;
+                } else {
                     add_schedule.setImageResource(R.drawable.baseline_check_circle_24_gray);
-                    flag=1;
+                    flag = 1;
                 }
             }
+
             @Override
             public void afterTextChanged(Editable editable) {
             }
@@ -230,9 +260,9 @@ public class MainActivity extends AppCompatActivity {
         edit_.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if(i== EditorInfo.IME_ACTION_DONE){
-                    InputMethodManager inputMethodManager= (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(edit_.getWindowToken(),0);
+                if (i == EditorInfo.IME_ACTION_DONE) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(edit_.getWindowToken(), 0);
                     return true;
                 }
                 return false;
@@ -242,11 +272,11 @@ public class MainActivity extends AppCompatActivity {
         add_schedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(flag==2){
+                if (flag == 2) {
                     Database db = new Database(MainActivity.this);
-                    LocalDateTime begin = LocalDateTime.of(year,month,day,0,0,0,0);
-                    LocalDateTime end=LocalDateTime.of(year,month,day,23,59,0,0);
-                    Schedule schedule = new Schedule(edit_.getText() + "", true, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end),"","");
+                    LocalDateTime begin = LocalDateTime.of(year, month, day, 0, 0, 0, 0);
+                    LocalDateTime end = LocalDateTime.of(year, month, day, 23, 59, 0, 0);
+                    Schedule schedule = new Schedule(edit_.getText() + "", true, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end), "", "");
                     db.insert(Database.LOCAL, schedule, new AfterTask() {
                         @Override
                         public void ifSuccess(Object result) {}
@@ -258,12 +288,12 @@ public class MainActivity extends AppCompatActivity {
 
                     edit_.setText("");
                     add_schedule.setImageResource(R.drawable.add_circle_svgrepo_com);
-                    flag=0;
+                    flag = 0;
                     edit_.clearFocus();
                     drawerLayout.requestFocus();
-                    InputMethodManager inputMethodManager= (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(edit_.getWindowToken(),0);
-                }else if(flag==0) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(edit_.getWindowToken(), 0);
+                } else if (flag == 0) {
                     Intent intent = new Intent(getApplicationContext(), schedule.class);
                     intent.putExtra("mode", 0);
                     intent.putExtra("year", year);
@@ -279,11 +309,11 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 edit_.setText("");
                 add_schedule.setImageResource(R.drawable.add_circle_svgrepo_com);
-                flag=0;
+                flag = 0;
                 edit_.clearFocus();
                 drawerLayout.requestFocus();
-                InputMethodManager inputMethodManager= (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputMethodManager.hideSoftInputFromWindow(edit_.getWindowToken(),0);
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(edit_.getWindowToken(), 0);
                 return false;
             }
         });
@@ -295,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         underview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Log.d("minseok","underviewtouch");
+                Log.d("minseok", "underviewtouch");
                 return false;
             }
         });
@@ -313,6 +343,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        sv.setScrollingEnabled(false);
 
 
         scheduleRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -320,12 +351,12 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (dy > 0) {
-                    Log.d("minseok",mode+"scrollup");
+                    Log.d("minseok", mode + "scrollup");
 
                     // Scrolling Up
                     // Perform your desired action here
                 } else {
-                    Log.d("minseok",mode+"scrolldown");
+                    Log.d("minseok", mode + "scrolldown");
                     // Scrolling Down
                     // Perform your desired action here
                 }
@@ -339,31 +370,27 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         scheduleRV.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                //if(moving)return true;
-                // Stop only scrolling.
-                return true;
-                /*if(mode == 0 || mode == 1){
-                    Log.d("minseok","hello");
-                    return true;
+                Log.d("minseok","recyclerview Intercept");
+                if(mode==2&&e.getAction()==MotionEvent.ACTION_DOWN&&!scheduleRV.canScrollVertically(-1)){
+                    FLAG=true;
+                }else if(FLAG&&mode==2&&e.getAction()==MotionEvent.ACTION_CANCEL&&!scheduleRV.canScrollVertically(-1)){
+                    FLAG2=true;
+                    sv.setScrollingEnabled(false);
                 }
-                else {
-                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) scheduleRV.getLayoutManager();
-                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                    if (firstVisibleItemPosition == 0) {
-                        //if(moving)return true;
-                        Log.d("minseok","33");
-                        return false;
+                else if(!(mode==2&&e.getAction()==MotionEvent.ACTION_MOVE)){
+                    FLAG=false;
+                    FLAG2=false;
+                    if(mode==2)sv.setScrollingEnabled(true);
+                    else {
+                        sv.fullScroll(ScrollView.FOCUS_UP);
+                        sv.setScrollingEnabled(false);
                     }
-                    Log.d("minseok","hello12");
-                    return false;
-                }*/
-                //true면 touch만 호출
-                //false면 뒤에 touch와 scrollListener호출
-                //rv.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING;
+                }
+                moveview(e);
+                return false;
             }
         });
 
@@ -372,37 +399,87 @@ public class MainActivity extends AppCompatActivity {
         scheduleRV.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                Log.d("minseok","recyclerview touch");
                 moveview(event);
-                return true;
-                /*Log.d("minseok","touch111");
-                if(mode!=2){
-                    moveview(event);
-                    return false;
-                }
+                return false;
+            }
+        });
 
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) scheduleRV.getLayoutManager();
-                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                if (firstVisibleItemPosition == 0) {
-                    // The top of the RecyclerView has been reached
-                    // Perform your desired action here
-                    Log.d("minseok","??");
-                    scheduleRV.stopScroll();
-                    moveview(event);
-                    return true;
+        sv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("minseok","sv touch");
+                if(FLAG2){
+                    moveview(motionEvent);
                 }
-                return false;*/
-
+                return false;
             }
         });
 
         RVAdapter = new schedule_main_RVAdapter(scheduleArrayList, this);
-        layoutManager = new LinearLayoutManager(this,RecyclerView.VERTICAL ,false);
+        layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         scheduleRV.setLayoutManager(layoutManager);
+        scheduleRV.setLayoutManager(new LinearLayoutManager(context) {
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+        });
         scheduleRV.setAdapter(RVAdapter);
+        scheduleRV.setNestedScrollingEnabled(false);
+        sv.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                Log.d("minseok", "nested scroll view Scrolled!");
+            }
+        });
 
         LocalDate localDate = LocalDate.parse(LunarCalendar.Solar2Lunar(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
         lunardate.setText("음력 " + localDate.getMonthValue() + "월 " + localDate.getDayOfMonth() + "일");
-        getWeather(weather, 35.887390,128.611629);
+
+        // 1. 위치 퍼미션을 가지고 있는지 체크합니다.
+        int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+
+        if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
+                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
+            // 2. 이미 퍼미션을 가지고 있다면
+            // ( 안드로이드 6.0 이하 버전은 런타임 퍼미션이 필요없기 때문에 이미 허용된 걸로 인식합니다.)
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Location curr_loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Log.d("WeGlonD", "Weather Request | Lat : " + curr_loc.getLatitude() + " Lng : " + curr_loc.getLongitude());
+            getWeather(weather, curr_loc.getLatitude(),curr_loc.getLongitude());
+        }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
+
+            // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])) {
+
+                // 3-2. 요청을 진행하기 전에 사용자가에게 퍼미션이 필요한 이유를 설명해줄 필요가 있습니다.
+                Snackbar.make(mLayout, "이 앱을 실행하려면 위치 접근 권한이 필요합니다.",
+                        Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+
+                        // 3-3. 사용자게에 퍼미션 요청을 합니다. 요청 결과는 onRequestPermissionResult에서 수신됩니다.
+                        ActivityCompat.requestPermissions( MainActivity.this, REQUIRED_PERMISSIONS,
+                                PERMISSIONS_REQUEST_CODE);
+                    }
+                }).show();
+
+
+            } else {
+                // 4-1. 사용자가 퍼미션 거부를 한 적이 없는 경우에는 퍼미션 요청을 바로 합니다.
+                // 요청 결과는 onRequestPermissionResult에서 수신됩니다.
+                ActivityCompat.requestPermissions( this, REQUIRED_PERMISSIONS,
+                        PERMISSIONS_REQUEST_CODE);
+            }
+
+        }
+
+
 
     }
 
@@ -577,16 +654,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void moveview(MotionEvent event) {
-        if (scheduleRV.canScrollVertically(-1)) {
-            Log.d("minseok","notrealtop");
-            return;
-        }
-        if(mode==0 || mode==1){
-            Log.d("minseok","stopmode01");
-            scheduleRV.stopScroll();
-        }
-
         //calendar.getViewPager().invalidate();
+        ;
+        Log.d("minseok","moveview"+event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 Log.d("minseok", "mode" + mode + " " + max_h[mode] + " " + min_h[mode]);
@@ -600,8 +670,10 @@ public class MainActivity extends AppCompatActivity {
                 float delta = y2 - y1;
                 float absdelta = delta>0?delta:-delta;
                 if(absdelta<100){
+                    Log.d("minseok","absdelta<100"+y2+" "+y1);
                     break;
                 }
+
                 calendarView.setClickable(false);
                 calendarView.getViewPager().setUserInputEnabled(false);
                 if (y1 < y2) {
@@ -625,7 +697,6 @@ public class MainActivity extends AppCompatActivity {
                     underview.setLayoutParams(params2);
                     changemode = 1;
                 }
-
                 break;
             case MotionEvent.ACTION_UP:
                 moving = false;
@@ -673,6 +744,15 @@ public class MainActivity extends AppCompatActivity {
                 mode += changemode;
                 if (mode > 2) mode = 2;
                 else if (mode < 0) mode = 0;
+                sv.setMode(mode);
+                if(mode==2){
+                    Log.d("minseok","maketrue");
+                    sv.setScrollingEnabled(true);
+                }
+                else{
+                    Log.d("minseok","makefalse");
+                    sv.setScrollingEnabled(false);
+                }
                 calendarView.setClickable(true);
                 calendarView.getViewPager().setUserInputEnabled(true);
                 break;
@@ -691,7 +771,6 @@ public class MainActivity extends AppCompatActivity {
 
         rc.requestLayout();
         calendarView.requestLayout();
-        if(mode==2) scheduleRV.smoothScrollToPosition(1);
     }
 
     class MonthChanged implements CustomCalendar.OnMonthChangedListener{
@@ -901,86 +980,76 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView.updateScheduleOnPosition(
                 calendarView.getSelectedDateRealIndex(),
-                new ArrayList<>(Arrays.asList(schedules))
+                new ArrayList<>(scheduleArrayList)
         );
 
     }
+
+    /*
+     * ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
+     */
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grandResults) {
+
+        super.onRequestPermissionsResult(permsRequestCode, permissions, grandResults);
+        if (permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
+
+            // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
+
+            boolean check_result = true;
+
+
+            // 모든 퍼미션을 허용했는지 체크합니다.
+
+            for (int result : grandResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    check_result = false;
+                    break;
+                }
+            }
+
+
+            if (check_result) {
+                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                @SuppressLint("MissingPermission") Location curr_loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Log.d("WeGlonD", "Weather Request | Lat : " + curr_loc.getLatitude() + " Lng : " + curr_loc.getLongitude());
+                getWeather(weather, curr_loc.getLatitude(),curr_loc.getLongitude());
+            } else {
+                // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])
+                        || ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
+
+
+                    // 사용자가 거부만 선택한 경우에는 앱을 다시 실행하여 허용을 선택하면 앱을 사용할 수 있습니다.
+                    Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요. ",
+                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
+
+                        @Override
+                        public void onClick(View view) {
+
+                            finish();
+                        }
+                    }).show();
+
+                } else {
+
+
+                    // "다시 묻지 않음"을 사용자가 체크하고 거부를 선택한 경우에는 설정(앱 정보)에서 퍼미션을 허용해야 앱을 사용할 수 있습니다.
+                    Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 설정(앱 정보)에서 퍼미션을 허용해야 합니다. ",
+                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
+
+                        @Override
+                        public void onClick(View view) {
+
+                            finish();
+                        }
+                    }).show();
+                }
+            }
+
+        }
+    }
 }
-
-  /*private void postCallAnotherFunction(MotionEvent event){
-        scheduleRV.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("minseok","postcallbefore");
-                moveview(event);
-                Log.d("minseok","postcall");
-            }
-        });
-    }*/
-
- /*scheduleRV.setLayoutManager( new LinearLayoutManager(this,RecyclerView.VERTICAL ,false){
-            @Override
-            public boolean canScrollVertically() {
-                //Log.d("minseok","scrollvertically");
-                if(mode==1||mode==0)return false;
-                else return true;
-            }
-
-            @Override
-            public boolean canScrollHorizontally() {
-                return false;
-            }
-        });*/
-
-//        calendarView.setOnDateChangedListener((widget, date, selected) ->{
-//            year= date.getYear();
-//            month=date.getMonth();
-//            day=date.getDay();
-//            String str_date = date.toString().substring(12,date.toString().length() - 1);
-//            LocalDate localDate = LocalDate.parse(str_date, DateTimeFormatter.ofPattern("yyyy-M-d"));
-//            Log.d("WeGlonD", str_date);
-//            LocalDate lunarDate = LocalDate.parse(LunarCalendar.Solar2Lunar(localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"))), DateTimeFormatter.ofPattern("yyyyMMdd"));
-//            lunardate.setText("음력 " + lunarDate.getMonthValue() + "월 " + lunarDate.getDayOfMonth() + "일");
-//            ShowWeatherInfo(localDate);
-//            scheduleArrayList.clear();
-
-//            Long dateMills = Time.CalendarDayToMill(date);
-//            scheduleArrayList.clear();
-//            scheduleArrayList.addAll(Arrays.asList(DB.scheduleDao().loadAllScheduleDuring(dateMills, dateMills + Time.ONE_DAY)));
-//            Collections.sort(scheduleArrayList);
-//            RVAdapter.notifyDataSetChanged();
-//        });
-
-
-//                else {
-//                    //공휴일 DB에서 가져오기
-////                    String keyword = "%" + year;
-////                    if (month < 10) keyword = keyword + "0";
-////                    keyword = keyword + month + "%";
-////                    LocalDate lo = LocalDate.parse(firstDate.toString().substring(12, firstDate.toString().length() - 1), DateTimeFormatter.ofPattern("yyyy-M-d"));
-////                    lo = lo.plusMonths(1); lo = lo.minusDays(1);
-////                    CalendarDay endday = CalendarDay.from(lo.getYear(), lo.getMonthValue(),lo.getDayOfMonth());
-//                    Calendar endDay = cal;
-//                    endDay.add(Calendar.MONTH, 1);
-//                    Long begin = firstDate,  end = Time.CalendarToMill(endDay);
-//                    Log.d("Dirtfy", "begin : " + begin + " end : " + end);
-////                    Log.d("Dirtfy", "begin : " + Time.MillToDate(begin) + " end : " + Time.MillToDate(end));
-//                    List<Holiday> Holidays = database.HoliLocalDB.holidayDao().searchHolidayByDate(begin, end);
-//                    Log.d("Dirtfy", "Holidays size : "+Holidays.size()+"");
-//                    for (Holiday holi : Holidays) {
-//                        HolidayDates.add(holi.date);
-//                        HolidayNames.add(holi.name);
-////                        Log.d("Dirtfy", "Holiday DB Read - " + holi.date + " " + Time.MillToDate(holi.date) + " " + holi.name);
-//                        calendarView.invalidateDecorators();
-//                    }
-//                }
-
-//        PageFragment pf = (PageFragment) getSupportFragmentManager().
-//                findFragmentByTag("f"+calendarView.getViewPager().getCurrentItem());
-//        RecyclerView rv = pf.getRecyclerView();
-//        rv.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                return true;
-//            }
-//        });

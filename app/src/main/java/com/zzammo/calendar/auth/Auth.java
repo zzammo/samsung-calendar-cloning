@@ -13,9 +13,10 @@ public class Auth {
     FirebaseAuth mAuth = null;
 
     public Auth() {
-        if(mAuth == null){
-            mAuth = FirebaseAuth.getInstance();
-        }
+//        if(mAuth == null){
+//            mAuth = FirebaseAuth.getInstance();
+//        }
+        mAuth = FirebaseAuth.getInstance();
     }
 
     /**
@@ -54,6 +55,21 @@ public class Auth {
         }
     }
 
+    public void updateProfile(int type, String name, AfterTask afterTask){
+        switch (type){
+            case EMAIL:
+                new Email().updateProfile(mAuth.getCurrentUser(), name, afterTask);
+        }
+    }
+
+    public String getName(int type, AfterTask afterTask){
+        switch (type){
+            case EMAIL:
+                return new Email().getName(mAuth.getCurrentUser(), afterTask);
+        }
+        return null;
+    }
+
     /**
      *
      * @return 로그인 중이면 {@code true} 아니면 {@code false}
@@ -82,5 +98,9 @@ public class Auth {
             case EMAIL:
                 new Email().delete(mAuth.getCurrentUser(), afterTask);
         }
+    }
+
+    public FirebaseAuth getAuth(){
+        return mAuth;
     }
 }

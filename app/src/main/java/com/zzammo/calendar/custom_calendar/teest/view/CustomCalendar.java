@@ -26,6 +26,7 @@ import com.zzammo.calendar.util.Time;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 public class CustomCalendar extends LinearLayout {
 
@@ -327,7 +328,9 @@ public class CustomCalendar extends LinearLayout {
 
         int realIndex = getSelectedDateRealIndex();
 
-        pf.getPageData().getDays().get(realIndex).getSchedules().add(schedule);
+        ArrayList<Schedule> schedules = pf.getPageData().getDays().get(realIndex).getSchedules();
+        schedules.add(schedule);
+        Collections.sort(schedules);
 
         PageRVAdapter rva = (PageRVAdapter) pf.getRecyclerView().getAdapter();
 
