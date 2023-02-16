@@ -346,6 +346,11 @@ public class schedule_main extends AppCompatActivity {
                 }
 
             }
+
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
         });
 
 

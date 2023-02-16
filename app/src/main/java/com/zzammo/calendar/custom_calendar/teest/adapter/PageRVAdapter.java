@@ -1,6 +1,7 @@
 package com.zzammo.calendar.custom_calendar.teest.adapter;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,13 +43,11 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
     CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean setBackGroundFirst;
-    Long firstDate;
 
     public PageRVAdapter(LifecycleOwner lifecycleOwner, Context context, ArrayList<CalendarDate> data,
                          CustomCalendar.OnDateClick listener,
                          int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                         boolean setBackGroundFirst,
-                         Long firstDate) {
+                         boolean setBackGroundFirst) {
         this.lifecycleOwner = lifecycleOwner;
         this.context = context;
         this.data = data;
@@ -59,7 +58,6 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         this.todayColor = todayColor;
         this.basicColor = basicColor;
         this.setBackGroundFirst = setBackGroundFirst;
-        this.firstDate = firstDate;
         DB = new Database(context);
 
         viewHolderHeight = new MutableLiveData<>();
@@ -111,11 +109,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 //        Log.d("Dirtfy", Time.CalendarToYM(tmp));
 //        Log.d("Dirtfy", String.valueOf(day.date.equals(firstDate)));
 //        Log.d("Dirtfy", firstDate+" fd "+day.date);
-        if (setBackGroundFirst && day.date.equals(firstDate)){
-            holder.itemView.setBackgroundResource(R.drawable.today_box);
-            setBackGroundFirst = false;
-            Log.d("Dirtfy", "RVA");
-        }
+
+
+        if (holder.isSet) return;
 
         setColor(holder, day);
 
@@ -130,6 +126,8 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
         setHolidays(holder, day);
         setSchedules(holder, day);
+
+        holder.isSet = true;
     }
 
     void setColor(VH holder, CalendarDate day){
@@ -140,8 +138,14 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         Calendar today = Calendar.getInstance();
         today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE));
         Time.setZero(today);
-        if (dayCal.compareTo(today) == 0)
+        if (dayCal.compareTo(today) == 0) {
             color = todayColor;
+            if (setBackGroundFirst){
+                holder.itemView.setBackgroundResource(R.drawable.today_box);
+                setBackGroundFirst = false;
+                Log.d("Dirtfy", "RVA");
+            }
+        }
         else if (day.getHolidays().size() > 0)
             color = holidayColor;
         else if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
@@ -170,7 +174,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         TextView tv;
         for (int i = 0;i < holidays.size();i++){
             tv = makeTv(holidays.get(i).name);
-            tv.setBackgroundColor(context.getColor(R.color.red));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                tv.setBackgroundColor(context.getColor(R.color.red));
+            }
             lo.addView(tv,
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -206,8 +212,12 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         TextView day_tv;
         LinearLayout schedule_lo;
 
+        boolean isSet;
+
         public VH(@NonNull View itemView) {
             super(itemView);
+
+            isSet = false;
 
             day_tv = itemView.findViewById(R.id.page_date_item_day_textView);
             schedule_lo = itemView.findViewById(R.id.page_date_item_schedule_layout);

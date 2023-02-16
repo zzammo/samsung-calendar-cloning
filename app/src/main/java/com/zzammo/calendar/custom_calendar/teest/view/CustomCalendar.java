@@ -75,25 +75,22 @@ public class CustomCalendar extends LinearLayout {
             }
             Log.d("Dirtfy", nowPage+" : nowPage2");
 
-            selectedDate = date.date;
+            selectedDatePage = (long) nowPage;
 
             if(postPage != nowPage){
-                viewPagerAdapter.setFirstDate(selectedDate);
-                viewPagerAdapter.setFirstDatePage((long) nowPage);
-                viewPagerAdapter.setFirstTime(true);
+                selectedDate = null;
+                selectedView = null;
+                view = null;
 
                 viewPager.setCurrentItem(nowPage);
             }
-
-            selectedDatePage = (long) nowPage;
-            selectedView = getSelectedView();
-
+            else{
+                selectedDate = date.date;
+                selectedView = getSelectedView();
+            }
 //            selectedDatePage = viewPager.getCurrentItem();
 //            selectedDate = date.date;
 //            selectedView = getSelectedView();
-
-            if (postPage != nowPage)
-                view = selectedView;
 
             if (dateClickListener != null)
                     dateClickListener.dateClickListener(view, date);
@@ -327,7 +324,7 @@ public class CustomCalendar extends LinearLayout {
         viewPagerAdapter = new ViewPagerAdapter(activity, data,
                 showSchedule, showHoliday,
                 sundayColor, saturdayColor, holidayColor, todayColor, basicColor,
-                true, true, selectedDate, selectedDatePage);
+                true);
         viewPagerAdapter.setDateClickListener(dateClick);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);

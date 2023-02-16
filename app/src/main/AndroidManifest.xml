@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- 인터넷 권한설정 -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 인터넷 연결 확인 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- gps센서 이용해서 위치측정 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 네트워크 이용해서 위치측정 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="false"
@@ -20,10 +19,18 @@
         android:theme="@style/Theme.Calendar"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".test.ScrollTestActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
         <service
             android:name=".notification_service.MyService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".custom_calendar.teest.activity.ViewPagerActivity"
@@ -89,10 +96,11 @@
         <activity android:name=".activity.AdressApiActivity" />
         <activity android:name=".schedule_event.MakeSchedule" />
         <activity android:name=".activity.schedule_main" />
-        <activity android:name=".activity.schedule"
-            android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".activity.LoginActivity"/>
-        <activity android:name=".activity.SignupActivity"/>
+        <activity
+            android:name=".activity.schedule"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".activity.SignupActivity" />
     </application>
 
 </manifest>

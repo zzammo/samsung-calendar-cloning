@@ -24,8 +24,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     CustomCalendar.OnDateClick dateClick;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean showSchedule, showHoliday;
-    boolean setBackgroundFirst, isFirstTime;
-    Long firstDate, firstDatePage;
+    boolean setBackgroundFirst, isFirst;
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data) {
         super(fragmentActivity);
@@ -37,8 +36,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<PageData> data,
                             boolean showSchedule, boolean showHoliday,
                             int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                            boolean setBackgroundFirst, boolean isFirstTime,
-                            Long firstDate, Long firstDatePage) {
+                            boolean setBackgroundFirst) {
         super(fragmentActivity);
         this.data = data;
         this.showSchedule = showSchedule;
@@ -49,9 +47,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         this.todayColor = todayColor;
         this.basicColor = basicColor;
         this.setBackgroundFirst = setBackgroundFirst;
-        this.isFirstTime = isFirstTime;
-        this.firstDate =firstDate;
-        this.firstDatePage = firstDatePage;
+        isFirst = true;
 
         DB = new Database(fragmentActivity.getApplicationContext());
     }
@@ -86,8 +82,12 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 //            Log.d("Dirtfy", "VPA");
 //        }
 
+        boolean tb = setBackgroundFirst && isFirst && position == data.size()/2;
+        if(tb)
+            isFirst = false;
+
         return new PageFragment(data.get(position), dateClick,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, setBackgroundFirst, firstDate);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, tb);
     }
 
     @Override
@@ -121,18 +121,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public void setShowSchedule(boolean showSchedule) {
         this.showSchedule = showSchedule;
-    }
-
-    public void setFirstDate(Long firstDate) {
-        this.firstDate = firstDate;
-    }
-
-    public void setFirstDatePage(Long firstDatePage) {
-        this.firstDatePage = firstDatePage;
-    }
-
-    public void setFirstTime(boolean firstTime) {
-        isFirstTime = firstTime;
     }
 
     public ArrayList<PageData> getData() {

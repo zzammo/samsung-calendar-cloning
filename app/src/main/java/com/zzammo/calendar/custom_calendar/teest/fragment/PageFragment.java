@@ -30,7 +30,6 @@ public class PageFragment extends Fragment {
     CustomCalendar.OnDateClick listener;
     int sundayColor, saturdayColor, holidayColor, todayColor, basicColor;
     boolean setBackgroundFirst;
-    Long firstDate;
 
     public PageFragment() {
         // Required empty public constructor
@@ -43,8 +42,7 @@ public class PageFragment extends Fragment {
 
     public PageFragment(PageData pageData, CustomCalendar.OnDateClick listener,
                         int sundayColor, int saturdayColor, int holidayColor, int todayColor, int basicColor,
-                        boolean setBackgroundFirst,
-                        Long firstDate) {
+                        boolean setBackgroundFirst) {
         this.pageData = pageData;
         this.listener = listener;
         this.sundayColor = sundayColor;
@@ -53,7 +51,6 @@ public class PageFragment extends Fragment {
         this.todayColor = todayColor;
         this.basicColor = basicColor;
         this.setBackgroundFirst = setBackgroundFirst;
-        this.firstDate = firstDate;
     }
 
     @Override
@@ -71,7 +68,7 @@ public class PageFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.fragment_page_recyclerView);
         adapter = new PageRVAdapter(getActivity(), getContext(), pageData.getDays(), listener,
-                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, setBackgroundFirst, firstDate);
+                sundayColor, saturdayColor, holidayColor, todayColor, basicColor, setBackgroundFirst);
         layoutManager = new GridLayoutManager(getContext(), 7);
 
         recyclerView.setAdapter(adapter);
