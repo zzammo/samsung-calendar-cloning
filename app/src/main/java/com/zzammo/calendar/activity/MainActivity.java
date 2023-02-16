@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Long> HolidayDates;
     public static ArrayList<String> HolidayNames;
 
+    int ScrollY, OldScrollY, prescrollY, preOldscrollY;;
     ImageView add_schedule;
     Context context;
     HashMap<LocalDate, HashMap<String, Integer>> weather;
@@ -369,18 +370,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         scheduleRV.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
                 Log.d("minseok","recyclerview Intercept");
-                if(mode==2&&e.getAction()==MotionEvent.ACTION_DOWN&&!scheduleRV.canScrollVertically(-1)){
+                if(mode==2&&e.getAction()==MotionEvent.ACTION_DOWN&&ScrollY==0){
+                    prescrollY = ScrollY; preOldscrollY = OldScrollY;
+                    Log.d("minseok","Top mode 2");
                     FLAG=true;
-                }else if(FLAG&&mode==2&&e.getAction()==MotionEvent.ACTION_CANCEL&&!scheduleRV.canScrollVertically(-1)){
+                }else if(FLAG&&mode==2&&e.getAction()==MotionEvent.ACTION_CANCEL&&ScrollY == prescrollY&& OldScrollY == preOldscrollY){
+                    Log.d("minseok","Top mode 2 cancel");
                     FLAG2=true;
                     sv.setScrollingEnabled(false);
                 }
                 else if(!(mode==2&&e.getAction()==MotionEvent.ACTION_MOVE)){
+                    Log.d("minseok","else");
                     FLAG=false;
                     FLAG2=false;
                     if(mode==2)sv.setScrollingEnabled(true);
@@ -430,7 +434,9 @@ public class MainActivity extends AppCompatActivity {
         sv.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                Log.d("minseok", "nested scroll view Scrolled!");
+                OldScrollY = oldScrollY;
+                ScrollY = scrollY;
+                Log.d("minseok", "nested scroll view Scrolled!"+oldScrollY+" "+scrollY);
             }
         });
 
@@ -745,6 +751,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mode > 2) mode = 2;
                 else if (mode < 0) mode = 0;
                 sv.setMode(mode);
+                sv.scrollTo(0,0);
                 if(mode==2){
                     Log.d("minseok","maketrue");
                     sv.setScrollingEnabled(true);
