@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationView;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
+import com.zzammo.calendar.auth.Auth;
 import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
@@ -118,16 +119,19 @@ public class MainActivity extends AppCompatActivity {
     CustomCalendar.OnMonthChangedListener monthChangedListener;
     MotionEvent mevent;
 
+    Auth auth;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         context = this;
         weather = new HashMap<>();
         HolidayNames = new ArrayList<>();
         HolidayDates = new ArrayList<>();
+        auth = new Auth();
 
         year = Calendar.getInstance().get(Calendar.YEAR);
         month = Calendar.getInstance().get(Calendar.MONTH)+1;
@@ -139,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
 
         params1 = calendarView.getLayoutParams();
         params2 = underview.getLayoutParams();
-
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);

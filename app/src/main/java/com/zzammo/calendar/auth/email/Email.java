@@ -1,9 +1,15 @@
 package com.zzammo.calendar.auth.email;
 
+import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.zzammo.calendar.util.AfterTask;
 
 public class Email {
@@ -63,4 +69,26 @@ public class Email {
                 });
     }
 
+    public void updateProfile(FirebaseUser user, String name, AfterTask afterTask){
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .build();
+
+        user.updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            afterTask.ifSuccess(task);
+                        }
+                        else{
+                            afterTask.ifFail(task);
+                        }
+                    }
+                });
+    }
+
+    public String getName(FirebaseUser user, AfterTask afterTask){
+        return user.getDisplayName();
+    }
 }
