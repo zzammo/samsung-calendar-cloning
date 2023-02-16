@@ -901,7 +901,7 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView.updateScheduleOnPosition(
                 calendarView.getSelectedDateRealIndex(),
-                new ArrayList<>(Arrays.asList(schedules))
+                new ArrayList<>(scheduleArrayList)
         );
 
     }
