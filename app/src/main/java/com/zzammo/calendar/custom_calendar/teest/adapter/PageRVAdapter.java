@@ -119,12 +119,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         int sCnt = setSchedules(holder, day, 2-hCnt);
 
         if (day.getHolidays().size() + day.getSchedules().size() > 2){
-            TextView tv = new TextView(context);
-            tv.setText("...");
-            holder.schedule_lo.addView(
-                    makeTv("..."),
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
+            holder.schedule_lo.addView(makeTv("..."));
         }
 
     }
@@ -166,7 +161,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
             tv.setBackgroundColor(context.getColor(R.color.teal_200));
         }
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, 0, 0,100);
+        params.setMargins(0, 0, 0,5);
         tv.setLayoutParams(params);
         return tv;
     }
