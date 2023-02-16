@@ -2,9 +2,11 @@
 
 ## Cloning Samsung Calendar and add features
 
-- We think Samsung Calendar is very inportant in Iot and Samsung eco-system.</br>
-so we decided to clone Samsung Calendar.</br>
-and when we did that, we got ideas to improve this app.<br>
+- Samsung Electronics is trying to build an Internet of Things (IoT) infrastructure, and we also thought these were important. </br>
+And We decided that the Samsung Calendar application was the center and started the cloning project.</br>
+And We were able to create an upgraded Samsung calendar by adding ideas that We thought were necessary from the user's point of view.
+
+## Demonstration
 
 ### First Screen
 [video1.webm](https://user-images.githubusercontent.com/75816070/219357315-566441d8-ec63-4399-a7b5-fdb713d7e857.webm)
@@ -44,3 +46,15 @@ If rain or snow is forecast at the time the alarm is displayed, it is recommende
 
 - We built a database using local DB and firebase. <br> In addition, the user can edit and delete the stored schedule directly through the recycler view.
 
+### Navigation View & Log-in & Sign-up
+[video6.webm](https://user-images.githubusercontent.com/75816070/219398384-59f4c5bb-8b84-4beb-a738-8f17e1e045e1.webm)
+
+- The menu was made accessible using Navigation View. In the menu, you can decide which DB to use and how to set the alarm.</br>
+And if you press the login button, you can go to the login screen and the membership screen connected to the Firebase.
+
+## Closing
+
+We were able to acquire a lot of app development knowledge while working on the cloning project.</br>
+However, there were some parts that we could not accurately implement, such as weekly daily calendars and soft animations. </br>
+Still, we want to focus on the fact that we were able to upgrade our existing high-quality applications. </br>
+Thank you for finding it :)
