@@ -115,17 +115,17 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
         holder.schedule_lo.removeAllViews();
 
-        if(day.getHolidays().size() + day.getSchedules().size() > 3) {
+        int hCnt = setHolidays(holder, day, 2);
+        int sCnt = setSchedules(holder, day, 2-hCnt);
+
+        if (day.getHolidays().size() + day.getSchedules().size() > 2){
             TextView tv = new TextView(context);
             tv.setText("...");
-            holder.schedule_lo.addView(tv,
+            holder.schedule_lo.addView(
+                    makeTv("..."),
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
-            return;
         }
-
-        setHolidays(holder, day);
-        setSchedules(holder, day);
 
     }
 
@@ -162,16 +162,22 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         tv.setMaxLines(1);
         tv.setTextSize(Dimension.SP, 10);
         tv.setEllipsize(TextUtils.TruncateAt.END);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            tv.setBackgroundColor(context.getColor(R.color.teal_200));
+        }
         return tv;
     }
-    void setHolidays(VH holder, CalendarDate day){
+    int setHolidays(VH holder, CalendarDate day, int maxCnt){
         ArrayList<Holiday> holidays = day.getHolidays();
 
-        if (holidays == null) return;
+        if (holidays == null) return 0;
 
         LinearLayout lo = holder.schedule_lo;
         TextView tv;
-        for (int i = 0;i < holidays.size();i++){
+        int i;
+        for (i = 0;i < holidays.size();i++){
+            if (i == maxCnt) break;
+
             tv = makeTv(holidays.get(i).name);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 tv.setBackgroundColor(context.getColor(R.color.red));
@@ -180,21 +186,28 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
         }
+
+        return i;
     }
-    void setSchedules(VH holder, CalendarDate day){
+    int setSchedules(VH holder, CalendarDate day, int maxCnt){
         ArrayList<Schedule> schedules = day.getSchedules();
 
-        if (schedules == null) return;
+        if (schedules == null) return 0;
 
         LinearLayout lo = holder.schedule_lo;
         TextView tv;
-        for (int i = 0;i < schedules.size();i++){
+        int i;
+        for (i = 0;i < schedules.size();i++){
+            if (i == maxCnt) break;
+
             tv = makeTv(schedules.get(i).title);
 //            tv.setBackgroundColor(context.getColor(R.color.));
             lo.addView(tv,
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
         }
+
+        return i;
     }
 
     @Override

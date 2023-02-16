@@ -49,6 +49,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.zzammo.calendar.R;
 import com.zzammo.calendar.adapter.schedule_main_RVAdapter;
+import com.zzammo.calendar.auth.Auth;
 import com.zzammo.calendar.custom_calendar.teest.adapter.PageRVAdapter;
 import com.zzammo.calendar.custom_calendar.teest.data.CalendarDate;
 import com.zzammo.calendar.custom_calendar.teest.view.CustomCalendar;
@@ -132,16 +133,19 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
+    Auth auth;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         context = this;
         weather = new HashMap<>();
         HolidayNames = new ArrayList<>();
         HolidayDates = new ArrayList<>();
+        auth = new Auth();
 
         year = Calendar.getInstance().get(Calendar.YEAR);
         month = Calendar.getInstance().get(Calendar.MONTH) + 1;
@@ -154,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
 
         params1 = calendarView.getLayoutParams();
         params2 = underview.getLayoutParams();
-
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -274,12 +277,9 @@ public class MainActivity extends AppCompatActivity {
                     Schedule schedule = new Schedule(edit_.getText() + "", true, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end), "", "");
                     db.insert(Database.LOCAL, schedule, new AfterTask() {
                         @Override
-                        public void ifSuccess(Object result) {
-                        }
-
+                        public void ifSuccess(Object result) {}
                         @Override
-                        public void ifFail(Object result) {
-                        }
+                        public void ifFail(Object result) {}
                     });
 
                     calendarView.addScheduleOnSelectedDate(schedule);
@@ -943,7 +943,7 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView.updateScheduleOnPosition(
                 calendarView.getSelectedDateRealIndex(),
-                new ArrayList<>(Arrays.asList(schedules))
+                new ArrayList<>(scheduleArrayList)
         );
 
     }

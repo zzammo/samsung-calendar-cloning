@@ -28,6 +28,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_RVAdapter.VH>{
     ArrayList<Schedule> scheduleArrayList;
@@ -149,6 +150,7 @@ public class schedule_main_RVAdapter extends RecyclerView.Adapter<schedule_main_
 
                                     ArrayList<Schedule> schedules = new ArrayList<>();
                                     db.loadAllScheduleDuring(fst, fst+Time.ONE_DAY-1, schedules);
+                                    Collections.sort(schedules);
                                     calendarView.updateScheduleOnSelectedDate(schedules);
 
                                     return true;
