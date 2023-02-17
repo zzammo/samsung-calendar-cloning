@@ -32,7 +32,8 @@
 
         <activity
             android:name=".activity.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,12 +44,16 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity android:name=".activity.AdressApiActivity" />
+        <activity android:name=".activity.AdressApiActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.schedule"
-            android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".activity.LoginActivity" />
-        <activity android:name=".activity.SignupActivity" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.SignupActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

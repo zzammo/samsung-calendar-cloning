@@ -278,11 +278,23 @@ public class MainActivity extends AppCompatActivity {
                     LocalDateTime begin = LocalDateTime.of(year, month, day, 0, 0, 0, 0);
                     LocalDateTime end = LocalDateTime.of(year, month, day, 23, 59, 0, 0);
                     Schedule schedule = new Schedule(edit_.getText() + "", true, false, Time.LocalDateTimeToMills(begin), Time.LocalDateTimeToMills(end), "", "");
-                    db.insert(Database.LOCAL, schedule, new AfterTask() {
+                    db.insert(schedule, new AfterTask() {
                         @Override
-                        public void ifSuccess(Object result) {}
+                        public void ifSuccess(Object result) {
+                            scheduleArrayList.clear();
+                            db.loadAllScheduleDuring(Time.LocalDateTimeToMills(begin),Time.LocalDateTimeToMills(end),scheduleArrayList);
+                            Log.d("WeGlonD", "add_schedule updated : size " + scheduleArrayList.size());
+                            Collections.sort(scheduleArrayList);
+                            RVAdapter.notifyDataSetChanged();
+                        }
                         @Override
-                        public void ifFail(Object result) {}
+                        public void ifFail(Object result) {
+                            scheduleArrayList.clear();
+                            db.loadAllScheduleDuring(Time.LocalDateTimeToMills(begin),Time.LocalDateTimeToMills(end),scheduleArrayList);
+                            Log.d("WeGlonD", "add_schedule updated : size " + scheduleArrayList.size());
+                            Collections.sort(scheduleArrayList);
+                            RVAdapter.notifyDataSetChanged();
+                        }
                     });
 
                     calendarView.addScheduleOnSelectedDate(schedule);
