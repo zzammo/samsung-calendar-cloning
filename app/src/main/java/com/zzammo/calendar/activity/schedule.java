@@ -488,16 +488,55 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 start_hour=i;
                 start_minute=i1;
                 start_time_textview.setText(getTimeText(start_hour,start_minute));
+                if(start_year==end_year&&start_month==end_month&&start_day==end_day){
+                    if(start_hour>end_hour){
+                        end_hour=start_hour;
+                        end_minute=start_minute;
+                        end_time_textview.setText(getTimeText(end_hour,end_minute));
+                        return;
+                    }else if(start_hour==end_hour&&start_minute>end_minute) {
+                        end_hour=start_hour;
+                        end_minute=start_minute;
+                        end_time_textview.setText(getTimeText(end_hour,end_minute));
+                        return;
+                    }
+                }
             }
         });
         date_start_datepicker.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker datePicker, int i, int i1, int i2) {
-                start_year=i;
-                start_month=i1+1;
-                start_day=i2;
-                start_week=LocalDate.of(i,i1+1,i2).getDayOfWeek().getValue();
+                    start_year=i;
+                    start_month=i1+1;
+                    start_day=i2;
+                    start_week=LocalDate.of(i,i1+1,i2).getDayOfWeek().getValue();
                 start_date_textview.setText(getDateText(start_month,start_day,start_week));
+                if(start_year>end_year){
+                    end_year=start_year;
+                    end_month=start_month;
+                    end_day=start_day;
+                    end_week=LocalDate.of(end_year,end_month,end_day).getDayOfWeek().getValue();
+                    end_date_textview.setText(getDateText(end_month,end_day,end_week));
+                    return;
+                }else if(start_year==end_year){
+                    if(start_month>end_month){
+                        end_year=start_year;
+                        end_month=start_month;
+                        end_day=start_day;
+                        end_week=LocalDate.of(end_year,end_month,end_day).getDayOfWeek().getValue();
+                        end_date_textview.setText(getDateText(end_month,end_day,end_week));
+                        return;
+                    }else if(start_month==end_month){
+                        if(start_day>end_day){
+                            end_year=start_year;
+                            end_month=start_month;
+                            end_day=start_day;
+                            end_week=LocalDate.of(end_year,end_month,end_day).getDayOfWeek().getValue();
+                            end_date_textview.setText(getDateText(end_month,end_day,end_week));
+                            return;
+                        }
+                    }
+                }
             }
         });
         time_end_timepicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
@@ -506,6 +545,19 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 end_hour=i;
                 end_minute=i1;
                 end_time_textview.setText(getTimeText(end_hour,end_minute));
+                if(start_year==end_year&&start_month==end_month&&start_day==end_day){
+                    if(start_hour>end_hour){
+                        start_hour=end_hour;
+                        start_minute=end_minute;
+                        start_time_textview.setText(getTimeText(start_hour,start_minute));
+                        return;
+                    }else if(start_hour==end_hour&&start_minute>end_minute) {
+                        start_hour=end_hour;
+                        start_minute=end_minute;
+                        start_time_textview.setText(getTimeText(start_hour,start_minute));
+                        return;
+                    }
+                }
             }
         });
         date_end_datepicker.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
@@ -516,6 +568,32 @@ public class schedule extends AppCompatActivity implements OnMapReadyCallback,
                 end_day=i2;
                 end_week=LocalDate.of(i,i1+1,i2).getDayOfWeek().getValue();
                 end_date_textview.setText(getDateText(end_month,end_day,end_week));
+                if(start_year>end_year){
+                    start_year=end_year;
+                    start_month=end_month;
+                    start_day=end_day;
+                    start_week=LocalDate.of(start_year,start_month,start_day).getDayOfWeek().getValue();
+                    start_date_textview.setText(getDateText(start_month,start_day,start_week));
+                    return;
+                }else if(start_year==end_year){
+                    if(start_month>end_month){
+                        start_year=end_year;
+                        start_month=end_month;
+                        start_day=end_day;
+                        start_week=LocalDate.of(start_year,start_month,start_day).getDayOfWeek().getValue();
+                        start_date_textview.setText(getDateText(start_month,start_day,start_week));
+                        return;
+                    }else if(start_month==end_month){
+                        if(start_day>end_day){
+                            start_year=end_year;
+                            start_month=end_month;
+                            start_day=end_day;
+                            start_week=LocalDate.of(start_year,start_month,start_day).getDayOfWeek().getValue();
+                            start_date_textview.setText(getDateText(start_month,start_day,start_week));
+                            return;
+                        }
+                    }
+                }
             }
         });
 

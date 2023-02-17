@@ -119,12 +119,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         int sCnt = setSchedules(holder, day, 2-hCnt);
 
         if (day.getHolidays().size() + day.getSchedules().size() > 2){
-            TextView tv = new TextView(context);
-            tv.setText("...");
-            holder.schedule_lo.addView(
-                    makeTv("..."),
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
+            holder.schedule_lo.addView(makeTv("..."));
         }
 
     }
@@ -165,6 +160,9 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             tv.setBackgroundColor(context.getColor(R.color.teal_200));
         }
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, 0,5);
+        tv.setLayoutParams(params);
         return tv;
     }
     int setHolidays(VH holder, CalendarDate day, int maxCnt){
@@ -182,9 +180,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 tv.setBackgroundColor(context.getColor(R.color.red));
             }
-            lo.addView(tv,
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
+            lo.addView(tv);
         }
 
         return i;
@@ -202,9 +198,7 @@ public class PageRVAdapter extends RecyclerView.Adapter<PageRVAdapter.VH> {
 
             tv = makeTv(schedules.get(i).title);
 //            tv.setBackgroundColor(context.getColor(R.color.));
-            lo.addView(tv,
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
+            lo.addView(tv);
         }
 
         return i;
