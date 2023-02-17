@@ -46,7 +46,7 @@ This was implemented through Foreground Service and Thread. <br>
 If rain or snow is forecast at the time the alarm is displayed, it is recommended to take an umbrella at the same time as the schedule is notified.
 
 ### Database
-[video5.webm](https://user-images.githubusercontent.com/75816070/219370701-a9f176dd-3a9c-4e64-901d-f5d4619c7655.webm)
+[video5.webm](https://user-images.githubusercontent.com/75816070/219511624-83fd2fb2-8edd-4b65-af51-7414be97d508.webm)
 
 </br>
 We built a database using local DB and firebase. <br> In addition, the user can edit and delete the stored schedule directly through the recycler view.
